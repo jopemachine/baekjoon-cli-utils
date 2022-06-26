@@ -1,0 +1,52 @@
+{
+	"version": "0.0.0",
+	"description": "Backjoon cli utils",
+	"main": "dist/index.js",
+	"bin": {
+		"backjoon-cli": "dist/cli.js"
+	},
+	"scripts": {
+		"test": "",
+		"build": "tsc",
+		"lint": "xo --fix ./src"
+	},
+	"files": [
+		"dist"
+	],
+	"type": "module",
+	"dependencies": {
+		"chalk": "^5.0.0",
+		"cheerio": "^1.0.0-rc.10",
+		"clean-stack": "^4.2.0",
+		"clipboardy": "^3.0.0",
+		"conf": "^10.1.1",
+		"del": "^6.1.1",
+		"env-paths": "^3.0.0",
+		"execa": "^6.1.0",
+		"globby": "^13.1.1",
+		"got": "^12.0.1",
+		"inquirer": "^8.2.0",
+		"inquirer-autocomplete-prompt": "^2.0.0",
+		"log-symbols": "^5.1.0",
+		"open": "^8.4.0",
+		"outdent": "^0.8.0",
+		"path-exists": "^5.0.0",
+		"tempy": "^3.0.0",
+		"unused-filename": "^4.0.0"
+	},
+	"devDependencies": {
+		"typescript": "^4.7.4",
+		"xo": "^0.48.0"
+	},
+	"xo": {
+		"rules": {
+			"@typescript-eslint/no-unsafe-assignment": "off",
+			"@typescript-eslint/naming-convention": "off",
+			"@typescript-eslint/no-unsafe-call": "off",
+			"@typescript-eslint/restrict-template-expressions": "off",
+			"@typescript-eslint/no-implicit-any-catch": "off",
+			"unicorn/no-process-exit": "off",
+			"unicorn/no-abusive-eslint-disable": "off"
+		}
+	}
+}
