@@ -1,1 +1,1 @@
-export {BackjoonProvider} from './baekjoon-provider.js';
+export {BaekjoonProvider} from './baekjoon-provider.js';

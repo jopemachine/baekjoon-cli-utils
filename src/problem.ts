@@ -17,10 +17,10 @@ class Problem {
 		const problemTestDirectory = await makeNewTestDir(problemId);
 		const problemAnswerDirectory = await makeNewAnswerDir(problemId);
 
-		const {idx: testFileIdx} = parsePath(problemTestDirectory);
-		const {idx: answerFileIdx} = parsePath(problemAnswerDirectory);
+		const {idx: testDirIdx} = parsePath(problemTestDirectory);
+		const {idx: answerDirIdx} = parsePath(problemAnswerDirectory);
 
-		if (testFileIdx !== answerFileIdx) {
+		if (testDirIdx !== answerDirIdx) {
 			throw new FileIndexNotMatchError();
 		}
 
@@ -31,7 +31,7 @@ class Problem {
 
 		return new Problem({
 			problemId,
-			problemIdx: testFileIdx,
+			problemIdx: testDirIdx,
 		});
 	}
 
@@ -47,13 +47,17 @@ class Problem {
 		this.tests = [];
 	}
 
+	setProblemIndex(index: number) {
+		this.problemIdx = index;
+	}
+
 	async clearTest(testIdx: number) {
 		await this.tests[testIdx - 1].clear();
 	}
 
 	async clearTests() {
 		const problemTestDirectory = path.resolve(getTestFilesPath(), this.getProblemUId());
-		const problemAnswerDirectory = path.resolve(getTestFilesPath(), this.getProblemUId());
+		const problemAnswerDirectory = path.resolve(getAnswerFilesPath(), this.getProblemUId());
 
 		await del(problemTestDirectory, {force: true});
 		await del(problemAnswerDirectory, {force: true});
@@ -85,7 +89,7 @@ class Problem {
 
 	getProblemUId() {
 		if (this.problemIdx) {
-			return [this.problemId, '_', this.problemIdx].join(',');
+			return [this.problemId, '_', this.problemIdx].join('');
 		}
 
 		return this.problemId;

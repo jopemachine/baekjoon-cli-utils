@@ -1,11 +1,9 @@
 import path from 'node:path';
 import process from 'node:process';
-import {pathExists} from 'path-exist';
 import Conf from 'conf';
 import _envPaths from 'env-paths';
-import {execa} from 'execa';
 import logSymbols from 'log-symbols';
-import {readFile, writeFile} from './utils.js';
+import {readFile, writeFile, pathExists, Logger, mkdir, openEditor} from './utils.js';
 import {supportedLanguages} from './lang.js';
 import {NotSupportedLanguageError, NotSupportedProviderError} from './errors.js';
 import {supportedAPIProviders} from './api-provider.js';
@@ -15,12 +13,6 @@ const envPaths = _envPaths(projectName);
 
 const schema: any = {
 	lang: {
-		type: 'string',
-	},
-	commentTemplate: {
-		type: 'string',
-	},
-	sourceCodeTemplate: {
 		type: 'string',
 	},
 	provider: {
@@ -50,18 +42,31 @@ const getTestFilesPath = () => path.resolve(envPaths.data, 'tests');
 
 const getAnswerFilesPath = () => path.resolve(envPaths.data, 'answers');
 
-const checkHealth = () => {
-	const langValue = config.get('lang');
-	if (!langValue) {
+const initConfigFilePaths = async () => {
+	await mkdir(getGitConfigFilePath(), {recursive: true});
+	await mkdir(getTestFilesPath(), {recursive: true});
+	await mkdir(getAnswerFilesPath(), {recursive: true});
+	await mkdir(path.resolve(envPaths.data, 'templates'), {recursive: true});
+	await mkdir(path.resolve(envPaths.data, 'comment-templates'), {recursive: true});
+};
+
+const checkHealth = async () => {
+	const lang = config.get('lang');
+	if (!lang) {
 		throw new Error(`${logSymbols.error} Please set programming language to use.`);
 	}
 
-	const sourceCodeTemplate = config.get('sourceCodeTemplate');
+	const provider = config.get('provider');
+	if (!provider) {
+		throw new Error(`${logSymbols.error} Please set proper api provider to use.`);
+	}
+
+	const sourceCodeTemplate = await pathExists(getSourceCodeTemplateFilePath(lang));
 	if (!sourceCodeTemplate) {
 		throw new Error(`${logSymbols.error} Please set source code template to use.`);
 	}
 
-	const commentTemplate = config.get('commentTemplate');
+	const commentTemplate = await pathExists(getCommentTemplateFilePath(lang));
 	if (!commentTemplate) {
 		throw new Error(`${logSymbols.error} Please set comment template to use.`);
 	}
@@ -74,6 +79,7 @@ const setAPIProvider = (provider: string) => {
 	}
 
 	config.set('provider', provider);
+	Logger.successLog(`provider is now '${provider}'`);
 };
 
 // TODO: refactor below code using TUI selection control.
@@ -84,12 +90,15 @@ const setProgrammingLanguage = (lang: string) => {
 	}
 
 	config.set('lang', lang);
+	Logger.successLog(`lang is now '${lang}'`);
 
 	const sourceCodeTemplate = getSourceCodeTemplateFilePath(config.get('lang'));
 	config.set('sourceCodeTemplate', sourceCodeTemplate);
+	Logger.successLog(`sourceCodeTemplate is now '${sourceCodeTemplate}'`);
 
 	const commentTemplate = getCommentTemplateFilePath(config.get('lang'));
 	config.set('commentTemplate', commentTemplate);
+	Logger.successLog(`commentTemplate is now '${commentTemplate}'`);
 };
 
 const setSourceCodeTemplate = async () => {
@@ -99,9 +108,10 @@ const setSourceCodeTemplate = async () => {
 		await writeFile(sourceCodeTemplateFilePath, '');
 	}
 
-	await execa(defaultEditor, [sourceCodeTemplateFilePath]);
+	await openEditor(sourceCodeTemplateFilePath);
 	const sourceCodeTemplate = await readFile(sourceCodeTemplateFilePath);
-	config.set(sourceCodeTemplate);
+	config.set('sourceCodeTemplate', sourceCodeTemplate);
+	Logger.successLog(`sourceCodeTemplate is set successfully under '${sourceCodeTemplateFilePath}'`);
 };
 
 const setCommentTemplate = async () => {
@@ -111,9 +121,10 @@ const setCommentTemplate = async () => {
 		await writeFile(commentTemplateFilePath, '');
 	}
 
-	await execa(defaultEditor, [commentTemplateFilePath]);
+	await openEditor(commentTemplateFilePath);
 	const commentTemplate = await readFile(commentTemplateFilePath);
-	config.set(commentTemplate);
+	config.set('commentTemplate', commentTemplate);
+	Logger.successLog(`commentTemplate is set successfully under '${commentTemplateFilePath}'`);
 };
 
 export {
@@ -132,4 +143,5 @@ export {
 	setSourceCodeTemplate,
 	setAPIProvider,
 	setCommentTemplate,
+	initConfigFilePaths,
 };

@@ -1,15 +1,15 @@
 import {APIProvider, supportedAPIProviders} from './api-provider.js';
 import {NotSupportedProviderError} from './errors.js';
-import {BackjoonProvider} from './api';
+import {BaekjoonProvider} from './api/index.js';
 
 const generateAPIProvider = (provider: string): APIProvider => {
-	if (supportedAPIProviders.includes(provider)) {
+	if (!supportedAPIProviders.includes(provider)) {
 		throw new NotSupportedProviderError(provider);
 	}
 
 	switch (provider) {
 		case 'baekjoon':
-			return new BackjoonProvider();
+			return new BaekjoonProvider();
 		default:
 			throw new Error('provider set wrong');
 	}

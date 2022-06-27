@@ -4,12 +4,13 @@ import logSymbols from 'log-symbols';
 import {ExecaChildProcess} from 'execa';
 import {Problem} from './problem.js';
 import {Logger} from './utils.js';
+import {supportedLanguages} from './lang.js';
 
 abstract class TestRunner {
-	isCompiledLanguage: boolean;
+	languageId: string;
 
-	constructor({isCompiledLanguage}: {isCompiledLanguage: boolean}) {
-		this.isCompiledLanguage = isCompiledLanguage;
+	constructor() {
+		this.languageId = '';
 	}
 
 	async run({sourceFilePath, problem, testIdx}: {sourceFilePath: string; problem: Problem; testIdx?: number}) {
@@ -21,7 +22,7 @@ abstract class TestRunner {
 		}
 
 		let targetFilePath = sourceFilePath;
-		if (this.isCompiledLanguage) {
+		if ((supportedLanguages as any)[this.languageId].isCompiledLanguage) {
 			try {
 				targetFilePath = await this.compile({sourceFilePath});
 			} catch (error: any) {

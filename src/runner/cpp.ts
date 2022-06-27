@@ -6,7 +6,8 @@ import {TestRunner} from '../test-runner.js';
 
 class CppTestRunner extends TestRunner {
 	constructor() {
-		super({isCompiledLanguage: true});
+		super();
+		this.languageId = 'cpp';
 	}
 
 	override async compile({sourceFilePath}: {sourceFilePath: string}) {

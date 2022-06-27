@@ -1,10 +1,10 @@
 import {NotSupportedLanguageError} from './errors.js';
-import {supportedLanguages} from './lang.js';
+import {isSupportedLanguage} from './lang.js';
 import {TestRunner} from './test-runner.js';
-import {CppTestRunner} from './runner';
+import {CppTestRunner} from './runner/index.js';
 
 const generateTestRunner = (lang: string): TestRunner => {
-	if (Object.keys(supportedLanguages).includes(lang)) {
+	if (!isSupportedLanguage(lang)) {
 		throw new NotSupportedLanguageError(lang);
 	}
 

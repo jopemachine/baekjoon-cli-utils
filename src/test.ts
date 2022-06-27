@@ -1,19 +1,18 @@
 import path from 'node:path';
-import {execa} from 'execa';
 import del from 'del';
-import {defaultEditor, getAnswerFilesPath, getTestFilesPath} from './conf.js';
-import {parsePath, pathExists, readFile, writeFile} from './utils.js';
+import {getAnswerFilesPath, getTestFilesPath} from './conf.js';
+import {mkdirSync, openEditor, parsePath, pathExists, pathExistsSync, readFile, writeFile} from './utils.js';
 import {FileIndexNotMatchError} from './errors.js';
 
 const testFilePrefix = 'test';
 const answerFilePrefix = 'answer';
 
-const createAvailableTestFilePath = async (basePath: string, basename: string) => {
+const createAvailableTestFilePath = async (basePath: string, baseName: string) => {
 	let tries = 1;
 
 	/* eslint-disable no-await-in-loop, no-constant-condition */
 	while (true) {
-		const pth = path.resolve(basePath, `${basename}_${tries.toString()}`);
+		const pth = path.resolve(basePath, `${baseName}_${tries.toString()}`);
 		if (!(await pathExists(pth))) {
 			return pth;
 		}
@@ -31,12 +30,12 @@ class Test {
 	static async createManually(problemUId: string) {
 		const testFilePath = await makeNewTestFile(problemUId);
 		await writeFile(testFilePath, '');
-		await execa(defaultEditor, [testFilePath]);
+		await openEditor(testFilePath);
 		const {idx: testFileIdx} = parsePath(testFilePath);
 
 		const answerFilePath = await makeNewAnswerFile(problemUId);
 		await writeFile(answerFilePath, '');
-		await execa(defaultEditor, [answerFilePath]);
+		await openEditor(answerFilePath);
 		const {idx: answerFileIdx} = parsePath(testFilePath);
 
 		if (testFileIdx !== answerFileIdx) {
@@ -63,6 +62,24 @@ class Test {
 		this.expectedStdout = expectedStdout;
 	}
 
+	async write() {
+		if (!this.stdin || !this.expectedStdout) {
+			throw new Error('Stdin or expected Stdout are not specified on the test.');
+		}
+
+		const testFilePath = this.getTestFilePath();
+		const answerFilePath = this.getAnswerFilePath();
+
+		if (await pathExists(testFilePath) || await pathExists(answerFilePath)) {
+			throw new Error(`Matched test already exist on the path. The test index: ${this.testIdx}`);
+		}
+
+		this.makeTestFolders();
+
+		await writeFile(testFilePath, this.stdin);
+		await writeFile(answerFilePath, this.expectedStdout);
+	}
+
 	async clear() {
 		const testFilePath = this.getTestFilePath();
 		const answerFilePath = this.getAnswerFilePath();
@@ -87,7 +104,20 @@ class Test {
 	}
 
 	getAnswerFilePath() {
-		return path.resolve(getTestFilesPath(), this.problemUId, `${answerFilePrefix}_${this.testIdx}`);
+		return path.resolve(getAnswerFilesPath(), this.problemUId, `${answerFilePrefix}_${this.testIdx}`);
+	}
+
+	private makeTestFolders() {
+		const testFolderPath = path.resolve(getTestFilesPath(), this.problemUId);
+		const answerFolderPath = path.resolve(getAnswerFilesPath(), this.problemUId);
+
+		if (!pathExistsSync(testFolderPath)) {
+			mkdirSync(testFolderPath);
+		}
+
+		if (!pathExistsSync(answerFolderPath)) {
+			mkdirSync(answerFolderPath);
+		}
 	}
 }
 

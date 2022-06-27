@@ -5,7 +5,7 @@ import {APIProvider} from '../api-provider.js';
 import {Problem} from '../problem.js';
 import {Test} from '../test.js';
 
-class BackjoonProvider extends APIProvider {
+class BaekjoonProvider extends APIProvider {
 	constructor() {
 		super();
 		this.endPoints = {
@@ -51,6 +51,7 @@ class BackjoonProvider extends APIProvider {
 			);
 		}
 
+		console.log('tests:', tests);
 		return tests;
 	}
 
@@ -66,5 +67,5 @@ class BackjoonProvider extends APIProvider {
 }
 
 export {
-	BackjoonProvider,
+	BaekjoonProvider,
 };
