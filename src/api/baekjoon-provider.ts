@@ -6,13 +6,20 @@ import {Problem} from '../problem.js';
 import {Test} from '../test.js';
 
 class BackjoonProvider extends APIProvider {
+	constructor() {
+		super();
+		this.endPoints = {
+			getProblem: 'https://www.acmicpc.net/problem/',
+		};
+	}
+
 	async fetchProblemInfo(problem: Problem) {
-		const result = await got(`https://www.acmicpc.net/problem/${problem.problemId}`);
+		const result = await got(`${this.endPoints.getProblem}/${problem.problemId}`);
 		return load(result.body);
 	}
 
 	async openProblem(problem: Problem) {
-		return open(`https://www.acmicpc.net/problem/${problem.problemId}`, {wait: false});
+		return open(`${this.endPoints.getProblem}/${problem.problemId}`, {wait: false});
 	}
 
 	async fetchTests(problem: Problem) {

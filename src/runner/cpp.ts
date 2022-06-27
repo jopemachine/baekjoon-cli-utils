@@ -1,17 +1,17 @@
 import path from 'node:path';
 import stream from 'node:stream';
-import {execaCommand} from 'execa';
+import {execa} from 'execa';
 import {temporaryDirectory} from 'tempy';
 import {TestRunner} from '../test-runner.js';
 
 class CppTestRunner extends TestRunner {
 	constructor() {
-		super({isCompiledLanguage: false});
+		super({isCompiledLanguage: true});
 	}
 
 	override async compile({sourceFilePath}: {sourceFilePath: string}) {
 		const temporaryDirPath = temporaryDirectory();
-		await execaCommand(`g++ -std=gnu++17 ${sourceFilePath} --output=${temporaryDirPath}`);
+		await execa('g++', ['-std=gnu++17', `--output=${temporaryDirPath}`, sourceFilePath]);
 		return path.resolve(temporaryDirPath, 'a.out');
 	}
 
@@ -23,7 +23,7 @@ class CppTestRunner extends TestRunner {
 		// eslint-disable-next-line
 		stdinStream.push(null);
 
-		const childProc = execaCommand(`${targetFilePath} `);
+		const childProc = execa(targetFilePath);
 		stdinStream.pipe(childProc.stdin!);
 		return childProc;
 	}

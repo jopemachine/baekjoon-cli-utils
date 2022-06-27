@@ -2,15 +2,15 @@ import path from 'node:path';
 import chalk from 'chalk';
 import {globby} from 'globby';
 import del from 'del';
-import {unusedFilename} from 'unused-filename';
 import {getAnswerFilesPath, getTestFilesPath} from './conf.js';
 import {APIProvider} from './api-provider.js';
 import {Test} from './test.js';
-import {mkdir, parsePath, unusedFileNameIncrementer} from './utils.js';
+import {getUnusedFilename, Logger, mkdir, parsePath} from './utils.js';
+import {FileIndexNotMatchError} from './errors.js';
 
-const makeNewTestDir = async (problemId: string) => unusedFilename(path.resolve(getTestFilesPath(), problemId), {incrementer: unusedFileNameIncrementer});
+const makeNewTestDir = async (problemId: string) => getUnusedFilename(path.resolve(getTestFilesPath(), problemId));
 
-const makeNewAnswerDir = async (problemId: string) => unusedFilename(path.resolve(getAnswerFilesPath(), problemId), {incrementer: unusedFileNameIncrementer});
+const makeNewAnswerDir = async (problemId: string) => getUnusedFilename(path.resolve(getAnswerFilesPath(), problemId));
 
 class Problem {
 	static async create(problemId: string) {
@@ -21,13 +21,13 @@ class Problem {
 		const {idx: answerFileIdx} = parsePath(problemAnswerDirectory);
 
 		if (testFileIdx !== answerFileIdx) {
-			throw new Error('FileIndex not matched. You can try to clear tests and fetch again.');
+			throw new FileIndexNotMatchError();
 		}
 
 		await mkdir(problemTestDirectory);
 		await mkdir(problemAnswerDirectory);
 
-		console.log(chalk.gray('Added Problem Successfully.'));
+		Logger.successLog(chalk.gray('Added Problem Successfully.'));
 
 		return new Problem({
 			problemId,
@@ -47,8 +47,8 @@ class Problem {
 		this.tests = [];
 	}
 
-	async clear(testIdx: number) {
-		this.tests[testIdx - 1].clear();
+	async clearTest(testIdx: number) {
+		await this.tests[testIdx - 1].clear();
 	}
 
 	async clearTests() {
@@ -66,7 +66,7 @@ class Problem {
 		const answerFilePaths = await this.getAnswerFilePaths();
 
 		if (testFilePaths.length !== answerFilePaths.length) {
-			throw new Error('FileIndex not matched. You can try to clear tests and fetch again.');
+			throw new FileIndexNotMatchError();
 		}
 
 		for (const testFilePath of testFilePaths) {

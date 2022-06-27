@@ -1,4 +1,4 @@
-const supportedLanuages = {
+const supportedLanguages = {
 	cpp: {
 		isCompiledLanguage: true,
 		extensions: [
@@ -17,5 +17,5 @@ const supportedLanuages = {
 };
 
 export {
-	supportedLanuages,
+	supportedLanguages,
 };

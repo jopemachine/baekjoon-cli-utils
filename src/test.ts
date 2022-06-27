@@ -3,6 +3,7 @@ import {execa} from 'execa';
 import del from 'del';
 import {defaultEditor, getAnswerFilesPath, getTestFilesPath} from './conf.js';
 import {parsePath, pathExists, readFile, writeFile} from './utils.js';
+import {FileIndexNotMatchError} from './errors.js';
 
 const testFilePrefix = 'test';
 const answerFilePrefix = 'answer';
@@ -30,16 +31,16 @@ class Test {
 	static async createManually(problemUId: string) {
 		const testFilePath = await makeNewTestFile(problemUId);
 		await writeFile(testFilePath, '');
-		await execa(`${defaultEditor} ${testFilePath}`);
+		await execa(defaultEditor, [testFilePath]);
 		const {idx: testFileIdx} = parsePath(testFilePath);
 
 		const answerFilePath = await makeNewAnswerFile(problemUId);
 		await writeFile(answerFilePath, '');
-		await execa(`${defaultEditor} ${answerFilePath}`);
+		await execa(defaultEditor, [answerFilePath]);
 		const {idx: answerFileIdx} = parsePath(testFilePath);
 
 		if (testFileIdx !== answerFileIdx) {
-			throw new Error('FileIndex not matched. You can try to clear tests and fetch again.');
+			throw new FileIndexNotMatchError();
 		}
 
 		return new Test({

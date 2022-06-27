@@ -2,14 +2,16 @@ import path from 'node:path';
 import process from 'node:process';
 import {pathExists} from 'path-exist';
 import Conf from 'conf';
-import envPaths from 'env-paths';
+import _envPaths from 'env-paths';
 import {execa} from 'execa';
 import logSymbols from 'log-symbols';
 import {readFile, writeFile} from './utils.js';
-import {supportedLanuages} from './lang.js';
+import {supportedLanguages} from './lang.js';
+import {NotSupportedLanguageError, NotSupportedProviderError} from './errors.js';
+import {supportedAPIProviders} from './api-provider.js';
 
 const projectName = 'baekjoon-cli-util';
-const paths = envPaths(projectName);
+const envPaths = _envPaths(projectName);
 
 const schema: any = {
 	lang: {
@@ -20,6 +22,10 @@ const schema: any = {
 	},
 	sourceCodeTemplate: {
 		type: 'string',
+	},
+	provider: {
+		type: 'string',
+		default: 'baekjoon',
 	},
 };
 
@@ -34,15 +40,15 @@ const reset = () => {
 	config.clear();
 };
 
-const getSourceCodeTemplateFilePath = (lang: string) => path.resolve(paths.data, 'templates', lang);
+const getSourceCodeTemplateFilePath = (lang: string) => path.resolve(envPaths.data, 'templates', lang);
 
-const getCommentTemplateFilePath = (lang: string) => path.resolve(paths.data, 'comment-templates', lang);
+const getCommentTemplateFilePath = (lang: string) => path.resolve(envPaths.data, 'comment-templates', lang);
 
-const getGitConfigFilePath = () => path.resolve(paths.data, 'git-config');
+const getGitConfigFilePath = () => path.resolve(envPaths.data, 'git-config');
 
-const getTestFilesPath = () => path.resolve(paths.data, 'tests');
+const getTestFilesPath = () => path.resolve(envPaths.data, 'tests');
 
-const getAnswerFilesPath = () => path.resolve(paths.data, 'answers');
+const getAnswerFilesPath = () => path.resolve(envPaths.data, 'answers');
 
 const checkHealth = () => {
 	const langValue = config.get('lang');
@@ -62,10 +68,19 @@ const checkHealth = () => {
 };
 
 // TODO: refactor below code using TUI selection control.
+const setAPIProvider = (provider: string) => {
+	if (supportedAPIProviders.includes(provider)) {
+		throw new NotSupportedProviderError(provider);
+	}
+
+	config.set('provider', provider);
+};
+
+// TODO: refactor below code using TUI selection control.
 const setProgrammingLanguage = (lang: string) => {
-	const supportedLangs = Object.keys(supportedLanuages);
+	const supportedLangs = Object.keys(supportedLanguages);
 	if (!supportedLangs.includes(lang)) {
-		throw new Error(`${logSymbols.error} Currently '${lang}' not support. Please check READMD.md`);
+		throw new NotSupportedLanguageError(lang);
 	}
 
 	config.set('lang', lang);
@@ -78,32 +93,33 @@ const setProgrammingLanguage = (lang: string) => {
 };
 
 const setSourceCodeTemplate = async () => {
-	const templateFilePath = getSourceCodeTemplateFilePath(config.get('lang'));
+	const sourceCodeTemplateFilePath = getSourceCodeTemplateFilePath(config.get('lang'));
 
-	if (!pathExists(templateFilePath)) {
-		await writeFile(templateFilePath, '');
+	if (!pathExists(sourceCodeTemplateFilePath)) {
+		await writeFile(sourceCodeTemplateFilePath, '');
 	}
 
-	await execa(`${defaultEditor} ${templateFilePath}`);
-	const sourceCodeTemplate = await readFile(templateFilePath);
+	await execa(defaultEditor, [sourceCodeTemplateFilePath]);
+	const sourceCodeTemplate = await readFile(sourceCodeTemplateFilePath);
 	config.set(sourceCodeTemplate);
 };
 
 const setCommentTemplate = async () => {
-	const templateFilePath = getCommentTemplateFilePath(config.get('lang'));
+	const commentTemplateFilePath = getCommentTemplateFilePath(config.get('lang'));
 
-	if (!pathExists(templateFilePath)) {
-		await writeFile(templateFilePath, '');
+	if (!pathExists(commentTemplateFilePath)) {
+		await writeFile(commentTemplateFilePath, '');
 	}
 
-	await execa(`${defaultEditor} ${templateFilePath}`);
-	const commentTemplate = await readFile(templateFilePath);
+	await execa(defaultEditor, [commentTemplateFilePath]);
+	const commentTemplate = await readFile(commentTemplateFilePath);
 	config.set(commentTemplate);
 };
 
 export {
 	checkHealth,
 	config,
+	envPaths,
 	reset,
 	projectName,
 	getSourceCodeTemplateFilePath,
@@ -114,5 +130,6 @@ export {
 	getAnswerFilesPath,
 	setProgrammingLanguage,
 	setSourceCodeTemplate,
+	setAPIProvider,
 	setCommentTemplate,
 };
