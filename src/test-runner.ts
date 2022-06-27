@@ -1,6 +1,5 @@
 import process from 'node:process';
 import chalk from 'chalk';
-import logSymbols from 'log-symbols';
 import {ExecaChildProcess} from 'execa';
 import {Problem} from './problem.js';
 import {Logger} from './utils.js';
@@ -32,57 +31,83 @@ abstract class TestRunner {
 			}
 		}
 
+		const terminalWidth = process.stdout.columns;
+
+		let allTestPassed = true;
 		let testIndex = 1;
-		const stdoutBuffer = [];
+
 		for await (const test of problem.tests) {
 			if (testIdx && testIdx !== testIndex) {
 				++testIndex;
 				continue;
 			}
 
+			Logger.log('-'.repeat(terminalWidth));
 			const {stdin, expectedStdout} = await test.parse();
 
-			Logger.log(chalk.gray(`- Test Case ${testIndex}`));
 			let stdout;
 			let stderr;
+			let elapsedTime;
 
 			try {
+				const startTime = (new Date()).getTime();
 				const executionResult = await this.execute({stdin, targetFilePath});
+				elapsedTime = (new Date()).getTime() - startTime;
+				if (elapsedTime > 1000) elapsedTime = chalk.red(elapsedTime);
+
 				stdout = executionResult.stdout ?? '';
 				stderr = executionResult.stderr ?? '';
 			} catch (error: any) {
-				Logger.errorLog(chalk.red('Runtime Error Occured!'));
-				Logger.log(chalk.gray(error.shortMessage));
+				allTestPassed = false;
+
+				if (error.timedOut) {
+					Logger.errorLog(chalk.whiteBright(`Test Case ${testIndex} - Timeout!`));
+				} else {
+					Logger.errorLog(chalk.whiteBright(`Test Case ${testIndex} - Runtime Error Occured!`));
+					Logger.log(chalk.gray(error.shortMessage));
+				}
+
+				if (error.stdout) {
+					Logger.log(error.stdout);
+				}
+
+				if (error.stderr) {
+					Logger.log(error.stderr);
+				}
+
 				++testIndex;
 				continue;
 			}
 
 			if (stderr) {
-				Logger.infoLog(chalk.gray('[DEBUG]: ', stderr));
+				Logger.infoLog(chalk.gray('[Debug]: ', stderr));
 			}
 
-			if (stdout.trim() === expectedStdout) {
-				stdoutBuffer.push(chalk.greenBright(`${logSymbols.success} Test ${testIndex} Success!`));
+			if (stdout.trim() === expectedStdout.trim()) {
+				Logger.successLog(chalk.whiteBright(`Test Case ${testIndex}`));
+				Logger.infoLog(chalk.gray(`Elapsed ${chalk.underline(elapsedTime + 'ms')}`))
+				Logger.log(chalk.green(stdout));
 			} else {
-				stdoutBuffer.push(chalk.red(`${logSymbols.error} Test ${testIndex} Failed!`));
+				allTestPassed = false;
+				Logger.errorLog(chalk.whiteBright(`Test Case ${testIndex}`));
+				Logger.infoLog(chalk.gray.dim(`Elapsed ${chalk.underline(elapsedTime) + 'ms'}`))
+				Logger.log(chalk.red(stdout));
 			}
-
-			Logger.log(stdout);
 
 			if (!stdout) {
-				Logger.errorLog(chalk.gray('Stdout Is Empty!'));
+				Logger.log(chalk.gray('Stdout Is Empty!'));
 			}
 
 			++testIndex;
 		}
 
-		if (stdoutBuffer.length > 0) {
-			Logger.log();
-			Logger.log(chalk.gray('-----------------------------------------'));
-			Logger.log(chalk.gray('* Test Result'));
-			Logger.log();
-			Logger.log(stdoutBuffer.map(statement => ' ' + statement).join('\n'));
-			Logger.log();
+		Logger.log('-'.repeat(terminalWidth));
+		Logger.log();
+
+		if (allTestPassed) {
+			Logger.log(chalk.greenBright('🎉 All Tests Passed!'));
+		} else {
+			Logger.log(chalk.redBright('Some Tests Failed!'));
 		}
 	}
 
