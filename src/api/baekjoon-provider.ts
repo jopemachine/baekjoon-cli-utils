@@ -18,8 +18,8 @@ class BaekjoonProvider extends APIProvider {
 		return load(result.body);
 	}
 
-	async openProblem(problem: Problem) {
-		return open(`${this.endPoints.getProblem}/${problem.problemId}`, {wait: false});
+	async openProblem(problemId: string) {
+		return open(`${this.endPoints.getProblem}/${problemId}`, {wait: false});
 	}
 
 	async fetchTests(problem: Problem) {
@@ -28,8 +28,6 @@ class BaekjoonProvider extends APIProvider {
 		}
 
 		const tests: Test[] = [];
-
-		await problem.clearTests();
 
 		for (let testIdx = 1; ; ++testIdx) {
 			const sampleInput = problem.problemInfo(`#sample-input-${testIdx}`);
@@ -44,14 +42,13 @@ class BaekjoonProvider extends APIProvider {
 			tests.push(
 				new Test({
 					testIdx,
-					problemUId: problem.getProblemUId(),
+					problemUId: problem.problemUId,
 					stdin: sampleInputTxt,
 					expectedStdout: sampleOutputTxt,
 				}),
 			);
 		}
 
-		console.log('tests:', tests);
 		return tests;
 	}
 

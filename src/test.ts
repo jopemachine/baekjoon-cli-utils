@@ -1,7 +1,7 @@
 import path from 'node:path';
 import del from 'del';
 import {getAnswerFilesPath, getTestFilesPath} from './conf.js';
-import {mkdirSync, openEditor, parsePath, pathExists, pathExistsSync, readFile, writeFile} from './utils.js';
+import {openEditor, parsePath, pathExists, readFile, writeFile} from './utils.js';
 import {FileIndexNotMatchError} from './errors.js';
 
 const testFilePrefix = 'test';
@@ -74,8 +74,6 @@ class Test {
 			throw new Error(`Matched test already exist on the path. The test index: ${this.testIdx}`);
 		}
 
-		this.makeTestFolders();
-
 		await writeFile(testFilePath, this.stdin);
 		await writeFile(answerFilePath, this.expectedStdout);
 	}
@@ -105,19 +103,6 @@ class Test {
 
 	getAnswerFilePath() {
 		return path.resolve(getAnswerFilesPath(), this.problemUId, `${answerFilePrefix}_${this.testIdx}`);
-	}
-
-	private makeTestFolders() {
-		const testFolderPath = path.resolve(getTestFilesPath(), this.problemUId);
-		const answerFolderPath = path.resolve(getAnswerFilesPath(), this.problemUId);
-
-		if (!pathExistsSync(testFolderPath)) {
-			mkdirSync(testFolderPath);
-		}
-
-		if (!pathExistsSync(answerFolderPath)) {
-			mkdirSync(answerFolderPath);
-		}
 	}
 }
 

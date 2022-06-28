@@ -51,23 +51,20 @@ const initConfigFilePaths = async () => {
 };
 
 const checkHealth = async () => {
-	const lang = config.get('lang');
-	if (!lang) {
+	if (!config.get('lang')) {
 		throw new Error(`${logSymbols.error} Please set programming language to use.`);
 	}
 
-	const provider = config.get('provider');
-	if (!provider) {
+	if (!config.get('provider')) {
 		throw new Error(`${logSymbols.error} Please set proper api provider to use.`);
 	}
 
-	const sourceCodeTemplate = await pathExists(getSourceCodeTemplateFilePath(lang));
-	if (!sourceCodeTemplate) {
+	const lang = config.get('lang');
+	if (!await pathExists(getSourceCodeTemplateFilePath(lang))) {
 		throw new Error(`${logSymbols.error} Please set source code template to use.`);
 	}
 
-	const commentTemplate = await pathExists(getCommentTemplateFilePath(lang));
-	if (!commentTemplate) {
+	if (!await pathExists(getCommentTemplateFilePath(lang))) {
 		throw new Error(`${logSymbols.error} Please set comment template to use.`);
 	}
 };

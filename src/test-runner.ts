@@ -2,7 +2,7 @@ import process from 'node:process';
 import chalk from 'chalk';
 import {ExecaChildProcess} from 'execa';
 import {Problem} from './problem.js';
-import {Logger} from './utils.js';
+import {Logger, printDivider} from './utils.js';
 import {supportedLanguages} from './lang.js';
 
 abstract class TestRunner {
@@ -31,8 +31,6 @@ abstract class TestRunner {
 			}
 		}
 
-		const terminalWidth = process.stdout.columns;
-
 		let allTestPassed = true;
 		let testIndex = 1;
 
@@ -42,7 +40,7 @@ abstract class TestRunner {
 				continue;
 			}
 
-			Logger.log('-'.repeat(terminalWidth));
+			printDivider();
 			const {stdin, expectedStdout} = await test.parse();
 
 			let stdout;
@@ -50,10 +48,12 @@ abstract class TestRunner {
 			let elapsedTime;
 
 			try {
-				const startTime = (new Date()).getTime();
+				const startTime = Date.now();
 				const executionResult = await this.execute({stdin, targetFilePath});
-				elapsedTime = (new Date()).getTime() - startTime;
-				if (elapsedTime > 1000) elapsedTime = chalk.red(elapsedTime);
+				elapsedTime = Date.now() - startTime;
+				if (elapsedTime > 1000) {
+					elapsedTime = chalk.red(elapsedTime);
+				}
 
 				stdout = executionResult.stdout ?? '';
 				stderr = executionResult.stderr ?? '';
@@ -79,30 +79,28 @@ abstract class TestRunner {
 				continue;
 			}
 
-			if (stderr) {
-				Logger.infoLog(chalk.gray('[Debug]: ', stderr));
-			}
-
 			if (stdout.trim() === expectedStdout.trim()) {
 				Logger.successLog(chalk.whiteBright(`Test Case ${testIndex}`));
-				Logger.infoLog(chalk.gray(`Elapsed ${chalk.underline(elapsedTime + 'ms')}`))
-				Logger.log(chalk.green(stdout));
+				Logger.infoLog(chalk.gray(`Elapsed ${chalk.underline(elapsedTime + 'ms')}`));
 			} else {
 				allTestPassed = false;
 				Logger.errorLog(chalk.whiteBright(`Test Case ${testIndex}`));
-				Logger.infoLog(chalk.gray.dim(`Elapsed ${chalk.underline(elapsedTime) + 'ms'}`))
+				Logger.infoLog(chalk.gray(`Elapsed ${chalk.underline(elapsedTime) + 'ms'}`));
 				Logger.log(chalk.red(stdout));
 			}
 
-			if (!stdout) {
+			if (stderr) {
+				Logger.infoLog(chalk.gray(`[stderr]:\n${stderr}`));
+			}
+
+			if (!stdout && !stderr) {
 				Logger.log(chalk.gray('Stdout Is Empty!'));
 			}
 
 			++testIndex;
 		}
 
-		Logger.log('-'.repeat(terminalWidth));
-		Logger.log();
+		printDivider();
 
 		if (allTestPassed) {
 			Logger.log(chalk.greenBright('🎉 All Tests Passed!'));

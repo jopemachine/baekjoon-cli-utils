@@ -23,7 +23,7 @@ class CppTestRunner extends TestRunner {
 		// eslint-disable-next-line
 		stdinStream.push(null);
 
-		const childProc = execa(targetFilePath, { timeout: 2000 });
+		const childProc = execa(targetFilePath, {timeout: 2000});
 		stdinStream.pipe(childProc.stdin!);
 		return childProc;
 	}

@@ -8,7 +8,9 @@ import {unusedFilename} from 'unused-filename';
 import {execa} from 'execa';
 import {globby} from 'globby';
 import chalk from 'chalk';
+import filenamify from 'filenamify';
 import {defaultEditor} from './conf.js';
+import {terminalWidth} from './spinner.js';
 
 const fsp = fs.promises;
 
@@ -92,10 +94,25 @@ const openEditor = async (targetPath: string) => execa(defaultEditor, [targetPat
 	stdio: 'inherit',
 });
 
+const getProblemFolderNames = (paths: string[], input: string) => paths.filter(path => !input || path.toLowerCase().includes(input.toLowerCase())).map(path => ({
+	name: path.split(`${process.cwd()}/`)[1],
+	value: path,
+}));
+
+const getProblemUId = ({sourceFilePath, isRelative}: {sourceFilePath: string; isRelative: boolean}) => {
+	const relativePath = isRelative ? sourceFilePath : sourceFilePath.split(process.cwd())[1];
+	return filenamify(relativePath.split('.')[0]);
+};
+
+const printDivider = () => {
+	Logger.log(chalk.dim.gray('-'.repeat(terminalWidth)));
+};
+
 export {
 	mkdir,
 	mkdirSync,
 	parsePath,
+	getProblemUId,
 	getUnusedFilename,
 	unusedFileNameIncrementer,
 	readFile,
@@ -105,4 +122,6 @@ export {
 	Logger,
 	openEditor,
 	findProblemPath,
+	getProblemFolderNames,
+	printDivider,
 };

@@ -1,6 +1,6 @@
 {
 	"version": "0.0.0",
-	"description": "Backjoon cli utils",
+	"description": "Backjoon CLI Utils for Algorithm Study",
 	"main": "dist/index.js",
 	"bin": {
 		"backjoon-cli": "dist/cli.js"
@@ -22,19 +22,23 @@
 		"del": "^6.1.1",
 		"env-paths": "^3.0.0",
 		"execa": "^6.1.0",
+		"filenamify": "^5.1.1",
 		"first-run": "^3.0.0",
 		"globby": "^13.1.1",
 		"got": "^12.0.1",
 		"inquirer": "^8.2.0",
 		"inquirer-autocomplete-prompt": "^2.0.0",
+		"is-promise": "^4.0.0",
 		"log-symbols": "^5.1.0",
 		"open": "^8.4.0",
+		"ora": "^6.1.1",
 		"outdent": "^0.8.0",
 		"path-exists": "^5.0.0",
 		"tempy": "^3.0.0",
 		"unused-filename": "^4.0.0"
 	},
 	"devDependencies": {
+		"ava": "^4.3.0",
 		"typescript": "^4.7.4",
 		"xo": "^0.48.0"
 	},

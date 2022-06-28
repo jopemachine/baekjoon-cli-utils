@@ -1,54 +1,28 @@
 import path from 'node:path';
-import chalk from 'chalk';
 import {globby} from 'globby';
 import del from 'del';
 import {getAnswerFilesPath, getTestFilesPath} from './conf.js';
 import {APIProvider} from './api-provider.js';
 import {Test} from './test.js';
-import {getUnusedFilename, Logger, mkdir, parsePath} from './utils.js';
 import {FileIndexNotMatchError} from './errors.js';
-
-const makeNewTestDir = async (problemId: string) => getUnusedFilename(path.resolve(getTestFilesPath(), problemId));
-
-const makeNewAnswerDir = async (problemId: string) => getUnusedFilename(path.resolve(getAnswerFilesPath(), problemId));
+import {mkdirSync} from './utils.js';
 
 class Problem {
-	static async create(problemId: string) {
-		const problemTestDirectory = await makeNewTestDir(problemId);
-		const problemAnswerDirectory = await makeNewAnswerDir(problemId);
-
-		const {idx: testDirIdx} = parsePath(problemTestDirectory);
-		const {idx: answerDirIdx} = parsePath(problemAnswerDirectory);
-
-		if (testDirIdx !== answerDirIdx) {
-			throw new FileIndexNotMatchError();
-		}
-
-		await mkdir(problemTestDirectory);
-		await mkdir(problemAnswerDirectory);
-
-		Logger.successLog(chalk.gray('Added Problem Successfully.'));
-
-		return new Problem({
-			problemId,
-			problemIdx: testDirIdx,
-		});
-	}
-
 	problemId: string;
-	problemIdx?: number;
+	problemUId: string;
 	problemInfo?: any;
 	tests: Test[];
 
-	constructor({problemId, problemIdx}: {problemId: string; problemIdx?: number}) {
+	constructor({problemId, problemUId}: {problemId: string; problemUId: string}) {
 		this.problemId = problemId;
-		this.problemIdx = problemIdx;
+		this.problemUId = problemUId;
 		this.problemInfo = null;
 		this.tests = [];
 	}
 
-	setProblemIndex(index: number) {
-		this.problemIdx = index;
+	generateTestFolder() {
+		mkdirSync(path.resolve(getTestFilesPath(), this.problemUId));
+		mkdirSync(path.resolve(getAnswerFilesPath(), this.problemUId));
 	}
 
 	async clearTest(testIdx: number) {
@@ -56,8 +30,8 @@ class Problem {
 	}
 
 	async clearTests() {
-		const problemTestDirectory = path.resolve(getTestFilesPath(), this.getProblemUId());
-		const problemAnswerDirectory = path.resolve(getAnswerFilesPath(), this.getProblemUId());
+		const problemTestDirectory = path.resolve(getTestFilesPath(), this.problemUId);
+		const problemAnswerDirectory = path.resolve(getAnswerFilesPath(), this.problemUId);
 
 		await del(problemTestDirectory, {force: true});
 		await del(problemAnswerDirectory, {force: true});
@@ -78,7 +52,7 @@ class Problem {
 
 			this.tests.push(new Test({
 				testIdx,
-				problemUId: this.getProblemUId(),
+				problemUId: this.problemUId,
 			}));
 		}
 	}
@@ -87,26 +61,18 @@ class Problem {
 		this.tests = [...this.tests, ...await apiProvider.fetchTests(this)];
 	}
 
-	getProblemUId() {
-		if (this.problemIdx) {
-			return [this.problemId, '_', this.problemIdx].join('');
-		}
-
-		return this.problemId;
-	}
-
 	async addManualTest() {
 		this.tests.push(
-			await Test.createManually(this.getProblemUId()),
+			await Test.createManually(this.problemUId),
 		);
 	}
 
 	private async getTestFilePaths() {
-		return globby(path.resolve(getTestFilesPath(), this.getProblemUId()));
+		return globby(path.resolve(getTestFilesPath(), this.problemUId), {caseSensitiveMatch: true, onlyFiles: true, followSymbolicLinks: false});
 	}
 
 	private async getAnswerFilePaths() {
-		return globby(path.resolve(getAnswerFilesPath(), this.getProblemUId()));
+		return globby(path.resolve(getAnswerFilesPath(), this.problemUId), {caseSensitiveMatch: true, onlyFiles: true, followSymbolicLinks: false});
 	}
 }
 
