@@ -1,11 +1,9 @@
 import {NotSupportedLanguageError} from './errors.js';
 import {isSupportedLanguage} from './lang.js';
 import {TestRunner} from './test-runner.js';
-import {CppTestRunner, GoTestRunner, JavascriptTestRunner, PythonTestRunner} from './runner/index.js';
+import {CppTestRunner, GoTestRunner, JavascriptTestRunner, PythonTestRunner, SwiftTestRunner, RubyTestRunner, RustTestRunner, CLangTestRunner, KotlinTestRunner} from './runner/index.js';
 import {config, readRunnerSettings} from './conf.js';
 import {JavaTestRunner} from './runner/java.js';
-
-49;
 
 const generateTestRunner = async (lang: string): Promise<TestRunner> => {
 	if (!isSupportedLanguage(lang)) {
@@ -25,13 +23,17 @@ const generateTestRunner = async (lang: string): Promise<TestRunner> => {
 			return new GoTestRunner(runnerSetting);
 		case 'java':
 			return new JavaTestRunner(runnerSetting);
-		case 'c#':
 		case 'kotlin':
+			return new KotlinTestRunner(runnerSetting);
 		case 'swift':
+			return new SwiftTestRunner(runnerSetting);
 		case 'd':
 		case 'c':
+			return new CLangTestRunner(runnerSetting);
 		case 'ruby':
+			return new RubyTestRunner(runnerSetting);
 		case 'rust':
+			return new RustTestRunner(runnerSetting);
 
 		default:
 			throw new Error('lang set wrong');

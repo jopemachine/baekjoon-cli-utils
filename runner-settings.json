@@ -11,11 +11,15 @@
 		"javaVersion": 11
 	},
 	"swift": {},
-	"c#": {},
 	"ruby": {},
 	"kotlin": {},
-	"c": {},
+	"c": {
+		"compiler": "gcc",
+		"std": "gnu99"
+	},
 	"d": {},
 	"python": {},
-	"rust": {}
+	"rust": {
+		"rustEdition": 2018
+	}
 }

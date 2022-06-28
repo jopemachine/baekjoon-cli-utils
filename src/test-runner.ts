@@ -32,7 +32,7 @@ abstract class TestRunner {
 				targetFilePath = await this.compile({sourceFilePath});
 			} catch (error: any) {
 				Logger.errorLog(chalk.red('Compile Failed!'));
-				Logger.log(error.stderr);
+				Logger.log(error);
 				process.exit(1);
 			}
 		}

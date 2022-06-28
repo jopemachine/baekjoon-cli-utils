@@ -29,8 +29,6 @@ class JavaTestRunner extends TestRunner {
 	}
 
 	override execute({stdin, targetFilePath}: {stdin: string; targetFilePath: string}) {
-		console.log('targetFilePath:', targetFilePath);
-
 		const childProc = execa('java', ['-Dfile.encoding=UTF-8', '-XX:+UseSerialGC', '-classpath', path.parse(targetFilePath).dir, 'Main'], {input: stdin});
 		return childProc;
 	}

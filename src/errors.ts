@@ -4,8 +4,7 @@ import {supportedLanguages} from './lang.js';
 import {supportedAPIProviders} from './api-provider.js';
 import {projectName} from './conf.js';
 
-// eslint-disable-next-line
-const makeList = (array: string[]) => '\n' + array.map(string_ => chalk.white(`* ${string_}`));
+const makeList = (array: string[]) => array.map(string_ => chalk.white(`* ${string_}`)).join('\n');
 
 class FileIndexNotMatchError extends Error {
 	constructor() {

@@ -35,13 +35,6 @@ const supportedLanguages = {
 		],
 		extension: 'java',
 	},
-	'c#': {
-		isCompiledLanguage: true,
-		extensions: [
-			'cs',
-		],
-		extension: 'cs',
-	},
 	swift: {
 		isCompiledLanguage: true,
 		extensions: [
