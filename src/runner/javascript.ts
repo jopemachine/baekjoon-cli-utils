@@ -1,20 +1,20 @@
 import nvexeca from 'nvexeca';
 import {TestRunner} from '../test-runner.js';
 
-interface NodeJsTestRunnerSetting {
+interface JavascriptTestRunnerSetting {
 	nodeVersion: number | string;
 }
 
-const isValidConfig = (runnerSetting: any): runnerSetting is NodeJsTestRunnerSetting => runnerSetting.nodeVersion;
+const isValidConfig = (runnerSetting: any): runnerSetting is JavascriptTestRunnerSetting => runnerSetting.nodeVersion;
 
-class NodejsRunner extends TestRunner {
+class JavascriptTestRunner extends TestRunner {
 	constructor(runnerSettings: any) {
 		if (!isValidConfig(runnerSettings)) {
 			throw new Error('Runner Config file not valid!');
 		}
 
 		super(runnerSettings);
-		this.languageId = 'js';
+		this.languageId = 'javascript';
 	}
 
 	override async execute({stdin, targetFilePath}: {stdin: string; targetFilePath: string}) {
@@ -24,5 +24,5 @@ class NodejsRunner extends TestRunner {
 }
 
 export {
-	NodejsRunner,
+	JavascriptTestRunner,
 };

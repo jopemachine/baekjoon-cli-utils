@@ -1,2 +1,4 @@
 export {CppTestRunner} from './cpp.js';
-export {NodejsRunner} from './node-js.js';
+export {JavascriptTestRunner} from './node-js.js';
+export {PythonTestRunner} from './python.js';
+export {GoTestRunner} from './go.js';

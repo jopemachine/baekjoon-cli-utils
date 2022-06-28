@@ -47,13 +47,16 @@
 	},
 	"xo": {
 		"rules": {
-			"@typescript-eslint/no-unsafe-assignment": "off",
 			"@typescript-eslint/naming-convention": "off",
-			"@typescript-eslint/no-unsafe-call": "off",
-			"@typescript-eslint/restrict-template-expressions": "off",
+			"@typescript-eslint/no-empty-interface": "off",
 			"@typescript-eslint/no-implicit-any-catch": "off",
-			"unicorn/no-process-exit": "off",
-			"unicorn/no-abusive-eslint-disable": "off"
+			"@typescript-eslint/no-unsafe-assignment": "off",
+			"@typescript-eslint/no-unsafe-call": "off",
+			"@typescript-eslint/no-unsafe-return": "off",
+			"@typescript-eslint/restrict-template-expressions": "off",
+			"ava/no-import-test-files": "off",
+			"unicorn/no-abusive-eslint-disable": "off",
+			"unicorn/no-process-exit": "off"
 		}
 	}
 }

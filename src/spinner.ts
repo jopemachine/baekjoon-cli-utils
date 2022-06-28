@@ -1,3 +1,4 @@
+import process from 'node:process';
 import ora from 'ora';
 import chalk from 'chalk';
 import isPromise from 'is-promise';

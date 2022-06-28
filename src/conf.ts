@@ -91,7 +91,7 @@ const setAPIProvider = (provider: string) => {
 };
 
 // TODO: refactor below code using TUI selection control.
-const setProgrammingLanguage = (lang: string) => {
+const setProgrammingLanguage = async (lang: string) => {
 	const supportedLangs = Object.keys(supportedLanguages);
 	if (!supportedLangs.includes(lang)) {
 		throw new NotSupportedLanguageError(lang);
@@ -101,11 +101,17 @@ const setProgrammingLanguage = (lang: string) => {
 	Logger.successLog(`lang is now '${lang}'`);
 
 	const sourceCodeTemplate = getSourceCodeTemplateFilePath(config.get('lang'));
-	config.set('sourceCodeTemplate', sourceCodeTemplate);
+	if (!await pathExists(sourceCodeTemplate)) {
+		await writeFile(sourceCodeTemplate, '');
+	}
+
 	Logger.successLog(`sourceCodeTemplate is now '${sourceCodeTemplate}'`);
 
 	const commentTemplate = getCommentTemplateFilePath(config.get('lang'));
-	config.set('commentTemplate', commentTemplate);
+	if (!await pathExists(commentTemplate)) {
+		await writeFile(commentTemplate, '');
+	}
+
 	Logger.successLog(`commentTemplate is now '${commentTemplate}'`);
 };
 
@@ -117,8 +123,6 @@ const setSourceCodeTemplate = async () => {
 	}
 
 	await openEditor(sourceCodeTemplateFilePath);
-	const sourceCodeTemplate = await readFile(sourceCodeTemplateFilePath);
-	config.set('sourceCodeTemplate', sourceCodeTemplate);
 	Logger.successLog('sourceCodeTemplate is Updated Successfully');
 };
 
@@ -130,8 +134,6 @@ const setCommentTemplate = async () => {
 	}
 
 	await openEditor(commentTemplateFilePath);
-	const commentTemplate = await readFile(commentTemplateFilePath);
-	config.set('commentTemplate', commentTemplate);
 	Logger.successLog('commentTemplate is Updated Successfully');
 };
 

@@ -163,7 +163,7 @@ const handleClearTest = async (problemId: string) => {
 
 			switch (target) {
 				case 'lang':
-					setProgrammingLanguage(process.argv[4]);
+					await setProgrammingLanguage(process.argv[4]);
 					break;
 				case 'provider':
 					setAPIProvider(process.argv[4]);

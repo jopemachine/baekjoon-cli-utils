@@ -3,7 +3,19 @@
 		"compiler": "g++",
 		"std": "gnu++17"
 	},
-	"js": {
+	"javascript": {
 		"nodeVersion": 10
-	}
+	},
+	"go": {},
+	"java": {
+		"javaVersion": 11
+	},
+	"swift": {},
+	"c#": {},
+	"ruby": {},
+	"kotlin": {},
+	"c": {},
+	"d": {},
+	"python": {},
+	"rust": {}
 }

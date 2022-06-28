@@ -109,7 +109,10 @@ const printDivider = () => {
 	Logger.log(chalk.dim.gray(`+${'-'.repeat(terminalWidth - 2)}+`));
 };
 
+const cpFile = fsp.copyFile;
+
 export {
+	cpFile,
 	mkdir,
 	mkdirSync,
 	parsePath,
