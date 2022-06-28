@@ -1,15 +1,21 @@
 import process from 'node:process';
 import chalk from 'chalk';
-import {ExecaChildProcess} from 'execa';
+import {ExecaChildProcess, ExecaError, ExecaReturnValue} from 'execa';
 import {Problem} from './problem.js';
 import {Logger, printDivider} from './utils.js';
 import {supportedLanguages} from './lang.js';
+import {config} from './conf.js';
 
 abstract class TestRunner {
 	languageId: string;
+	timeout: number;
+	runnerSettings: any;
 
-	constructor() {
+	constructor(runnerSettings: any) {
+		const timeout = config.get('timeout');
 		this.languageId = '';
+		this.timeout = timeout === 0 ? undefined : timeout;
+		this.runnerSettings = runnerSettings;
 	}
 
 	async run({sourceFilePath, problem, testIdx}: {sourceFilePath: string; problem: Problem; testIdx?: number}) {
@@ -45,34 +51,29 @@ abstract class TestRunner {
 
 			let stdout;
 			let stderr;
-			let elapsedTime;
 
 			try {
-				const startTime = Date.now();
-				const executionResult = await this.execute({stdin, targetFilePath});
-				elapsedTime = Date.now() - startTime;
-				if (elapsedTime > 1000) {
-					elapsedTime = chalk.red(elapsedTime);
-				}
+				const childProc = this.execute({stdin, targetFilePath});
+				const executionResult = await childProc;
 
 				stdout = executionResult.stdout ?? '';
 				stderr = executionResult.stderr ?? '';
-			} catch (error: any) {
+			} catch (error: unknown) {
 				allTestPassed = false;
 
-				if (error.timedOut) {
+				if ((error as ExecaError).timedOut) {
 					Logger.errorLog(chalk.whiteBright(`Test Case ${testIndex} - Timeout!`));
 				} else {
 					Logger.errorLog(chalk.whiteBright(`Test Case ${testIndex} - Runtime Error Occured!`));
-					Logger.log(chalk.gray(error.shortMessage));
+					Logger.log(chalk.gray(error));
 				}
 
-				if (error.stdout) {
-					Logger.log(error.stdout);
+				if ((error as ExecaError).stdout) {
+					Logger.log((error as ExecaError).stdout);
 				}
 
-				if (error.stderr) {
-					Logger.log(error.stderr);
+				if ((error as ExecaError).stderr) {
+					Logger.log((error as ExecaError).stderr);
 				}
 
 				++testIndex;
@@ -81,20 +82,18 @@ abstract class TestRunner {
 
 			if (stdout.trim() === expectedStdout.trim()) {
 				Logger.successLog(chalk.whiteBright(`Test Case ${testIndex}`));
-				Logger.infoLog(chalk.gray(`Elapsed ${chalk.underline(elapsedTime + 'ms')}`));
 			} else {
 				allTestPassed = false;
 				Logger.errorLog(chalk.whiteBright(`Test Case ${testIndex}`));
-				Logger.infoLog(chalk.gray(`Elapsed ${chalk.underline(elapsedTime) + 'ms'}`));
-				Logger.log(chalk.red(stdout));
+				Logger.infoLog(chalk.gray(`[stdout]\n${chalk.red(stdout)}`));
 			}
 
 			if (stderr) {
-				Logger.infoLog(chalk.gray(`[stderr]:\n${stderr}`));
+				Logger.infoLog(chalk.gray(`[stderr]\n${stderr}`));
 			}
 
 			if (!stdout && !stderr) {
-				Logger.log(chalk.gray('Stdout Is Empty!'));
+				Logger.warningLog(chalk.gray('Stdout Empty!'));
 			}
 
 			++testIndex;
@@ -109,8 +108,11 @@ abstract class TestRunner {
 		}
 	}
 
-	abstract compile({sourceFilePath}: {sourceFilePath: string}): Promise<string>;
-	abstract execute({stdin, targetFilePath}: {stdin: string; targetFilePath: string}): ExecaChildProcess;
+	async compile({sourceFilePath}: {sourceFilePath: string}): Promise<string> {
+		throw new Error(`Compile is not implemented in the ${config.get('lang')} runner`);
+	}
+
+	abstract execute({stdin, targetFilePath}: {stdin: string; targetFilePath: string}): ExecaChildProcess | Promise<ExecaReturnValue>;
 }
 
 export {

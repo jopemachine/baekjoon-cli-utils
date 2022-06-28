@@ -101,11 +101,12 @@ const getProblemFolderNames = (paths: string[], input: string) => paths.filter(p
 
 const getProblemUId = ({sourceFilePath, isRelative}: {sourceFilePath: string; isRelative: boolean}) => {
 	const relativePath = isRelative ? sourceFilePath : sourceFilePath.split(process.cwd())[1];
-	return filenamify(relativePath.split('.')[0]);
+	const {ext} = path.parse(sourceFilePath);
+	return filenamify([relativePath.split('.')[0], ext.split('.').pop()].join('!'));
 };
 
 const printDivider = () => {
-	Logger.log(chalk.dim.gray('-'.repeat(terminalWidth)));
+	Logger.log(chalk.dim.gray(`+${'-'.repeat(terminalWidth - 2)}+`));
 };
 
 export {

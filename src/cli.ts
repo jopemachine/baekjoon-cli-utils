@@ -4,14 +4,14 @@ import inquirer from 'inquirer';
 import inquirerAutocompletePrompt from 'inquirer-autocomplete-prompt';
 import isFirstRun from 'first-run';
 import {globby} from 'globby';
-import {checkHealth, setProgrammingLanguage, setCommentTemplate, setSourceCodeTemplate, config, setAPIProvider, initConfigFilePaths, projectName} from './conf.js';
+import {checkHealth, setProgrammingLanguage, setCommentTemplate, setSourceCodeTemplate, config, setAPIProvider, initConfigFilePaths, projectName, helpMessage, setTimeoutValue} from './conf.js';
 import {APIProvider} from './api-provider.js';
 import {generateAPIProvider} from './api-provider-factory.js';
 import {generateTestRunner} from './test-runner-factory.js';
 import {TestRunner} from './test-runner.js';
 import {Problem} from './problem.js';
 import {ArgumentLengthError} from './errors.js';
-import {findProblemPath, getProblemFolderNames, getProblemUId, getUnusedFilename} from './utils.js';
+import {findProblemPath, getProblemFolderNames, getProblemUId, getUnusedFilename, Logger} from './utils.js';
 import {useSpinner} from './spinner.js';
 import {supportedLanguages} from './lang.js';
 
@@ -23,11 +23,15 @@ const subCommand = command === 'set' && process.argv.length > 3 ? process.argv[3
 const checkArgumentLength = (command: string, subCommand?: string) => {
 	const expectedLengthDict = {
 		'set lang': 3,
+		'set timeout': 3,
 		'set provider': 3,
 		'set code': 2,
 		'set comment': 2,
 		create: 2,
-		'clear-test': 3,
+		clear: 2,
+		'add-test': 2,
+		'clear-test': 2,
+		'clear-tests': 2,
 		open: 2,
 		commit: 2,
 	};
@@ -46,7 +50,7 @@ const checkArgumentLength = (command: string, subCommand?: string) => {
 const handleCreate = async (problemId: string) => {
 	const provider: APIProvider = generateAPIProvider(config.get('provider'));
 
-	let paths = await useSpinner(globby('**/*', {onlyDirectories: true}), 'Fetching All Directories');
+	let paths = await useSpinner(globby('**/*', {onlyDirectories: true, caseSensitiveMatch: true}), 'Fetching All Directories');
 
 	paths = [(await inquirer.prompt([{
 		name: 'folder',
@@ -79,7 +83,7 @@ const handleCreate = async (problemId: string) => {
 	return problem;
 };
 
-const handleRun = async (problemId: string) => {
+const handleTest = async (problemId: string) => {
 	const sourceFilePath = await findProblemPath(problemId);
 	const problemUId = getProblemUId({
 		sourceFilePath,
@@ -93,7 +97,7 @@ const handleRun = async (problemId: string) => {
 
 	const testIdx = process.argv.length > 4 ? Number(process.argv[4]) : undefined;
 
-	const testRunner: TestRunner = generateTestRunner(config.get('lang'));
+	const testRunner: TestRunner = await generateTestRunner(config.get('lang'));
 	await testRunner.run({sourceFilePath, problem, testIdx});
 };
 
@@ -110,6 +114,7 @@ const handleAddTest = async (problemId: string) => {
 	});
 
 	await problem.addManualTest();
+	Logger.successLog('Test Added Successfully.');
 };
 
 const handleClearTests = async (problemId: string) => {
@@ -125,6 +130,7 @@ const handleClearTests = async (problemId: string) => {
 	});
 
 	await problem.clearTests();
+	Logger.successLog('Test Files are All Deleted Successfully.');
 };
 
 const handleClearTest = async (problemId: string) => {
@@ -141,6 +147,7 @@ const handleClearTest = async (problemId: string) => {
 	});
 
 	await problem.clearTest(testIdx);
+	Logger.successLog(`Test ${testIdx} is Removed Successfully.`);
 };
 
 (async function () {
@@ -160,6 +167,9 @@ const handleClearTest = async (problemId: string) => {
 					break;
 				case 'provider':
 					setAPIProvider(process.argv[4]);
+					break;
+				case 'timeout':
+					setTimeoutValue(Number(process.argv[4]));
 					break;
 				case 'code':
 					await setSourceCodeTemplate();
@@ -182,9 +192,8 @@ const handleClearTest = async (problemId: string) => {
 				case 'create':
 					await handleCreate(problemId);
 					break;
-				case 'run':
 				case 'test':
-					await handleRun(problemId);
+					await handleTest(problemId);
 					break;
 				case 'add-test':
 					await handleAddTest(problemId);
@@ -201,6 +210,9 @@ const handleClearTest = async (problemId: string) => {
 				case 'commit':
 					sourceFilePath = await findProblemPath(problemId);
 					await provider.commitProblem(problemId, sourceFilePath);
+					break;
+				case 'help':
+					Logger.log(helpMessage);
 					break;
 				default:
 					throw new Error('Unknown Command');

@@ -3,6 +3,8 @@ import process from 'node:process';
 import Conf from 'conf';
 import _envPaths from 'env-paths';
 import logSymbols from 'log-symbols';
+import parseJson from 'parse-json';
+import {findUp} from 'find-up';
 import {readFile, writeFile, pathExists, Logger, mkdir, openEditor} from './utils.js';
 import {supportedLanguages} from './lang.js';
 import {NotSupportedLanguageError, NotSupportedProviderError} from './errors.js';
@@ -18,6 +20,10 @@ const schema: any = {
 	provider: {
 		type: 'string',
 		default: 'baekjoon',
+	},
+	timeout: {
+		type: 'number',
+		default: 5000,
 	},
 };
 
@@ -61,12 +67,17 @@ const checkHealth = async () => {
 
 	const lang = config.get('lang');
 	if (!await pathExists(getSourceCodeTemplateFilePath(lang))) {
-		throw new Error(`${logSymbols.error} Please set source code template to use.`);
+		throw new Error(`${logSymbols.error} Please set source code template to use.\nIf you do not need the source code template, just create empty file.`);
 	}
 
 	if (!await pathExists(getCommentTemplateFilePath(lang))) {
-		throw new Error(`${logSymbols.error} Please set comment template to use.`);
+		throw new Error(`${logSymbols.error} Please set comment template to use.\nIf you do not need the comment template, just create empty file.`);
 	}
+};
+
+const setTimeoutValue = (timeoutValue: number) => {
+	config.set('timeout', timeoutValue);
+	Logger.successLog(`timeout is now '${timeoutValue}'`);
 };
 
 // TODO: refactor below code using TUI selection control.
@@ -108,7 +119,7 @@ const setSourceCodeTemplate = async () => {
 	await openEditor(sourceCodeTemplateFilePath);
 	const sourceCodeTemplate = await readFile(sourceCodeTemplateFilePath);
 	config.set('sourceCodeTemplate', sourceCodeTemplate);
-	Logger.successLog(`sourceCodeTemplate is set successfully under '${sourceCodeTemplateFilePath}'`);
+	Logger.successLog('sourceCodeTemplate is Updated Successfully');
 };
 
 const setCommentTemplate = async () => {
@@ -121,10 +132,32 @@ const setCommentTemplate = async () => {
 	await openEditor(commentTemplateFilePath);
 	const commentTemplate = await readFile(commentTemplateFilePath);
 	config.set('commentTemplate', commentTemplate);
-	Logger.successLog(`commentTemplate is set successfully under '${commentTemplateFilePath}'`);
+	Logger.successLog('commentTemplate is Updated Successfully');
+};
+
+const helpMessage = `
+
+`;
+
+const runnerSettingFileName = 'runner-settings.json';
+
+const readRunnerSettings = async () => {
+	const currentDirSettingFilePath = path.resolve(process.cwd(), runnerSettingFileName);
+	if (pathExists(currentDirSettingFilePath)) {
+		return parseJson(await readFile(currentDirSettingFilePath));
+	}
+
+	const settingFilePath = await findUp(runnerSettingFileName);
+	if (!settingFilePath) {
+		throw new Error('runner setting file not found!');
+	}
+
+	return parseJson(await readFile(settingFilePath));
 };
 
 export {
+	readRunnerSettings,
+	helpMessage,
 	checkHealth,
 	config,
 	envPaths,
@@ -141,4 +174,5 @@ export {
 	setAPIProvider,
 	setCommentTemplate,
 	initConfigFilePaths,
+	setTimeoutValue,
 };

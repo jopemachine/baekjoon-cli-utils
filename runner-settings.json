@@ -1,0 +1,9 @@
+{
+	"cpp": {
+		"compiler": "g++",
+		"std": "gnu++17"
+	},
+	"js": {
+		"nodeVersion": 10
+	}
+}
