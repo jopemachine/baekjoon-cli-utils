@@ -212,7 +212,7 @@ const readRunnerSettings = async () => {
 
 	const settingFilePath = await findUp(runnerSettingFileName);
 	if (!settingFilePath) {
-		throw new Error('runner setting file not found!');
+		throw new Error(`'${runnerSettingFileName}' not found!`);
 	}
 
 	return parseJson(await readFile(settingFilePath));
@@ -224,6 +224,7 @@ export {
 	defaultEditor,
 	envPaths,
 	getAnswerFilesPath,
+	getCommitMessageTemplateFilePath,
 	getCommentTemplateFilePath,
 	getGitConfigFilePath,
 	getSourceCodeTemplateFilePath,

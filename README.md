@@ -11,5 +11,5 @@
 - [x] Rust
 - [x] Swift
 - [x] Ruby
-- [] Kotlin
-- [] D
+- [ ] Kotlin
+- [ ] D

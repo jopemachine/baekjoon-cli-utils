@@ -1,17 +1,18 @@
 {
-	"version": "0.0.0",
+	"version": "0.0.1",
 	"description": "Baekjoon CLI Utils for Algorithm Study",
 	"main": "dist/index.js",
 	"bin": {
 		"baekjoon-cli": "dist/cli.js"
 	},
 	"scripts": {
-		"test": "",
+		"test": "ava",
 		"build": "tsc",
 		"lint": "xo --fix ./src"
 	},
 	"files": [
-		"dist"
+		"dist",
+		"runner-settings.json"
 	],
 	"type": "module",
 	"dependencies": {

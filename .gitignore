@@ -1,6 +1,5 @@
 node_modules
 dist
-test
 
 .DS_Store
 # Covers JetBrains IDEs: IntelliJ, RubyMine, PhpStorm, AppCode, PyCharm, CLion, Android Studio and WebStorm

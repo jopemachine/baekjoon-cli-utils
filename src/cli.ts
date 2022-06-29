@@ -5,14 +5,34 @@ import inquirerAutocompletePrompt from 'inquirer-autocomplete-prompt';
 import isFirstRun from 'first-run';
 import {globby} from 'globby';
 import chalk from 'chalk';
-import {checkHealth, setProgrammingLanguage, setCommentTemplate, setSourceCodeTemplate, config, setAPIProvider, initConfigFilePaths, projectName, helpMessage, setTimeoutValue, setGitCommitMessageTemplate} from './conf.js';
+import {
+	checkHealth,
+	config,
+	helpMessage,
+	initConfigFilePaths,
+	projectName,
+	setAPIProvider,
+	setCommentTemplate,
+	setGitCommitMessageTemplate,
+	setProgrammingLanguage,
+	setSourceCodeTemplate,
+	setTimeoutValue,
+} from './conf.js';
 import {APIProvider} from './api-provider.js';
 import {generateAPIProvider} from './api-provider-factory.js';
 import {generateTestRunner} from './test-runner-factory.js';
 import {TestRunner} from './test-runner.js';
 import {Problem} from './problem.js';
 import {ArgumentLengthError} from './errors.js';
-import {commitProblem, findProblemPath, getProblemFolderNames, getProblemPathId, getUnusedFilename, Logger, printDividerLine} from './utils.js';
+import {
+	commitProblem,
+	findProblemPath,
+	getProblemFolderNames,
+	getProblemPathId,
+	getUnusedFilename,
+	Logger,
+	printDividerLine,
+} from './utils.js';
 import {useSpinner} from './spinner.js';
 import {supportedLanguages} from './lang.js';
 
@@ -189,6 +209,14 @@ const handleCommitProblem = async (problemId: string) => {
 	await commitProblem((problem.problemInfo as Record<string, string>), sourceFilePath);
 };
 
+const handleShowConfigs = () => {
+	Logger.log(chalk.gray('Current Configs'));
+	Logger.infoLog(chalk.whiteBright(`Language: ${config.get('lang')}`));
+	Logger.infoLog(chalk.whiteBright(`Timeout value: ${config.get('timeout')}`));
+	Logger.infoLog(chalk.whiteBright(`Problem provider: ${config.get('provider')}`));
+	Logger.infoLog(chalk.whiteBright(`PageSize: ${config.get('pageSize')}`));
+};
+
 (async function () {
 	try {
 		if (isFirstRun({name: projectName})) {
@@ -199,11 +227,7 @@ const handleCommitProblem = async (problemId: string) => {
 
 		if (command === 'config') {
 			if (!subCommand) {
-				Logger.log(chalk.gray('Current Configs'));
-				Logger.infoLog(chalk.whiteBright(`Language: ${config.get('lang')}`));
-				Logger.infoLog(chalk.whiteBright(`Timeout value: ${config.get('timeout')}`));
-				Logger.infoLog(chalk.whiteBright(`Problem provider: ${config.get('provider')}`));
-				Logger.infoLog(chalk.whiteBright(`PageSize: ${config.get('pageSize')}`));
+				handleShowConfigs();
 				return;
 			}
 

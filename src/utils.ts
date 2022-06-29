@@ -9,7 +9,7 @@ import {execa} from 'execa';
 import {globby} from 'globby';
 import chalk from 'chalk';
 import filenamify from 'filenamify';
-import {defaultEditor} from './conf.js';
+import {defaultEditor, getCommitMessageTemplateFilePath} from './conf.js';
 import {terminalWidth, useSpinner} from './spinner.js';
 import {InvalidCwdError} from './errors.js';
 
@@ -160,7 +160,4 @@ export {
 	getProblemFolderNames,
 	printDividerLine,
 };
-function getCommitMessageTemplateFilePath(): string {
-	throw new Error('Function not implemented.');
-}
 

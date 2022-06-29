@@ -1,7 +1,17 @@
 import {NotSupportedLanguageError} from './errors.js';
 import {isSupportedLanguage} from './lang.js';
 import {TestRunner} from './test-runner.js';
-import {CppTestRunner, GoTestRunner, JavascriptTestRunner, PythonTestRunner, SwiftTestRunner, RubyTestRunner, RustTestRunner, CLangTestRunner, KotlinTestRunner} from './runner/index.js';
+import {
+	CLangTestRunner,
+	CppTestRunner,
+	GoTestRunner,
+	JavascriptTestRunner,
+	KotlinTestRunner,
+	PythonTestRunner,
+	RubyTestRunner,
+	RustTestRunner,
+	SwiftTestRunner,
+} from './runner/index.js';
 import {config, readRunnerSettings} from './conf.js';
 import {JavaTestRunner} from './runner/java.js';
 
