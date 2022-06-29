@@ -2,16 +2,16 @@
 
 Simple code runner and CLI tools for studying and managing [Baekjoon](https://www.acmicpc.net/) algorithm source codes efficiently.
 
-![](./media/demo.png)
-
 * Create the source code through code, comment template by programming language.
 * Just execute your single algorithm source code by entering the problem number regardless of your language details (compiler, cli command tools... etc).
 * Automatically download and use all tests, and add the test you need manually.
 * Unify commit convention through commit template.
 
+![](./media/demo.png)
+
 Disclaimer:
 
-* This program doesn't handle [special judge problems](https://help.acmicpc.net/judge/info) correctly.
+* This program doesn't handle [Special-judge problems](https://help.acmicpc.net/judge/info) correctly.
 
 ## How to install
 
