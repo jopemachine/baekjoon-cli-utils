@@ -8,8 +8,8 @@ const supportedLanguages: Record<string, LanguageInfo> = {
 	cpp: {
 		isCompiledLanguage: true,
 		extensions: [
-			'c',
-			'h',
+			'cpp',
+			'hpp',
 		],
 		extension: 'cpp',
 	},
@@ -89,7 +89,18 @@ const supportedLanguages: Record<string, LanguageInfo> = {
 const isSupportedLanguage = (lang: string) =>
 	Object.keys(supportedLanguages).includes(lang);
 
+const inferLanguageCode = (extension: string) => {
+	for (const langCode of Object.keys(supportedLanguages)) {
+		if (supportedLanguages[langCode].extensions.includes(extension)) {
+			return langCode;
+		}
+	}
+
+	throw new Error(`Unsupported file extension: ${extension}`);
+};
+
 export {
 	supportedLanguages,
+	inferLanguageCode,
 	isSupportedLanguage,
 };

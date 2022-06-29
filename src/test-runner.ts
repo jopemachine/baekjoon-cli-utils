@@ -1,10 +1,26 @@
 import process from 'node:process';
 import chalk from 'chalk';
+import boxen from 'boxen';
 import {ExecaChildProcess, ExecaError, ExecaReturnValue} from 'execa';
+import logSymbols from 'log-symbols';
+import {sentenceCase} from 'change-case';
 import {Problem} from './problem.js';
 import {Logger, printDividerLine} from './utils.js';
 import {supportedLanguages} from './lang.js';
 import {config} from './conf.js';
+import {TestsNotFoundError} from './errors.js';
+
+const isSameStdout = (stdout1: string, stdout2: string) => {
+	const lines1 = stdout1.trim().split('\n');
+	const lines2 = stdout2.trim().split('\n');
+	for (const [idx, element] of lines1.entries()) {
+		if (element.trim() !== lines2[idx].trim()) {
+			return false;
+		}
+	}
+
+	return true;
+};
 
 abstract class TestRunner {
 	languageId: string;
@@ -19,23 +35,37 @@ abstract class TestRunner {
 	}
 
 	printRuntimeInfo() {
-		const lang = config.get('lang');
-		Logger.infoLog(chalk.dim.white('Runtime Info'));
-		Logger.log(chalk.dim.gray(`programming language: ${lang}`));
+		const boxContentObject = {
+			'programming language': this.languageId,
+			...this.runnerSettings,
+		};
 
-		for (const setting of Object.keys(this.runnerSettings)) {
-			Logger.log(chalk.dim.gray(`${setting}: ${this.runnerSettings[setting]}`));
-		}
+		const boxText = Object.keys(boxContentObject).map(setting => `${sentenceCase(setting)}: ${boxContentObject[setting]}`).join('\n');
+		const height = Object.keys(boxContentObject).length + 2;
+
+		Logger.log(boxen(boxText, {
+			title: `${logSymbols.info} Runtime Information`,
+			titleAlignment: 'left',
+			borderColor: 'gray',
+			dimBorder: true,
+			padding: {
+				left: 1,
+				bottom: 0,
+				top: 0,
+				right: 0,
+			},
+			fullscreen: width => [width, height],
+		}));
 	}
 
 	async run({sourceFilePath, problem, testIdx}: {sourceFilePath: string; problem: Problem; testIdx?: number}) {
-		this.printRuntimeInfo();
 		await problem.readAllTests();
 
 		if (problem.tests.length === 0) {
-			Logger.errorLog(chalk.red('No Test Case Found!'));
-			process.exit(1);
+			throw new TestsNotFoundError();
 		}
+
+		this.printRuntimeInfo();
 
 		let targetFilePath = sourceFilePath;
 		if ((supportedLanguages as any)[this.languageId].isCompiledLanguage) {
@@ -93,7 +123,7 @@ abstract class TestRunner {
 				continue;
 			}
 
-			if (stdout.trim() === test.expectedStdout.trim()) {
+			if (isSameStdout(stdout, test.expectedStdout)) {
 				Logger.successLog(chalk.whiteBright(`Test Case ${testIndex}`));
 			} else {
 				allTestPassed = false;

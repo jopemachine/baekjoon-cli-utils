@@ -12,7 +12,7 @@ import {
 	RustTestRunner,
 	SwiftTestRunner,
 } from './runner/index.js';
-import {config, readRunnerSettings} from './conf.js';
+import {readRunnerSettings} from './conf.js';
 import {JavaTestRunner} from './runner/java.js';
 
 const generateTestRunner = async (lang: string): Promise<TestRunner> => {
@@ -20,7 +20,7 @@ const generateTestRunner = async (lang: string): Promise<TestRunner> => {
 		throw new NotSupportedLanguageError(lang);
 	}
 
-	const runnerSetting = (await readRunnerSettings())[config.get('lang')];
+	const runnerSetting = (await readRunnerSettings())[lang];
 
 	switch (lang) {
 		case 'cpp':

@@ -63,7 +63,7 @@ const findProblemPath = async (problemId: string): Promise<string> => {
 
 	const paths = await globby(`**/${problemId}*.*`);
 	if (paths.length === 0) {
-		Logger.errorLog(`Failed To Find '${problemId}'!`);
+		Logger.errorLog(`Failed To Find '${problemId}' under Sub Directories!`);
 		process.exit(1);
 	}
 

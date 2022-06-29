@@ -1,3 +1,4 @@
+#!/usr/local/bin/node
 import process from 'node:process';
 import path from 'node:path';
 import inquirer from 'inquirer';
@@ -7,6 +8,7 @@ import {globby} from 'globby';
 import chalk from 'chalk';
 import {
 	checkHealth,
+	clearAllTestData,
 	config,
 	helpMessage,
 	initConfigFilePaths,
@@ -34,7 +36,7 @@ import {
 	printDividerLine,
 } from './utils.js';
 import {useSpinner} from './spinner.js';
-import {supportedLanguages} from './lang.js';
+import {inferLanguageCode, supportedLanguages} from './lang.js';
 
 inquirer.registerPrompt('autocomplete', inquirerAutocompletePrompt);
 
@@ -51,6 +53,7 @@ const checkArgumentLength = (command: string, subCommand?: string) => {
 		'config commit-message': 2,
 		create: 2,
 		'add-test': 2,
+		'clear-data': 2,
 		'clear-test': 2,
 		'clear-tests': 2,
 		'view-tests': 2,
@@ -105,7 +108,7 @@ const handleCreate = async (problemId: string) => {
 	return problem;
 };
 
-const handleTest = async (problemId: string) => {
+const handleTest = async (problemId: string, provider: APIProvider) => {
 	const sourceFilePath = await findProblemPath(problemId);
 	const problemPathId = getProblemPathId({
 		sourceFilePath,
@@ -119,8 +122,19 @@ const handleTest = async (problemId: string) => {
 
 	const testIdx = process.argv.length > 4 ? Number(process.argv[4]) : undefined;
 
-	const testRunner: TestRunner = await generateTestRunner(config.get('lang'));
-	await testRunner.run({sourceFilePath, problem, testIdx});
+	const testRunner: TestRunner = await generateTestRunner(inferLanguageCode(sourceFilePath.split('.').pop()!));
+
+	try {
+		await testRunner.run({sourceFilePath, problem, testIdx});
+	} catch (error: any) {
+		if (error.name === 'TestsNotFoundError') {
+			Logger.warningLog(chalk.white('No Test Case Found.'));
+			await useSpinner(provider.fetchProblemInfo(problem), 'Fetching Test Cases');
+			problem.generateTestFolder();
+			await Promise.all(problem.tests.map(async test => test.write()));
+			await testRunner.run({sourceFilePath, problem, testIdx});
+		}
+	}
 };
 
 const handleAddTest = async (problemId: string) => {
@@ -210,7 +224,7 @@ const handleCommitProblem = async (problemId: string) => {
 };
 
 const handleShowConfigs = () => {
-	Logger.log(chalk.gray('Current Configs'));
+	Logger.log(chalk.cyanBright('Current Configs'));
 	Logger.infoLog(chalk.whiteBright(`Language: ${config.get('lang')}`));
 	Logger.infoLog(chalk.whiteBright(`Timeout value: ${config.get('timeout')}`));
 	Logger.infoLog(chalk.whiteBright(`Problem provider: ${config.get('provider')}`));
@@ -266,13 +280,16 @@ const handleShowConfigs = () => {
 					await handleCreate(problemId);
 					break;
 				case 'test':
-					await handleTest(problemId);
+					await handleTest(problemId, provider);
 					break;
 				case 'view-tests':
 					await handleViewTests(problemId);
 					break;
 				case 'add-test':
 					await handleAddTest(problemId);
+					break;
+				case 'clear-data':
+					await clearAllTestData();
 					break;
 				case 'clear-tests':
 					await handleClearTests(problemId);

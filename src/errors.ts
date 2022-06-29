@@ -45,10 +45,19 @@ class InvalidCwdError extends Error {
 	}
 }
 
+class TestsNotFoundError extends Error {
+	constructor() {
+		super();
+		super.name = 'TestsNotFoundError';
+		super.message = 'No Test Case Found.';
+	}
+}
+
 export {
 	ArgumentLengthError,
 	FileIndexNotMatchError,
 	InvalidCwdError,
 	NotSupportedLanguageError,
 	NotSupportedProviderError,
+	TestsNotFoundError,
 };

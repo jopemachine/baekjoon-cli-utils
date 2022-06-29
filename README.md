@@ -1,5 +1,10 @@
 # backjoon-cli-util
 
+Disclaimer:
+
+* This lib cannot tell [special judge problems](https://help.acmicpc.net/judge/info)
+* 
+
 ## Supported Languages
 
 - [x] C++

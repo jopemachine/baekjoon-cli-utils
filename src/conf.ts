@@ -6,6 +6,7 @@ import logSymbols from 'log-symbols';
 import parseJson from 'parse-json';
 import inquirer from 'inquirer';
 import {findUp} from 'find-up';
+import del from 'del';
 import {readFile, writeFile, pathExists, Logger, mkdir, openEditor, ensureCwdIsProjectRoot} from './utils.js';
 import {supportedLanguages} from './lang.js';
 import {NotSupportedLanguageError, NotSupportedProviderError} from './errors.js';
@@ -169,6 +170,14 @@ const setCommentTemplate = async () => {
 	Logger.successLog('commentTemplate is Updated Successfully');
 };
 
+const clearAllTestData = async () => {
+	await del(getTestFilesPath(), {force: true});
+	await del(getAnswerFilesPath(), {force: true});
+	await mkdir(getTestFilesPath());
+	await mkdir(getAnswerFilesPath());
+	Logger.successLog('All test data removed.');
+};
+
 const helpMessage = `
 	Usage
 	  $ baekjoon-cli create {problem identifier}
@@ -219,6 +228,7 @@ const readRunnerSettings = async () => {
 };
 
 export {
+	clearAllTestData,
 	checkHealth,
 	config,
 	defaultEditor,
