@@ -2,7 +2,6 @@ import chalk from 'chalk';
 import logSymbols from 'log-symbols';
 import {supportedLanguages} from './lang.js';
 import {supportedAPIProviders} from './api-provider.js';
-import {projectName} from './conf.js';
 
 const makeList = (array: string[]) => array.map(string_ => chalk.white(`* ${string_}`)).join('\n');
 
@@ -34,13 +33,22 @@ class ArgumentLengthError extends Error {
 	constructor({actualLength, expectedLength}: {actualLength: number; expectedLength: number}) {
 		super();
 		super.name = 'ArgumentLengthError';
-		super.message = `${logSymbols.error} argument length ${actualLength} is not proper. expected value is ${expectedLength}.\nYou can check help manual through '${projectName} --help'`;
+		super.message = `${logSymbols.error} Expected argument length is ${expectedLength}. Actual value is ${actualLength}.\nYou can check help manual through 'baekjoon-cli help'`;
+	}
+}
+
+class InvalidCwdError extends Error {
+	constructor() {
+		super();
+		super.name = 'InvalidCwdError';
+		super.message = 'You should run the program in the project root.';
 	}
 }
 
 export {
 	ArgumentLengthError,
 	FileIndexNotMatchError,
+	InvalidCwdError,
 	NotSupportedLanguageError,
 	NotSupportedProviderError,
 };

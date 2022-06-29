@@ -11,6 +11,7 @@ import chalk from 'chalk';
 import filenamify from 'filenamify';
 import {defaultEditor} from './conf.js';
 import {terminalWidth} from './spinner.js';
+import {InvalidCwdError} from './errors.js';
 
 const fsp = fs.promises;
 
@@ -101,20 +102,27 @@ const getProblemFolderNames = (paths: string[], input: string) => paths.filter(p
 
 const getProblemPathId = ({sourceFilePath, isRelative}: {sourceFilePath: string; isRelative: boolean}) => {
 	const relativePath = isRelative ? sourceFilePath : sourceFilePath.split(process.cwd())[1];
-	const {ext, name} = path.parse(sourceFilePath);
+	const {name} = path.parse(sourceFilePath);
 	const temporaryArray = relativePath.split(path.sep);
 	temporaryArray.pop();
 
-	return filenamify(path.join(temporaryArray.join(path.sep), name.split('_')[0] + ext));
+	return filenamify(path.join(temporaryArray.join(path.sep), name.split('_')[0]));
 };
 
-const printDivider = () => {
+const printDividerLine = () => {
 	Logger.log(chalk.dim.gray(`+${'-'.repeat(terminalWidth - 2)}+`));
 };
 
 const cpFile = fsp.copyFile;
 
+const ensureCwdIsProjectRoot = async () => {
+	if (!await pathExists(path.resolve(process.cwd(), '.git'))) {
+		throw new InvalidCwdError();
+	}
+};
+
 export {
+	ensureCwdIsProjectRoot,
 	cpFile,
 	mkdir,
 	mkdirSync,
@@ -130,5 +138,5 @@ export {
 	openEditor,
 	findProblemPath,
 	getProblemFolderNames,
-	printDivider,
+	printDividerLine,
 };

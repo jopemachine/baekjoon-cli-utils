@@ -56,7 +56,8 @@
 			"@typescript-eslint/restrict-template-expressions": "off",
 			"ava/no-import-test-files": "off",
 			"unicorn/no-abusive-eslint-disable": "off",
-			"unicorn/no-process-exit": "off"
+			"unicorn/no-process-exit": "off",
+			"unicorn/no-await-expression-member": "off"
 		}
 	}
 }

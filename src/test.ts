@@ -1,7 +1,8 @@
 import path from 'node:path';
 import del from 'del';
+import chalk from 'chalk';
 import {getAnswerFilesPath, getTestFilesPath} from './conf.js';
-import {openEditor, parsePath, pathExists, readFile, writeFile} from './utils.js';
+import {Logger, openEditor, parsePath, pathExists, readFile, writeFile} from './utils.js';
 import {FileIndexNotMatchError} from './errors.js';
 
 const testFilePrefix = 'test';
@@ -43,19 +44,19 @@ class Test {
 		}
 
 		return new Test({
-			stdin: await readFile(testFilePath),
-			expectedStdout: await readFile(answerFilePath),
 			testIdx: testFileIdx,
 			problemPathId,
+			stdin: await readFile(testFilePath),
+			expectedStdout: await readFile(answerFilePath),
 		});
 	}
 
 	problemPathId: string;
 	testIdx: number;
-	stdin?: string;
-	expectedStdout?: string;
+	stdin: string;
+	expectedStdout: string;
 
-	constructor({problemPathId, testIdx, stdin, expectedStdout}: {problemPathId: string; testIdx: number; stdin?: string; expectedStdout?: string}) {
+	constructor({problemPathId, testIdx, stdin, expectedStdout}: {problemPathId: string; testIdx: number; stdin: string; expectedStdout: string}) {
 		this.problemPathId = problemPathId;
 		this.testIdx = testIdx;
 		this.stdin = stdin;
@@ -85,27 +86,30 @@ class Test {
 		await del(answerFilePath, {force: true});
 	}
 
-	async parse() {
-		const testFilePath = this.getTestFilePath();
-		const answerFilePath = this.getAnswerFilePath();
+	print() {
+		if (this.stdin === undefined || this.expectedStdout === undefined) {
+			console.error('Empty test');
+			return;
+		}
 
-		const testFileContent = await readFile(testFilePath);
-		const answerFileContent = await readFile(answerFilePath);
-
-		return {
-			stdin: testFileContent, expectedStdout: answerFileContent,
-		};
+		Logger.infoLog(chalk.cyanBright(`Test ${this.testIdx}`));
+		Logger.log(chalk.gray('[stdin]'));
+		Logger.log(this.stdin.trim());
+		Logger.log(chalk.gray('[stdout]'));
+		Logger.log(this.expectedStdout.trim());
 	}
 
-	getTestFilePath() {
+	private getTestFilePath() {
 		return path.resolve(getTestFilesPath(), this.problemPathId, `${testFilePrefix}_${this.testIdx}`);
 	}
 
-	getAnswerFilePath() {
+	private getAnswerFilePath() {
 		return path.resolve(getAnswerFilesPath(), this.problemPathId, `${answerFilePrefix}_${this.testIdx}`);
 	}
 }
 
 export {
 	Test,
+	testFilePrefix,
+	answerFilePrefix,
 };

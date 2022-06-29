@@ -3,9 +3,9 @@ import {globby} from 'globby';
 import del from 'del';
 import {getAnswerFilesPath, getTestFilesPath} from './conf.js';
 import {APIProvider} from './api-provider.js';
-import {Test} from './test.js';
+import {answerFilePrefix, Test} from './test.js';
 import {FileIndexNotMatchError} from './errors.js';
-import {mkdirSync} from './utils.js';
+import {mkdirSync, readFile} from './utils.js';
 
 class Problem {
 	problemId: string;
@@ -47,12 +47,17 @@ class Problem {
 			throw new FileIndexNotMatchError();
 		}
 
-		for (const testFilePath of testFilePaths) {
+		for await (const testFilePath of testFilePaths) {
 			const testIdx = Number(path.parse(testFilePath).name.split('_')[1]);
+
+			const stdin = (await readFile(testFilePath)).trim();
+			const expectedStdout = (await readFile(path.resolve(getAnswerFilesPath(), this.problemPathId, `${answerFilePrefix}_${testIdx}`))).trim();
 
 			this.tests.push(new Test({
 				testIdx,
 				problemPathId: this.problemPathId,
+				stdin,
+				expectedStdout,
 			}));
 		}
 	}

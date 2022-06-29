@@ -4,6 +4,7 @@ import inquirer from 'inquirer';
 import inquirerAutocompletePrompt from 'inquirer-autocomplete-prompt';
 import isFirstRun from 'first-run';
 import {globby} from 'globby';
+import chalk from 'chalk';
 import {checkHealth, setProgrammingLanguage, setCommentTemplate, setSourceCodeTemplate, config, setAPIProvider, initConfigFilePaths, projectName, helpMessage, setTimeoutValue} from './conf.js';
 import {APIProvider} from './api-provider.js';
 import {generateAPIProvider} from './api-provider-factory.js';
@@ -11,7 +12,7 @@ import {generateTestRunner} from './test-runner-factory.js';
 import {TestRunner} from './test-runner.js';
 import {Problem} from './problem.js';
 import {ArgumentLengthError} from './errors.js';
-import {findProblemPath, getProblemFolderNames, getProblemPathId, getUnusedFilename, Logger} from './utils.js';
+import {findProblemPath, getProblemFolderNames, getProblemPathId, getUnusedFilename, Logger, printDividerLine} from './utils.js';
 import {useSpinner} from './spinner.js';
 import {supportedLanguages} from './lang.js';
 
@@ -22,7 +23,7 @@ const subCommand = command === 'config' && process.argv.length > 3 ? process.arg
 
 const checkArgumentLength = (command: string, subCommand?: string) => {
 	const expectedLengthDict = {
-		'config lang': 3,
+		config: 1,
 		'config timeout': 3,
 		'config provider': 3,
 		'config code': 2,
@@ -31,7 +32,7 @@ const checkArgumentLength = (command: string, subCommand?: string) => {
 		'add-test': 2,
 		'clear-test': 2,
 		'clear-tests': 2,
-		'view-tests': 3,
+		'view-tests': 2,
 		open: 2,
 		commit: 2,
 	};
@@ -117,6 +118,28 @@ const handleAddTest = async (problemId: string) => {
 	Logger.successLog('Test Added Successfully.');
 };
 
+const handleViewTests = async (problemId: string) => {
+	const sourceFilePath = await findProblemPath(problemId);
+	const problemPathId = getProblemPathId({
+		sourceFilePath,
+		isRelative: true,
+	});
+
+	const problem = new Problem({
+		problemId,
+		problemPathId,
+	});
+
+	await problem.readAllTests();
+	for (const [testIdx, test] of problem.tests.entries()) {
+		if (testIdx !== problem.tests.length - 1) {
+			printDividerLine();
+		}
+
+		test.print();
+	}
+};
+
 const handleClearTests = async (problemId: string) => {
 	const sourceFilePath = await findProblemPath(problemId);
 	const problemPathId = getProblemPathId({
@@ -159,6 +182,15 @@ const handleClearTest = async (problemId: string) => {
 		checkArgumentLength(command, subCommand);
 
 		if (command === 'config') {
+			if (!subCommand) {
+				Logger.log(chalk.gray('Current Configs'));
+				Logger.infoLog(chalk.whiteBright(`Language: ${config.get('lang')}`));
+				Logger.infoLog(chalk.whiteBright(`Timeout value: ${config.get('timeout')}`));
+				Logger.infoLog(chalk.whiteBright(`Problem provider: ${config.get('provider')}`));
+				Logger.infoLog(chalk.whiteBright(`PageSize: ${config.get('pageSize')}`));
+				return;
+			}
+
 			const target = process.argv[3];
 
 			switch (target) {
@@ -196,7 +228,7 @@ const handleClearTest = async (problemId: string) => {
 					await handleTest(problemId);
 					break;
 				case 'view-tests':
-
+					await handleViewTests(problemId);
 					break;
 				case 'add-test':
 					await handleAddTest(problemId);

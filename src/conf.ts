@@ -4,8 +4,9 @@ import Conf from 'conf';
 import _envPaths from 'env-paths';
 import logSymbols from 'log-symbols';
 import parseJson from 'parse-json';
+import inquirer from 'inquirer';
 import {findUp} from 'find-up';
-import {readFile, writeFile, pathExists, Logger, mkdir, openEditor} from './utils.js';
+import {readFile, writeFile, pathExists, Logger, mkdir, openEditor, ensureCwdIsProjectRoot} from './utils.js';
 import {supportedLanguages} from './lang.js';
 import {NotSupportedLanguageError, NotSupportedProviderError} from './errors.js';
 import {supportedAPIProviders} from './api-provider.js';
@@ -77,6 +78,8 @@ const checkHealth = async () => {
 	if (!await pathExists(getCommentTemplateFilePath(lang))) {
 		throw new Error(`${logSymbols.error} Please set comment template to use.\nIf you do not need the comment template, just create empty file.`);
 	}
+
+	await ensureCwdIsProjectRoot();
 };
 
 const setTimeoutValue = (timeoutValue: number) => {
@@ -94,11 +97,21 @@ const setAPIProvider = (provider: string) => {
 	Logger.successLog(`provider is now '${provider}'`);
 };
 
-// TODO: refactor below code using TUI selection control.
-const setProgrammingLanguage = async (lang: string) => {
-	const supportedLangs = Object.keys(supportedLanguages);
-	if (!supportedLangs.includes(lang)) {
-		throw new NotSupportedLanguageError(lang);
+const setProgrammingLanguage = async (lang?: string) => {
+	const supportedLangs = Object.keys(supportedLanguages).sort();
+
+	if (!lang) {
+		lang = (await inquirer.prompt([{
+			name: 'language',
+			message: 'Select Programming Language',
+			type: 'autocomplete',
+			pageSize: Number(config.get('pageSize')),
+			source: (_answers: any[], input: string) => supportedLangs.filter(langCode => !input || langCode.includes(input)).map(langCode => ({name: langCode, value: langCode})),
+		}])).language;
+	}
+
+	if (!supportedLangs.includes(lang!)) {
+		throw new NotSupportedLanguageError(lang!);
 	}
 
 	config.set('lang', lang);
@@ -169,6 +182,7 @@ const helpMessage = `
 
 	Examples
 	  $ baekjoon-cli create 1000
+	  $ baekjoon-cli config lang
 	  $ baekjoon-cli config lang cpp
 `;
 
@@ -189,23 +203,23 @@ const readRunnerSettings = async () => {
 };
 
 export {
-	readRunnerSettings,
-	helpMessage,
 	checkHealth,
 	config,
+	defaultEditor,
 	envPaths,
-	reset,
-	projectName,
-	getSourceCodeTemplateFilePath,
+	getAnswerFilesPath,
 	getCommentTemplateFilePath,
 	getGitConfigFilePath,
-	defaultEditor,
+	getSourceCodeTemplateFilePath,
 	getTestFilesPath,
-	getAnswerFilesPath,
-	setProgrammingLanguage,
-	setSourceCodeTemplate,
+	helpMessage,
+	initConfigFilePaths,
+	projectName,
+	readRunnerSettings,
+	reset,
 	setAPIProvider,
 	setCommentTemplate,
-	initConfigFilePaths,
+	setProgrammingLanguage,
+	setSourceCodeTemplate,
 	setTimeoutValue,
 };

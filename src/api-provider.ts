@@ -35,7 +35,7 @@ abstract class APIProvider {
 	async commitProblem(problemId: string, problemPath: string) {
 		const {dir} = path.parse(problemPath);
 
-		useSpinner(async () => {
+		await useSpinner(async () => {
 			await execa('git', ['add', problemPath]);
 			await execa('git', ['commit', '-m', `[${dir}] Solve ${problemId}`]);
 		}, 'Git Commit');

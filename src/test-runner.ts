@@ -2,7 +2,7 @@ import process from 'node:process';
 import chalk from 'chalk';
 import {ExecaChildProcess, ExecaError, ExecaReturnValue} from 'execa';
 import {Problem} from './problem.js';
-import {Logger, printDivider} from './utils.js';
+import {Logger, printDividerLine} from './utils.js';
 import {supportedLanguages} from './lang.js';
 import {config} from './conf.js';
 
@@ -46,14 +46,16 @@ abstract class TestRunner {
 				continue;
 			}
 
-			printDivider();
-			const {stdin, expectedStdout} = await test.parse();
+			printDividerLine();
 
 			let stdout;
 			let stderr;
 
 			try {
-				const childProc = this.execute({stdin, targetFilePath});
+				const childProc = this.execute({
+					stdin: test.stdin,
+					targetFilePath,
+				});
 				const executionResult = await childProc;
 
 				stdout = executionResult.stdout ?? '';
@@ -80,7 +82,7 @@ abstract class TestRunner {
 				continue;
 			}
 
-			if (stdout.trim() === expectedStdout.trim()) {
+			if (stdout.trim() === test.expectedStdout.trim()) {
 				Logger.successLog(chalk.whiteBright(`Test Case ${testIndex}`));
 			} else {
 				allTestPassed = false;
@@ -99,7 +101,7 @@ abstract class TestRunner {
 			++testIndex;
 		}
 
-		printDivider();
+		printDividerLine();
 
 		if (allTestPassed) {
 			Logger.log(chalk.greenBright('🎉 All Tests Passed!'));
@@ -108,7 +110,7 @@ abstract class TestRunner {
 		}
 	}
 
-	async compile({sourceFilePath}: {sourceFilePath: string}): Promise<string> {
+	async compile({sourceFilePath: _}: {sourceFilePath: string}): Promise<string> {
 		throw new Error(`Compile is not implemented in the ${config.get('lang')} runner`);
 	}
 
