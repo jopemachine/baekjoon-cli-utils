@@ -10,7 +10,7 @@ import {globby} from 'globby';
 import chalk from 'chalk';
 import filenamify from 'filenamify';
 import {defaultEditor} from './conf.js';
-import {terminalWidth} from './spinner.js';
+import {terminalWidth, useSpinner} from './spinner.js';
 import {InvalidCwdError} from './errors.js';
 
 const fsp = fs.promises;
@@ -121,7 +121,27 @@ const ensureCwdIsProjectRoot = async () => {
 	}
 };
 
+const commitProblem = async (problemProperties: Record<string, string>, problemPath: string) => {
+	const {dir: relativeDirectoryPath} = path.parse(problemPath);
+	let commitMessageTemplate = await readFile(getCommitMessageTemplateFilePath());
+
+	const dict = {
+		...problemProperties,
+		relativeDirectoryPath,
+	};
+
+	for (const [propertyKey, propertyValue] of Object.entries(dict)) {
+		commitMessageTemplate = commitMessageTemplate.replace(propertyKey, propertyValue);
+	}
+
+	await useSpinner(async () => {
+		await execa('git', ['add', problemPath]);
+		await execa('git', ['commit', '-m', commitMessageTemplate]);
+	}, 'Git Commit');
+};
+
 export {
+	commitProblem,
 	ensureCwdIsProjectRoot,
 	cpFile,
 	mkdir,
@@ -140,3 +160,7 @@ export {
 	getProblemFolderNames,
 	printDividerLine,
 };
+function getCommitMessageTemplateFilePath(): string {
+	throw new Error('Function not implemented.');
+}
+

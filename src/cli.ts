@@ -5,14 +5,14 @@ import inquirerAutocompletePrompt from 'inquirer-autocomplete-prompt';
 import isFirstRun from 'first-run';
 import {globby} from 'globby';
 import chalk from 'chalk';
-import {checkHealth, setProgrammingLanguage, setCommentTemplate, setSourceCodeTemplate, config, setAPIProvider, initConfigFilePaths, projectName, helpMessage, setTimeoutValue} from './conf.js';
+import {checkHealth, setProgrammingLanguage, setCommentTemplate, setSourceCodeTemplate, config, setAPIProvider, initConfigFilePaths, projectName, helpMessage, setTimeoutValue, setGitCommitMessageTemplate} from './conf.js';
 import {APIProvider} from './api-provider.js';
 import {generateAPIProvider} from './api-provider-factory.js';
 import {generateTestRunner} from './test-runner-factory.js';
 import {TestRunner} from './test-runner.js';
 import {Problem} from './problem.js';
 import {ArgumentLengthError} from './errors.js';
-import {findProblemPath, getProblemFolderNames, getProblemPathId, getUnusedFilename, Logger, printDividerLine} from './utils.js';
+import {commitProblem, findProblemPath, getProblemFolderNames, getProblemPathId, getUnusedFilename, Logger, printDividerLine} from './utils.js';
 import {useSpinner} from './spinner.js';
 import {supportedLanguages} from './lang.js';
 
@@ -26,8 +26,9 @@ const checkArgumentLength = (command: string, subCommand?: string) => {
 		config: 1,
 		'config timeout': 3,
 		'config provider': 3,
-		'config code': 2,
-		'config comment': 2,
+		'config code-template': 2,
+		'config comment-template': 2,
+		'config commit-message': 2,
 		create: 2,
 		'add-test': 2,
 		'clear-test': 2,
@@ -51,11 +52,11 @@ const checkArgumentLength = (command: string, subCommand?: string) => {
 const handleCreate = async (problemId: string) => {
 	const provider: APIProvider = generateAPIProvider(config.get('provider'));
 
-	let paths = await useSpinner(globby('**/*', {onlyDirectories: true, caseSensitiveMatch: true}), 'Fetching All Directories');
+	let paths = await useSpinner(globby('**/*', {onlyDirectories: true, caseSensitiveMatch: true}), 'Fetching Sub Directories');
 
 	paths = [(await inquirer.prompt([{
 		name: 'folder',
-		message: 'Select An Folder To Save Problem\'s Source Code',
+		message: 'Select A Directory To Save The Source Code',
 		type: 'autocomplete',
 		pageSize: Number(config.get('pageSize')),
 		source: (_answers: any[], input: string) => getProblemFolderNames(paths!, input),
@@ -153,7 +154,7 @@ const handleClearTests = async (problemId: string) => {
 	});
 
 	await problem.clearTests();
-	Logger.successLog('Test Files are All Deleted Successfully.');
+	Logger.successLog('Test Files are All Deleted.');
 };
 
 const handleClearTest = async (problemId: string) => {
@@ -170,7 +171,22 @@ const handleClearTest = async (problemId: string) => {
 	});
 
 	await problem.clearTest(testIdx);
-	Logger.successLog(`Test ${testIdx} is Removed Successfully.`);
+	Logger.successLog(`Test ${testIdx} is Removed.`);
+};
+
+const handleCommitProblem = async (problemId: string) => {
+	const sourceFilePath = await findProblemPath(problemId);
+	const problemPathId = getProblemPathId({
+		sourceFilePath,
+		isRelative: true,
+	});
+
+	const problem = new Problem({
+		problemId,
+		problemPathId,
+	});
+
+	await commitProblem((problem.problemInfo as Record<string, string>), sourceFilePath);
 };
 
 (async function () {
@@ -206,6 +222,9 @@ const handleClearTest = async (problemId: string) => {
 				case 'code-template':
 					await setSourceCodeTemplate();
 					break;
+				case 'commit-message':
+					await setGitCommitMessageTemplate();
+					break;
 				case 'comment-template':
 					await setCommentTemplate();
 					break;
@@ -217,8 +236,6 @@ const handleClearTest = async (problemId: string) => {
 
 			const problemId = process.argv[3];
 			const provider: APIProvider = generateAPIProvider(config.get('provider'));
-
-			let sourceFilePath;
 
 			switch (command) {
 				case 'create':
@@ -243,8 +260,7 @@ const handleClearTest = async (problemId: string) => {
 					await provider.openProblem(problemId);
 					break;
 				case 'commit':
-					sourceFilePath = await findProblemPath(problemId);
-					await provider.commitProblem(problemId, sourceFilePath);
+					await handleCommitProblem(problemId);
 					break;
 				case 'help':
 					Logger.log(helpMessage);

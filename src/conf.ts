@@ -39,13 +39,13 @@ const config: any = new Conf({
 	projectName,
 });
 
-const reset = () => {
-	config.clear();
-};
+const getSourceCodeTemplateDirPath = () => path.resolve(envPaths.data, 'templates');
 
-const getSourceCodeTemplateFilePath = (lang: string) => path.resolve(envPaths.data, 'templates', lang);
+const getSourceCodeTemplateFilePath = (lang: string) => path.resolve(getSourceCodeTemplateDirPath(), lang);
 
-const getCommentTemplateFilePath = (lang: string) => path.resolve(envPaths.data, 'comment-templates', lang);
+const getCommentTemplateDirPath = () => path.resolve(envPaths.data, 'comment-templates');
+
+const getCommentTemplateFilePath = (lang: string) => path.resolve(getCommentTemplateDirPath(), lang);
 
 const getGitConfigFilePath = () => path.resolve(envPaths.data, 'git-config');
 
@@ -53,12 +53,16 @@ const getTestFilesPath = () => path.resolve(envPaths.data, 'tests');
 
 const getAnswerFilesPath = () => path.resolve(envPaths.data, 'answers');
 
+const getCommitMessageTemplateFilePath = () => path.resolve(getGitConfigFilePath(), 'commit-message');
+
 const initConfigFilePaths = async () => {
 	await mkdir(getGitConfigFilePath(), {recursive: true});
 	await mkdir(getTestFilesPath(), {recursive: true});
 	await mkdir(getAnswerFilesPath(), {recursive: true});
-	await mkdir(path.resolve(envPaths.data, 'templates'), {recursive: true});
-	await mkdir(path.resolve(envPaths.data, 'comment-templates'), {recursive: true});
+	await mkdir(getSourceCodeTemplateDirPath(), {recursive: true});
+	await mkdir(getCommentTemplateDirPath(), {recursive: true});
+
+	await writeFile(getCommitMessageTemplateFilePath(), '[{relativeDirectoryPath}] Solve {id}');
 };
 
 const checkHealth = async () => {
@@ -143,6 +147,17 @@ const setSourceCodeTemplate = async () => {
 	Logger.successLog('sourceCodeTemplate is Updated Successfully');
 };
 
+const setGitCommitMessageTemplate = async () => {
+	const commitMessageTemplateFilePath = getCommitMessageTemplateFilePath();
+
+	if (!await pathExists(commitMessageTemplateFilePath)) {
+		await writeFile(commitMessageTemplateFilePath, '');
+	}
+
+	await openEditor(commitMessageTemplateFilePath);
+	Logger.successLog('commitMessageTemplateFile is Updated Successfully');
+};
+
 const setCommentTemplate = async () => {
 	const commentTemplateFilePath = getCommentTemplateFilePath(config.get('lang'));
 
@@ -167,6 +182,7 @@ const helpMessage = `
 	  $ baekjoon-cli config timeout {ms}
 	  $ baekjoon-cli config code-template
 	  $ baekjoon-cli config comment-template
+	  $ baekjoon-cli config commit-message
 	  $ baekjoon-cli config provider {provider}
 
 	Supported Languages
@@ -216,9 +232,9 @@ export {
 	initConfigFilePaths,
 	projectName,
 	readRunnerSettings,
-	reset,
 	setAPIProvider,
 	setCommentTemplate,
+	setGitCommitMessageTemplate,
 	setProgrammingLanguage,
 	setSourceCodeTemplate,
 	setTimeoutValue,

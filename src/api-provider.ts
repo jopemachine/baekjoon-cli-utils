@@ -1,9 +1,6 @@
-import path from 'node:path';
-import {execa} from 'execa';
 import {Problem} from './problem.js';
 import {readFile, writeFile} from './utils.js';
 import {config, getCommentTemplateFilePath, getSourceCodeTemplateFilePath} from './conf.js';
-import {Test} from './test.js';
 import {processCommentTemplate} from './template.js';
 import {useSpinner} from './spinner.js';
 
@@ -19,35 +16,22 @@ abstract class APIProvider {
 	endPoints: EndPoint = {};
 
 	async createProblem(problemPath: string, problem: Problem) {
+		await this.fetchProblemInfo(problem);
+
 		const lang = config.get('lang');
-		const {title} = await useSpinner(this.fetchProblemAttributes(problem), 'Fetching Problem Information from Baekjoon');
 
 		const sourceCodeTemplate = await readFile(getSourceCodeTemplateFilePath(lang));
-		const commentTemplate = processCommentTemplate(await readFile(getCommentTemplateFilePath(lang)), {
-			title,
-		});
+		const commentTemplate = processCommentTemplate(await readFile(getCommentTemplateFilePath(lang)), (problem.problemInfo! as Record<string, string>));
 
-		await writeFile(problemPath, `${commentTemplate}\n${sourceCodeTemplate}`);
-		const tests = await useSpinner(this.fetchTests(problem), 'Fetching Test');
-		await useSpinner(this.writeTests(tests!), 'Test Files Generating');
+		await useSpinner(writeFile(problemPath, `${commentTemplate}\n${sourceCodeTemplate}`), 'Source Code Generating');
+		await useSpinner(this.writeTests(problem), 'Test Files Generating');
 	}
 
-	async commitProblem(problemId: string, problemPath: string) {
-		const {dir} = path.parse(problemPath);
+	abstract fetchProblemInfo(problem: Problem): Promise<void>;
+	abstract openProblem(problemId: string): Promise<void>;
 
-		await useSpinner(async () => {
-			await execa('git', ['add', problemPath]);
-			await execa('git', ['commit', '-m', `[${dir}] Solve ${problemId}`]);
-		}, 'Git Commit');
-	}
-
-	abstract fetchProblemInfo(problem: Problem): Promise<any>;
-	abstract openProblem(problemId: string): Promise<any>;
-	abstract fetchTests(problem: Problem): Promise<Test[]>;
-	abstract fetchProblemAttributes(problem: Problem): Promise<any>;
-
-	private async writeTests(tests: Test[]) {
-		await Promise.all(tests.map(async test => test.write()));
+	private async writeTests(problem: Problem) {
+		await Promise.all(problem.tests.map(async test => test.write()));
 	}
 }
 

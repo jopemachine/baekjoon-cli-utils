@@ -2,21 +2,25 @@ import path from 'node:path';
 import {globby} from 'globby';
 import del from 'del';
 import {getAnswerFilesPath, getTestFilesPath} from './conf.js';
-import {APIProvider} from './api-provider.js';
 import {answerFilePrefix, Test} from './test.js';
 import {FileIndexNotMatchError} from './errors.js';
 import {mkdirSync, readFile} from './utils.js';
 
+interface ProblemProperties {
+	id?: string;
+	title?: string;
+	text?: string;
+}
+
 class Problem {
 	problemId: string;
 	problemPathId: string;
-	problemInfo?: any;
+	problemInfo?: ProblemProperties;
 	tests: Test[];
 
 	constructor({problemId, problemPathId}: {problemId: string; problemPathId: string}) {
 		this.problemId = problemId;
 		this.problemPathId = problemPathId;
-		this.problemInfo = null;
 		this.tests = [];
 	}
 
@@ -26,7 +30,13 @@ class Problem {
 	}
 
 	async clearTest(testIdx: number) {
-		await this.tests[testIdx - 1].clear();
+		for (const test of this.tests) {
+			if (test.testIdx === testIdx) {
+				return test.clear();
+			}
+		}
+
+		throw new Error(`Test ${testIdx} not found!`);
 	}
 
 	async clearTests() {
@@ -60,10 +70,6 @@ class Problem {
 				expectedStdout,
 			}));
 		}
-	}
-
-	async fetchTests(apiProvider: APIProvider) {
-		this.tests = [...this.tests, ...await apiProvider.fetchTests(this)];
 	}
 
 	async addManualTest() {

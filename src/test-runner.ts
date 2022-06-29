@@ -18,7 +18,18 @@ abstract class TestRunner {
 		this.runnerSettings = runnerSettings;
 	}
 
+	printRuntimeInfo() {
+		const lang = config.get('lang');
+		Logger.infoLog(chalk.dim.white('Runtime Info'));
+		Logger.log(chalk.dim.gray(`programming language: ${lang}`));
+
+		for (const setting of Object.keys(this.runnerSettings)) {
+			Logger.log(chalk.dim.gray(`${setting}: ${this.runnerSettings[setting]}`));
+		}
+	}
+
 	async run({sourceFilePath, problem, testIdx}: {sourceFilePath: string; problem: Problem; testIdx?: number}) {
+		this.printRuntimeInfo();
 		await problem.readAllTests();
 
 		if (problem.tests.length === 0) {
