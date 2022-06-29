@@ -1,13 +1,15 @@
 # baekjoon-cli-util
 
-* Create and manage the source code, comment template by programming language.
-* Just execute your single algorithm source code by entering the problem number regardless of your language.
+Simple code runner and CLI tools for studying and managing [Baekjoon](https://www.acmicpc.net/) algorithm source codes efficiently.
+
+* Create the source code through code, comment template by programming language.
+* Just execute your single algorithm source code by entering the problem number regardless of your language details (compiler, cli command tools... etc).
 * Automatically download and use all tests, and add the test you need manually.
 * Unify commit convention through commit template.
 
 Disclaimer:
 
-* This lib cannot tell [special judge problems](https://help.acmicpc.net/judge/info)
+* This program doesn't handle [special judge problems](https://help.acmicpc.net/judge/info) correctly.
 
 ## How to install
 
@@ -20,18 +22,16 @@ $ npm i -g baekjoon-cli-util
 ```
 Usage
 	$ baekjoon-cli create {problem identifier}
+	$ baekjoon-cli test {problem identifier}
 	$ baekjoon-cli open {problem identifier}
 	$ baekjoon-cli commit {problem identifier}
-	$ baekjoon-cli clear-test {problem identifier}
-	$ baekjoon-cli clear-tests {problem identifier}
+	$ baekjoon-cli view-tests {problem identifier}
 
 Configs
 	$ baekjoon-cli config lang {language}
-	$ baekjoon-cli config timeout {ms}
 	$ baekjoon-cli config code-template
 	$ baekjoon-cli config comment-template
 	$ baekjoon-cli config commit-message
-	$ baekjoon-cli config provider {provider}
 
 Supported Languages
 	$ cpp
