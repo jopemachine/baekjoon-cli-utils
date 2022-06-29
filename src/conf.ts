@@ -186,7 +186,7 @@ const helpMessage = `
 	  $ baekjoon-cli commit {problem identifier}
 	  $ baekjoon-cli view-tests {problem identifier}
 
-	Configs
+	Usage (Update Configs)
 	  $ baekjoon-cli config lang {language}
 	  $ baekjoon-cli config code-template
 	  $ baekjoon-cli config comment-template

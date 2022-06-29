@@ -2,6 +2,8 @@
 
 Simple code runner and CLI tools for studying and managing [Baekjoon](https://www.acmicpc.net/) algorithm source codes efficiently.
 
+![](./media/demo.png)
+
 * Create the source code through code, comment template by programming language.
 * Just execute your single algorithm source code by entering the problem number regardless of your language details (compiler, cli command tools... etc).
 * Automatically download and use all tests, and add the test you need manually.
@@ -27,7 +29,7 @@ Usage
 	$ baekjoon-cli commit {problem identifier}
 	$ baekjoon-cli view-tests {problem identifier}
 
-Configs
+Usage (Update Configs)
 	$ baekjoon-cli config lang {language}
 	$ baekjoon-cli config code-template
 	$ baekjoon-cli config comment-template
