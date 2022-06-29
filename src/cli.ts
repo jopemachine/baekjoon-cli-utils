@@ -11,27 +11,27 @@ import {generateTestRunner} from './test-runner-factory.js';
 import {TestRunner} from './test-runner.js';
 import {Problem} from './problem.js';
 import {ArgumentLengthError} from './errors.js';
-import {findProblemPath, getProblemFolderNames, getProblemUId, getUnusedFilename, Logger} from './utils.js';
+import {findProblemPath, getProblemFolderNames, getProblemPathId, getUnusedFilename, Logger} from './utils.js';
 import {useSpinner} from './spinner.js';
 import {supportedLanguages} from './lang.js';
 
 inquirer.registerPrompt('autocomplete', inquirerAutocompletePrompt);
 
 const command = process.argv[2];
-const subCommand = command === 'set' && process.argv.length > 3 ? process.argv[3] : undefined;
+const subCommand = command === 'config' && process.argv.length > 3 ? process.argv[3] : undefined;
 
 const checkArgumentLength = (command: string, subCommand?: string) => {
 	const expectedLengthDict = {
-		'set lang': 3,
-		'set timeout': 3,
-		'set provider': 3,
-		'set code': 2,
-		'set comment': 2,
+		'config lang': 3,
+		'config timeout': 3,
+		'config provider': 3,
+		'config code': 2,
+		'config comment': 2,
 		create: 2,
-		clear: 2,
 		'add-test': 2,
 		'clear-test': 2,
 		'clear-tests': 2,
+		'view-tests': 3,
 		open: 2,
 		commit: 2,
 	};
@@ -56,7 +56,7 @@ const handleCreate = async (problemId: string) => {
 		name: 'folder',
 		message: 'Select An Folder To Save Problem\'s Source Code',
 		type: 'autocomplete',
-		pageSize: 8,
+		pageSize: Number(config.get('pageSize')),
 		source: (_answers: any[], input: string) => getProblemFolderNames(paths!, input),
 	}])).folder];
 
@@ -67,14 +67,14 @@ const handleCreate = async (problemId: string) => {
 		path.resolve(paths[0], [problemId, extension].join('.')),
 	);
 
-	const problemUId = getProblemUId({
+	const problemPathId = getProblemPathId({
 		sourceFilePath: pathToSave,
 		isRelative: false,
 	});
 
 	const problem = new Problem({
 		problemId,
-		problemUId,
+		problemPathId,
 	});
 
 	await problem.clearTests();
@@ -85,14 +85,14 @@ const handleCreate = async (problemId: string) => {
 
 const handleTest = async (problemId: string) => {
 	const sourceFilePath = await findProblemPath(problemId);
-	const problemUId = getProblemUId({
+	const problemPathId = getProblemPathId({
 		sourceFilePath,
 		isRelative: true,
 	});
 
 	const problem = new Problem({
 		problemId,
-		problemUId,
+		problemPathId,
 	});
 
 	const testIdx = process.argv.length > 4 ? Number(process.argv[4]) : undefined;
@@ -103,14 +103,14 @@ const handleTest = async (problemId: string) => {
 
 const handleAddTest = async (problemId: string) => {
 	const sourceFilePath = await findProblemPath(problemId);
-	const problemUId = getProblemUId({
+	const problemPathId = getProblemPathId({
 		sourceFilePath,
 		isRelative: true,
 	});
 
 	const problem = new Problem({
 		problemId,
-		problemUId,
+		problemPathId,
 	});
 
 	await problem.addManualTest();
@@ -119,14 +119,14 @@ const handleAddTest = async (problemId: string) => {
 
 const handleClearTests = async (problemId: string) => {
 	const sourceFilePath = await findProblemPath(problemId);
-	const problemUId = getProblemUId({
+	const problemPathId = getProblemPathId({
 		sourceFilePath,
 		isRelative: true,
 	});
 
 	const problem = new Problem({
 		problemId,
-		problemUId,
+		problemPathId,
 	});
 
 	await problem.clearTests();
@@ -136,14 +136,14 @@ const handleClearTests = async (problemId: string) => {
 const handleClearTest = async (problemId: string) => {
 	const testIdx = Number(process.argv[4]);
 	const sourceFilePath = await findProblemPath(problemId);
-	const problemUId = getProblemUId({
+	const problemPathId = getProblemPathId({
 		sourceFilePath,
 		isRelative: true,
 	});
 
 	const problem = new Problem({
 		problemId,
-		problemUId,
+		problemPathId,
 	});
 
 	await problem.clearTest(testIdx);
@@ -158,7 +158,7 @@ const handleClearTest = async (problemId: string) => {
 
 		checkArgumentLength(command, subCommand);
 
-		if (command === 'set') {
+		if (command === 'config') {
 			const target = process.argv[3];
 
 			switch (target) {
@@ -171,10 +171,10 @@ const handleClearTest = async (problemId: string) => {
 				case 'timeout':
 					setTimeoutValue(Number(process.argv[4]));
 					break;
-				case 'code':
+				case 'code-template':
 					await setSourceCodeTemplate();
 					break;
-				case 'comment':
+				case 'comment-template':
 					await setCommentTemplate();
 					break;
 				default:
@@ -194,6 +194,9 @@ const handleClearTest = async (problemId: string) => {
 					break;
 				case 'test':
 					await handleTest(problemId);
+					break;
+				case 'view-tests':
+
 					break;
 				case 'add-test':
 					await handleAddTest(problemId);

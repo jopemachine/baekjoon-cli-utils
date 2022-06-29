@@ -27,14 +27,13 @@ const generateTestRunner = async (lang: string): Promise<TestRunner> => {
 			return new KotlinTestRunner(runnerSetting);
 		case 'swift':
 			return new SwiftTestRunner(runnerSetting);
-		case 'd':
 		case 'c':
 			return new CLangTestRunner(runnerSetting);
 		case 'ruby':
 			return new RubyTestRunner(runnerSetting);
 		case 'rust':
 			return new RustTestRunner(runnerSetting);
-
+		case 'd':
 		default:
 			throw new Error('lang set wrong');
 	}

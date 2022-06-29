@@ -11,7 +11,7 @@ const generateAPIProvider = (provider: string): APIProvider => {
 		case 'baekjoon':
 			return new BaekjoonProvider();
 		default:
-			throw new Error('provider set wrong');
+			throw new Error('provider config wrong');
 	}
 };
 

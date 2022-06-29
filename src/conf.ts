@@ -25,6 +25,10 @@ const schema: any = {
 		type: 'number',
 		default: 5000,
 	},
+	pageSize: {
+		type: 'number',
+		default: 10,
+	},
 };
 
 const defaultEditor = process.env.EDITOR ?? 'vi';
@@ -118,7 +122,7 @@ const setProgrammingLanguage = async (lang: string) => {
 const setSourceCodeTemplate = async () => {
 	const sourceCodeTemplateFilePath = getSourceCodeTemplateFilePath(config.get('lang'));
 
-	if (!pathExists(sourceCodeTemplateFilePath)) {
+	if (!await pathExists(sourceCodeTemplateFilePath)) {
 		await writeFile(sourceCodeTemplateFilePath, '');
 	}
 
@@ -129,7 +133,7 @@ const setSourceCodeTemplate = async () => {
 const setCommentTemplate = async () => {
 	const commentTemplateFilePath = getCommentTemplateFilePath(config.get('lang'));
 
-	if (!pathExists(commentTemplateFilePath)) {
+	if (!await pathExists(commentTemplateFilePath)) {
 		await writeFile(commentTemplateFilePath, '');
 	}
 
@@ -138,14 +142,41 @@ const setCommentTemplate = async () => {
 };
 
 const helpMessage = `
+	Usage
+	  $ baekjoon-cli create {problem identifier}
+	  $ baekjoon-cli open {problem identifier}
+	  $ baekjoon-cli commit {problem identifier}
+	  $ baekjoon-cli clear-test {problem identifier}
+	  $ baekjoon-cli clear-tests {problem identifier}
 
+	Configs
+	  $ baekjoon-cli config lang {language}
+	  $ baekjoon-cli config timeout {ms}
+	  $ baekjoon-cli config code-template
+	  $ baekjoon-cli config comment-template
+	  $ baekjoon-cli config provider {provider}
+
+	Supported Languages
+	  $ cpp
+	  $ c
+	  $ java
+	  $ javascript
+	  $ python
+	  $ ruby
+	  $ swift
+	  $ rust
+	  $ go
+
+	Examples
+	  $ baekjoon-cli create 1000
+	  $ baekjoon-cli config lang cpp
 `;
 
 const runnerSettingFileName = 'runner-settings.json';
 
 const readRunnerSettings = async () => {
 	const currentDirSettingFilePath = path.resolve(process.cwd(), runnerSettingFileName);
-	if (pathExists(currentDirSettingFilePath)) {
+	if (await pathExists(currentDirSettingFilePath)) {
 		return parseJson(await readFile(currentDirSettingFilePath));
 	}
 

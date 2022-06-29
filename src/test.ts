@@ -22,18 +22,18 @@ const createAvailableTestFilePath = async (basePath: string, baseName: string) =
 	/* eslint-enable no-await-in-loop, no-constant-condition */
 };
 
-const makeNewTestFile = async (problemUId: string) => createAvailableTestFilePath(path.resolve(getTestFilesPath(), problemUId), testFilePrefix);
+const makeNewTestFile = async (problemPathId: string) => createAvailableTestFilePath(path.resolve(getTestFilesPath(), problemPathId), testFilePrefix);
 
-const makeNewAnswerFile = async (problemUId: string) => createAvailableTestFilePath(path.resolve(getAnswerFilesPath(), problemUId), answerFilePrefix);
+const makeNewAnswerFile = async (problemPathId: string) => createAvailableTestFilePath(path.resolve(getAnswerFilesPath(), problemPathId), answerFilePrefix);
 
 class Test {
-	static async createManually(problemUId: string) {
-		const testFilePath = await makeNewTestFile(problemUId);
+	static async createManually(problemPathId: string) {
+		const testFilePath = await makeNewTestFile(problemPathId);
 		await writeFile(testFilePath, '');
 		await openEditor(testFilePath);
 		const {idx: testFileIdx} = parsePath(testFilePath);
 
-		const answerFilePath = await makeNewAnswerFile(problemUId);
+		const answerFilePath = await makeNewAnswerFile(problemPathId);
 		await writeFile(answerFilePath, '');
 		await openEditor(answerFilePath);
 		const {idx: answerFileIdx} = parsePath(testFilePath);
@@ -46,17 +46,17 @@ class Test {
 			stdin: await readFile(testFilePath),
 			expectedStdout: await readFile(answerFilePath),
 			testIdx: testFileIdx,
-			problemUId,
+			problemPathId,
 		});
 	}
 
-	problemUId: string;
+	problemPathId: string;
 	testIdx: number;
 	stdin?: string;
 	expectedStdout?: string;
 
-	constructor({problemUId, testIdx, stdin, expectedStdout}: {problemUId: string; testIdx: number; stdin?: string; expectedStdout?: string}) {
-		this.problemUId = problemUId;
+	constructor({problemPathId, testIdx, stdin, expectedStdout}: {problemPathId: string; testIdx: number; stdin?: string; expectedStdout?: string}) {
+		this.problemPathId = problemPathId;
 		this.testIdx = testIdx;
 		this.stdin = stdin;
 		this.expectedStdout = expectedStdout;
@@ -98,11 +98,11 @@ class Test {
 	}
 
 	getTestFilePath() {
-		return path.resolve(getTestFilesPath(), this.problemUId, `${testFilePrefix}_${this.testIdx}`);
+		return path.resolve(getTestFilesPath(), this.problemPathId, `${testFilePrefix}_${this.testIdx}`);
 	}
 
 	getAnswerFilePath() {
-		return path.resolve(getAnswerFilesPath(), this.problemUId, `${answerFilePrefix}_${this.testIdx}`);
+		return path.resolve(getAnswerFilesPath(), this.problemPathId, `${answerFilePrefix}_${this.testIdx}`);
 	}
 }
 

@@ -99,10 +99,13 @@ const getProblemFolderNames = (paths: string[], input: string) => paths.filter(p
 	value: path,
 }));
 
-const getProblemUId = ({sourceFilePath, isRelative}: {sourceFilePath: string; isRelative: boolean}) => {
+const getProblemPathId = ({sourceFilePath, isRelative}: {sourceFilePath: string; isRelative: boolean}) => {
 	const relativePath = isRelative ? sourceFilePath : sourceFilePath.split(process.cwd())[1];
-	const {ext} = path.parse(sourceFilePath);
-	return filenamify([relativePath.split('.')[0], ext.split('.').pop()].join('!'));
+	const {ext, name} = path.parse(sourceFilePath);
+	const temporaryArray = relativePath.split(path.sep);
+	temporaryArray.pop();
+
+	return filenamify(path.join(temporaryArray.join(path.sep), name.split('_')[0] + ext));
 };
 
 const printDivider = () => {
@@ -116,7 +119,7 @@ export {
 	mkdir,
 	mkdirSync,
 	parsePath,
-	getProblemUId,
+	getProblemPathId,
 	getUnusedFilename,
 	unusedFileNameIncrementer,
 	readFile,

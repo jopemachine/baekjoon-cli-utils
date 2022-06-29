@@ -38,7 +38,7 @@ abstract class APIProvider {
 		useSpinner(async () => {
 			await execa('git', ['add', problemPath]);
 			await execa('git', ['commit', '-m', `[${dir}] Solve ${problemId}`]);
-		}, 'Git commit');
+		}, 'Git Commit');
 	}
 
 	abstract fetchProblemInfo(problem: Problem): Promise<any>;

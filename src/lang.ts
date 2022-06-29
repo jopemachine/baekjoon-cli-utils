@@ -1,4 +1,10 @@
-const supportedLanguages = {
+interface LanguageInfo {
+	isCompiledLanguage: boolean;
+	extensions: string[];
+	extension: string;
+}
+
+const supportedLanguages: Record<string, LanguageInfo> = {
 	cpp: {
 		isCompiledLanguage: true,
 		extensions: [

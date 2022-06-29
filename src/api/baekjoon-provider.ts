@@ -42,7 +42,7 @@ class BaekjoonProvider extends APIProvider {
 			tests.push(
 				new Test({
 					testIdx,
-					problemUId: problem.problemUId,
+					problemPathId: problem.problemPathId,
 					stdin: sampleInputTxt,
 					expectedStdout: sampleOutputTxt,
 				}),

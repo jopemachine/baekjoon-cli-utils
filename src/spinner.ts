@@ -9,13 +9,13 @@ const terminalWidth = process.stdout.columns;
 const spinner = ora({hideCursor: false});
 
 const useSpinner = async <T>(work: Promise<T> | (() => Promise<T>), message: string): Promise<T | undefined> => {
-	spinner.start(`${message} Processing..`);
+	spinner.start(`${message} Processing...`);
 	try {
 		const result = isPromise(work) ? await work : await work();
 		spinner.succeed(`${message} Done.`);
 		return result;
 	} catch (error: any) {
-		spinner.fail(`${message} Failed!.`);
+		spinner.fail(`${message} Failed!`);
 		Logger.log(chalk.gray(error));
 	}
 };

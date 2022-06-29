@@ -1,9 +1,9 @@
 {
 	"version": "0.0.0",
-	"description": "Backjoon CLI Utils for Algorithm Study",
+	"description": "Baekjoon CLI Utils for Algorithm Study",
 	"main": "dist/index.js",
 	"bin": {
-		"backjoon-cli": "dist/cli.js"
+		"baekjoon-cli": "dist/cli.js"
 	},
 	"scripts": {
 		"test": "",

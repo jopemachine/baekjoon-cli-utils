@@ -9,20 +9,20 @@ import {mkdirSync} from './utils.js';
 
 class Problem {
 	problemId: string;
-	problemUId: string;
+	problemPathId: string;
 	problemInfo?: any;
 	tests: Test[];
 
-	constructor({problemId, problemUId}: {problemId: string; problemUId: string}) {
+	constructor({problemId, problemPathId}: {problemId: string; problemPathId: string}) {
 		this.problemId = problemId;
-		this.problemUId = problemUId;
+		this.problemPathId = problemPathId;
 		this.problemInfo = null;
 		this.tests = [];
 	}
 
 	generateTestFolder() {
-		mkdirSync(path.resolve(getTestFilesPath(), this.problemUId));
-		mkdirSync(path.resolve(getAnswerFilesPath(), this.problemUId));
+		mkdirSync(path.resolve(getTestFilesPath(), this.problemPathId));
+		mkdirSync(path.resolve(getAnswerFilesPath(), this.problemPathId));
 	}
 
 	async clearTest(testIdx: number) {
@@ -30,8 +30,8 @@ class Problem {
 	}
 
 	async clearTests() {
-		const problemTestDirectory = path.resolve(getTestFilesPath(), this.problemUId);
-		const problemAnswerDirectory = path.resolve(getAnswerFilesPath(), this.problemUId);
+		const problemTestDirectory = path.resolve(getTestFilesPath(), this.problemPathId);
+		const problemAnswerDirectory = path.resolve(getAnswerFilesPath(), this.problemPathId);
 
 		await del(problemTestDirectory, {force: true});
 		await del(problemAnswerDirectory, {force: true});
@@ -52,7 +52,7 @@ class Problem {
 
 			this.tests.push(new Test({
 				testIdx,
-				problemUId: this.problemUId,
+				problemPathId: this.problemPathId,
 			}));
 		}
 	}
@@ -63,16 +63,16 @@ class Problem {
 
 	async addManualTest() {
 		this.tests.push(
-			await Test.createManually(this.problemUId),
+			await Test.createManually(this.problemPathId),
 		);
 	}
 
 	private async getTestFilePaths() {
-		return globby(path.resolve(getTestFilesPath(), this.problemUId), {caseSensitiveMatch: true, onlyFiles: true, followSymbolicLinks: false});
+		return globby(path.resolve(getTestFilesPath(), this.problemPathId), {caseSensitiveMatch: true, onlyFiles: true, followSymbolicLinks: false});
 	}
 
 	private async getAnswerFilePaths() {
-		return globby(path.resolve(getAnswerFilesPath(), this.problemUId), {caseSensitiveMatch: true, onlyFiles: true, followSymbolicLinks: false});
+		return globby(path.resolve(getAnswerFilesPath(), this.problemPathId), {caseSensitiveMatch: true, onlyFiles: true, followSymbolicLinks: false});
 	}
 }
 
