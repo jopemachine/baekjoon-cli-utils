@@ -1,11 +1,12 @@
 import {Problem} from './problem.js';
 import {readFile, writeFile} from './utils.js';
-import {config, getCommentTemplateFilePath, getSourceCodeTemplateFilePath} from './conf.js';
+import {getCommentTemplateFilePath, getSourceCodeTemplateFilePath} from './conf.js';
 import {processCommentTemplate} from './template.js';
 import {useSpinner} from './spinner.js';
 
 interface EndPoint {
 	getProblem?: string;
+	cssSelectors?: Record<string, string>;
 }
 
 const supportedAPIProviders: string[] = [
@@ -15,13 +16,11 @@ const supportedAPIProviders: string[] = [
 abstract class APIProvider {
 	endPoints: EndPoint = {};
 
-	async createProblem(problemPath: string, problem: Problem) {
+	async createProblem(problemPath: string, problem: Problem, langCode: string) {
 		await this.fetchProblemInfo(problem);
 
-		const lang = config.get('lang');
-
-		const sourceCodeTemplate = await readFile(getSourceCodeTemplateFilePath(lang));
-		const commentTemplate = processCommentTemplate(await readFile(getCommentTemplateFilePath(lang)), (problem.problemInfo! as Record<string, string>));
+		const sourceCodeTemplate = await readFile(getSourceCodeTemplateFilePath(langCode));
+		const commentTemplate = processCommentTemplate(await readFile(getCommentTemplateFilePath(langCode)), (problem.problemInfo! as Record<string, string>));
 
 		await useSpinner(writeFile(problemPath, `${commentTemplate}\n${sourceCodeTemplate}`), 'Source Code Generating');
 		await useSpinner(this.writeTests(problem), 'Test Files Generating');
@@ -31,7 +30,7 @@ abstract class APIProvider {
 	abstract openProblem(problemId: string): Promise<void>;
 
 	private async writeTests(problem: Problem) {
-		await Promise.all(problem.tests.map(async test => test.write()));
+		return Promise.all(problem.tests.map(async test => test.write()));
 	}
 }
 

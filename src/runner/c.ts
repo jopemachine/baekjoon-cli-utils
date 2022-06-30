@@ -1,5 +1,6 @@
 import {execa} from 'execa';
 import {temporaryFile} from 'tempy';
+import {RunnerConfigFileNotValidError} from '../errors.js';
 import {TestRunner} from '../test-runner.js';
 
 interface CLangTestRunnerSetting {
@@ -12,7 +13,7 @@ const isValidConfig = (runnerSetting: any): runnerSetting is CLangTestRunnerSett
 class CLangTestRunner extends TestRunner {
 	constructor(runnerSettings: CLangTestRunnerSetting) {
 		if (!isValidConfig(runnerSettings)) {
-			throw new Error('Runner Config file not valid!');
+			throw new RunnerConfigFileNotValidError();
 		}
 
 		super(runnerSettings);

@@ -9,8 +9,12 @@ import {mkdirSync, readFile} from './utils.js';
 
 interface ProblemProperties {
 	id?: string;
+	url?: string;
 	title?: string;
 	text?: string;
+	input?: string;
+	output?: string;
+	tags?: string;
 }
 
 class Problem {
@@ -88,11 +92,19 @@ class Problem {
 	}
 
 	private async getTestFilePaths() {
-		return globby(path.resolve(getTestFilesPath(), this.problemPathId), {caseSensitiveMatch: true, onlyFiles: true, followSymbolicLinks: false});
+		return (await globby(`${this.problemPathId}/**`, {
+			cwd: getTestFilesPath(),
+			caseSensitiveMatch: true,
+			followSymbolicLinks: false,
+		})).map((pth: string) => path.resolve(getTestFilesPath(), pth));
 	}
 
 	private async getAnswerFilePaths() {
-		return globby(path.resolve(getAnswerFilesPath(), this.problemPathId), {caseSensitiveMatch: true, onlyFiles: true, followSymbolicLinks: false});
+		return (await globby(`${this.problemPathId}/**`, {
+			cwd: getAnswerFilesPath(),
+			caseSensitiveMatch: true,
+			followSymbolicLinks: false,
+		})).map((pth: string) => path.resolve(getAnswerFilesPath(), pth));
 	}
 }
 

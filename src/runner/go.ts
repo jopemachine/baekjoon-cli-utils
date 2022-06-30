@@ -1,5 +1,6 @@
 import {execa} from 'execa';
 import {temporaryFile} from 'tempy';
+import {RunnerConfigFileNotValidError} from '../errors.js';
 import {TestRunner} from '../test-runner.js';
 
 interface GoLangTestRunnerSetting {
@@ -10,7 +11,7 @@ const isValidConfig = (runnerSetting: any): runnerSetting is GoLangTestRunnerSet
 class GoTestRunner extends TestRunner {
 	constructor(runnerSettings: GoLangTestRunnerSetting) {
 		if (!isValidConfig(runnerSettings)) {
-			throw new Error('Runner Config file not valid!');
+			throw new RunnerConfigFileNotValidError();
 		}
 
 		super(runnerSettings);

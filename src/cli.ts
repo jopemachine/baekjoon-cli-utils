@@ -1,4 +1,4 @@
-#!/usr/local/bin/node
+#!/usr/bin/env node
 import process from 'node:process';
 import path from 'node:path';
 import inquirer from 'inquirer';
@@ -16,6 +16,7 @@ import {
 	setAPIProvider,
 	setCommentTemplate,
 	setGitCommitMessageTemplate,
+	setPageSizeValue,
 	setProgrammingLanguage,
 	setSourceCodeTemplate,
 	setTimeoutValue,
@@ -36,7 +37,7 @@ import {
 	printDividerLine,
 } from './utils.js';
 import {useSpinner} from './spinner.js';
-import {inferLanguageCode, supportedLanguages} from './lang.js';
+import {inferLanguageCode, supportedLanguageInfo} from './lang.js';
 
 inquirer.registerPrompt('autocomplete', inquirerAutocompletePrompt);
 
@@ -51,9 +52,10 @@ const checkArgumentLength = (command: string, subCommand?: string) => {
 		'config code-template': 2,
 		'config comment-template': 2,
 		'config commit-message': 2,
+		'config page-size': 3,
 		create: 2,
 		'add-test': 2,
-		'clear-data': 2,
+		'clear-data': 1,
 		'clear-test': 2,
 		'clear-tests': 2,
 		'view-tests': 2,
@@ -72,10 +74,10 @@ const checkArgumentLength = (command: string, subCommand?: string) => {
 	}
 };
 
-const handleCreate = async (problemId: string) => {
+const handleCreate = async (problemId: string, langCode?: string) => {
 	const provider: APIProvider = generateAPIProvider(config.get('provider'));
 
-	let paths = await useSpinner(globby('**/*', {onlyDirectories: true, caseSensitiveMatch: true}), 'Fetching Sub Directories');
+	let paths = await useSpinner(globby('**/*', {onlyDirectories: true, caseSensitiveMatch: true}), 'Fetching Subdirectories');
 
 	paths = [(await inquirer.prompt([{
 		name: 'folder',
@@ -85,8 +87,8 @@ const handleCreate = async (problemId: string) => {
 		source: (_answers: any[], input: string) => getProblemFolderNames(paths!, input),
 	}])).folder];
 
-	const lang = config.get('lang');
-	const {extension} = (supportedLanguages as any)[lang];
+	langCode = langCode ?? config.get('lang');
+	const {extension} = (supportedLanguageInfo as any)[langCode!];
 
 	const pathToSave = await getUnusedFilename(
 		path.resolve(paths[0], [problemId, extension].join('.')),
@@ -104,7 +106,7 @@ const handleCreate = async (problemId: string) => {
 
 	await problem.clearTests();
 	problem.generateTestFolder();
-	await provider.createProblem(pathToSave, problem);
+	await provider.createProblem(pathToSave, problem, langCode!);
 	return problem;
 };
 
@@ -128,7 +130,7 @@ const handleTest = async (problemId: string, provider: APIProvider) => {
 		await testRunner.run({sourceFilePath, problem, testIdx});
 	} catch (error: any) {
 		if (error.name === 'TestsNotFoundError') {
-			Logger.warningLog(chalk.white('No Test Case Found.'));
+			Logger.warningLog('No Test Case Found.');
 			await useSpinner(provider.fetchProblemInfo(problem), 'Fetching Test Cases');
 			problem.generateTestFolder();
 			await Promise.all(problem.tests.map(async test => test.write()));
@@ -221,7 +223,7 @@ const handleCommitProblem = async (problemId: string) => {
 		problemPathId,
 	});
 
-	await commitProblem((problem.problemInfo as Record<string, string>), sourceFilePath);
+	await commitProblem(problem, sourceFilePath);
 };
 
 const handleShowConfigs = () => {
@@ -252,6 +254,9 @@ const handleShowConfigs = () => {
 				case 'lang':
 					await setProgrammingLanguage(process.argv[4]);
 					break;
+				case 'page-size':
+					setPageSizeValue(Number(process.argv[4]));
+					break;
 				case 'provider':
 					setAPIProvider(process.argv[4]);
 					break;
@@ -259,13 +264,13 @@ const handleShowConfigs = () => {
 					setTimeoutValue(Number(process.argv[4]));
 					break;
 				case 'code-template':
-					await setSourceCodeTemplate();
+					await setSourceCodeTemplate(config.get('lang'));
+					break;
+				case 'comment-template':
+					await setCommentTemplate(config.get('lang'));
 					break;
 				case 'commit-message':
 					await setGitCommitMessageTemplate();
-					break;
-				case 'comment-template':
-					await setCommentTemplate();
 					break;
 				default:
 					throw new Error(`Unknown Config Name '${chalk.red(target)}'`);

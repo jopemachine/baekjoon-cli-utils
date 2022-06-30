@@ -1,5 +1,6 @@
 export {CppTestRunner} from './cpp.js';
 export {JavascriptTestRunner} from './javascript.js';
+export {JavaTestRunner} from './java.js';
 export {PythonTestRunner} from './python.js';
 export {GoTestRunner} from './go.js';
 export {SwiftTestRunner} from './swift.js';

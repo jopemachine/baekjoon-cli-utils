@@ -1,4 +1,5 @@
 import {execa} from 'execa';
+import {RunnerConfigFileNotValidError} from '../errors.js';
 import {TestRunner} from '../test-runner.js';
 
 interface PythonTestRunnerSetting {}
@@ -8,7 +9,7 @@ const isValidConfig = (runnerSetting: any): runnerSetting is PythonTestRunnerSet
 class PythonTestRunner extends TestRunner {
 	constructor(runnerSettings: PythonTestRunnerSetting) {
 		if (!isValidConfig(runnerSettings)) {
-			throw new Error('Runner Config file not valid!');
+			throw new RunnerConfigFileNotValidError();
 		}
 
 		super(runnerSettings);

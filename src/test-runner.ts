@@ -7,7 +7,7 @@ import {sentenceCase} from 'change-case';
 import del from 'del';
 import {Problem} from './problem.js';
 import {Logger, printDividerLine} from './utils.js';
-import {supportedLanguages} from './lang.js';
+import {supportedLanguageInfo} from './lang.js';
 import {config} from './conf.js';
 import {TestsNotFoundError} from './errors.js';
 
@@ -71,7 +71,7 @@ abstract class TestRunner {
 		this.printRuntimeInfo();
 
 		let targetFilePath = sourceFilePath;
-		if ((supportedLanguages as any)[this.languageId].isCompiledLanguage) {
+		if ((supportedLanguageInfo as any)[this.languageId].isCompiledLanguage) {
 			try {
 				targetFilePath = await this.compile({sourceFilePath});
 			} catch (error: any) {
@@ -118,10 +118,6 @@ abstract class TestRunner {
 					Logger.log((error as ExecaError).stdout);
 				}
 
-				if ((error as ExecaError).stderr) {
-					Logger.log((error as ExecaError).stderr);
-				}
-
 				++testIndex;
 				continue;
 			}
@@ -132,14 +128,11 @@ abstract class TestRunner {
 				allTestPassed = false;
 				Logger.errorLog(chalk.whiteBright(`Test Case ${testIndex} - ${chalk.red('Failed!')}`));
 				Logger.infoLog(chalk.gray(`[stdout]\n${chalk.red(stdout)}`));
+				Logger.infoLog(chalk.gray(`[expected stdout]\n${chalk.yellow(test.expectedStdout)}`));
 			}
 
 			if (stderr) {
 				Logger.infoLog(chalk.gray(`[stderr]\n${stderr}`));
-			}
-
-			if (!stdout && !stderr) {
-				Logger.warningLog(chalk.gray('Stdout Empty!'));
 			}
 
 			++testIndex;
@@ -158,7 +151,7 @@ abstract class TestRunner {
 	}
 
 	async compile({sourceFilePath: _}: {sourceFilePath: string}): Promise<string> {
-		throw new Error(`Compile is not implemented in the ${config.get('lang')} runner`);
+		throw new Error(`'compile' is not implemented in the ${this.languageId} runner`);
 	}
 
 	abstract execute({stdin, targetFilePath}: {stdin: string; targetFilePath: string}): ExecaChildProcess | Promise<ExecaReturnValue>;

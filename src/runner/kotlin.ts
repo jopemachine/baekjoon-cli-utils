@@ -3,6 +3,7 @@ import {execa} from 'execa';
 import {temporaryDirectory} from 'tempy';
 import {TestRunner} from '../test-runner.js';
 import {cpFile} from '../utils.js';
+import {RunnerConfigFileNotValidError} from '../errors.js';
 
 interface KotlinTestRunnerSetting {
 }
@@ -12,7 +13,7 @@ const isValidConfig = (runnerSetting: any): runnerSetting is KotlinTestRunnerSet
 class KotlinTestRunner extends TestRunner {
 	constructor(runnerSettings: KotlinTestRunnerSetting) {
 		if (!isValidConfig(runnerSettings)) {
-			throw new Error('Runner Config file not valid!');
+			throw new RunnerConfigFileNotValidError();
 		}
 
 		super(runnerSettings);

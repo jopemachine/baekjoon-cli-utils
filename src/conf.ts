@@ -7,8 +7,9 @@ import parseJson from 'parse-json';
 import inquirer from 'inquirer';
 import {findUp} from 'find-up';
 import del from 'del';
+import chalk from 'chalk';
 import {readFile, writeFile, pathExists, Logger, mkdir, openEditor, ensureCwdIsProjectRoot} from './utils.js';
-import {supportedLanguages} from './lang.js';
+import {getDefaultCommentTemplate, supportedLanguages} from './lang.js';
 import {NotSupportedLanguageError, NotSupportedProviderError} from './errors.js';
 import {supportedAPIProviders} from './api-provider.js';
 
@@ -50,11 +51,13 @@ const getCommentTemplateFilePath = (lang: string) => path.resolve(getCommentTemp
 
 const getGitConfigFilePath = () => path.resolve(envPaths.data, 'git-config');
 
-const getTestFilesPath = () => path.resolve(envPaths.data, 'tests');
+const getTestFilesPath = () => path.resolve(envPaths.cache, 'tests');
 
-const getAnswerFilesPath = () => path.resolve(envPaths.data, 'answers');
+const getAnswerFilesPath = () => path.resolve(envPaths.cache, 'answers');
 
 const getCommitMessageTemplateFilePath = () => path.resolve(getGitConfigFilePath(), 'commit-message');
+
+const defaultCommitMessageTemplate = '[{relativeDirectoryPath}] Solve {id}';
 
 const initConfigFilePaths = async () => {
 	await mkdir(getGitConfigFilePath(), {recursive: true});
@@ -63,7 +66,7 @@ const initConfigFilePaths = async () => {
 	await mkdir(getSourceCodeTemplateDirPath(), {recursive: true});
 	await mkdir(getCommentTemplateDirPath(), {recursive: true});
 
-	await writeFile(getCommitMessageTemplateFilePath(), '[{relativeDirectoryPath}] Solve {id}');
+	await writeFile(getCommitMessageTemplateFilePath(), defaultCommitMessageTemplate);
 };
 
 const checkHealth = async () => {
@@ -103,7 +106,7 @@ const setAPIProvider = (provider: string) => {
 };
 
 const setProgrammingLanguage = async (lang?: string) => {
-	const supportedLangs = Object.keys(supportedLanguages).sort();
+	const supportedLangs = supportedLanguages.sort();
 
 	if (!lang) {
 		lang = (await inquirer.prompt([{
@@ -122,23 +125,30 @@ const setProgrammingLanguage = async (lang?: string) => {
 	config.set('lang', lang);
 	Logger.successLog(`lang is now '${lang}'`);
 
-	const sourceCodeTemplate = getSourceCodeTemplateFilePath(config.get('lang'));
-	if (!await pathExists(sourceCodeTemplate)) {
-		await writeFile(sourceCodeTemplate, '');
+	const sourceCodeTemplateFilePath = getSourceCodeTemplateFilePath(config.get('lang'));
+	if (!await pathExists(sourceCodeTemplateFilePath)) {
+		await writeFile(sourceCodeTemplateFilePath, '');
 	}
 
-	Logger.successLog(`sourceCodeTemplate is now '${sourceCodeTemplate}'`);
-
-	const commentTemplate = getCommentTemplateFilePath(config.get('lang'));
-	if (!await pathExists(commentTemplate)) {
-		await writeFile(commentTemplate, '');
+	const commentTemplateFilePath = getCommentTemplateFilePath(config.get('lang'));
+	if (!await pathExists(commentTemplateFilePath)) {
+		await writeFile(commentTemplateFilePath, getDefaultCommentTemplate(config.get('lang')));
 	}
-
-	Logger.successLog(`commentTemplate is now '${commentTemplate}'`);
 };
 
-const setSourceCodeTemplate = async () => {
-	const sourceCodeTemplateFilePath = getSourceCodeTemplateFilePath(config.get('lang'));
+const setGitCommitMessageTemplate = async () => {
+	const commitMessageTemplateFilePath = getCommitMessageTemplateFilePath();
+
+	if (!await pathExists(commitMessageTemplateFilePath)) {
+		await writeFile(commitMessageTemplateFilePath, defaultCommitMessageTemplate);
+	}
+
+	await openEditor(commitMessageTemplateFilePath);
+	Logger.successLog('commitMessageTemplateFile is Updated Successfully');
+};
+
+const setSourceCodeTemplate = async (langCode: string) => {
+	const sourceCodeTemplateFilePath = getSourceCodeTemplateFilePath(langCode);
 
 	if (!await pathExists(sourceCodeTemplateFilePath)) {
 		await writeFile(sourceCodeTemplateFilePath, '');
@@ -148,26 +158,20 @@ const setSourceCodeTemplate = async () => {
 	Logger.successLog('sourceCodeTemplate is Updated Successfully');
 };
 
-const setGitCommitMessageTemplate = async () => {
-	const commitMessageTemplateFilePath = getCommitMessageTemplateFilePath();
-
-	if (!await pathExists(commitMessageTemplateFilePath)) {
-		await writeFile(commitMessageTemplateFilePath, '');
-	}
-
-	await openEditor(commitMessageTemplateFilePath);
-	Logger.successLog('commitMessageTemplateFile is Updated Successfully');
-};
-
-const setCommentTemplate = async () => {
-	const commentTemplateFilePath = getCommentTemplateFilePath(config.get('lang'));
+const setCommentTemplate = async (langCode: string) => {
+	const commentTemplateFilePath = getCommentTemplateFilePath(langCode);
 
 	if (!await pathExists(commentTemplateFilePath)) {
-		await writeFile(commentTemplateFilePath, '');
+		await writeFile(commentTemplateFilePath, getDefaultCommentTemplate(langCode as any));
 	}
 
 	await openEditor(commentTemplateFilePath);
 	Logger.successLog('commentTemplate is Updated Successfully');
+};
+
+const setPageSizeValue = (pageSize: number) => {
+	config.set('pageSize', pageSize);
+	Logger.successLog(`pageSize is now '${pageSize}'`);
 };
 
 const clearAllTestData = async () => {
@@ -179,40 +183,43 @@ const clearAllTestData = async () => {
 };
 
 const helpMessage = `
-Simple code runner and CLI tools for studying and managing Baekjoon algorithm source codes efficiently
+Simple code runner and CLI tools for studying and managing Baekjoon algorithm source codes efficiently.
 
-Usage
-  $ baekjoon-cli create {problem identifier}
-  $ baekjoon-cli test {problem identifier}
-  $ baekjoon-cli add-test {problem identifier}
-  $ baekjoon-cli open {problem identifier}
-  $ baekjoon-cli commit {problem identifier}
-  $ baekjoon-cli clear-test {problem identifier} {test index}
-  $ baekjoon-cli clear-tests {problem identifier}
-  $ baekjoon-cli view-tests {problem identifier}
+${chalk.bold('Commands')}
+  create		Create the problem source code on the subdirectory, and fetch tests.
+  test			Find, compile and run a problem source code.
+  add-test		Add additional test manually.
+  open			Open the problem's URL in your browser.
+  commit		Commit the problem source code to Git.
+  clear-test		Clear the specified problem's test.
+  clear-tests		Clear all the problem's tests.
+  view-tests		Check the problem's tests.
+  config		Check and update templates, configurations.
 
-Usage (Update Configs)
-  $ baekjoon-cli config lang {language}
-  $ baekjoon-cli config timeout {ms}
-  $ baekjoon-cli config code-template
-  $ baekjoon-cli config comment-template
-  $ baekjoon-cli config commit-message
+${chalk.bold('Usage')}
+  $ baekjoon-cli [create <problem identifier>]
+  $ baekjoon-cli [test <problem identifier>]
+  $ baekjoon-cli [add-test <problem identifier>]
+  $ baekjoon-cli [open <problem identifier>]
+  $ baekjoon-cli [commit <problem identifier>]
+  $ baekjoon-cli [clear-test <problem identifier> <test index>]
+  $ baekjoon-cli [clear-tests <problem identifier>]
+  $ baekjoon-cli [view-tests <problem identifier>]
 
-Supported Languages
-  $ cpp
-  $ c
-  $ java
-  $ javascript
-  $ python
-  $ ruby
-  $ swift
-  $ rust
-  $ go
+${chalk.bold('Configs')}
+  lang			Default programming language to use.
+  timeout		A timeout value of test runner. Test runner exit the test if the running time is greater than this value.
+  code-template		Code template used by \`create\`.
+  comment-template	Comment template used by \`create\`.
+  commit-message	Commit message template used by \`commit\`.
 
-Examples
-  $ baekjoon-cli create 1000
-  $ baekjoon-cli config lang
-  $ baekjoon-cli config lang cpp
+${chalk.bold('Usage')}
+  $ baekjoon-cli [config]
+  $ baekjoon-cli [config lang <language>]
+  $ baekjoon-cli [config timeout <ms>]
+  $ baekjoon-cli [config code-template]
+  $ baekjoon-cli [config comment-template]
+  $ baekjoon-cli [config commit-message]
 `.trim();
 
 const runnerSettingFileName = 'runner-settings.json';
@@ -232,14 +239,14 @@ const readRunnerSettings = async () => {
 };
 
 export {
-	clearAllTestData,
 	checkHealth,
+	clearAllTestData,
 	config,
 	defaultEditor,
 	envPaths,
 	getAnswerFilesPath,
-	getCommitMessageTemplateFilePath,
 	getCommentTemplateFilePath,
+	getCommitMessageTemplateFilePath,
 	getGitConfigFilePath,
 	getSourceCodeTemplateFilePath,
 	getTestFilesPath,
@@ -247,9 +254,11 @@ export {
 	initConfigFilePaths,
 	projectName,
 	readRunnerSettings,
+	runnerSettingFileName,
 	setAPIProvider,
 	setCommentTemplate,
 	setGitCommitMessageTemplate,
+	setPageSizeValue,
 	setProgrammingLanguage,
 	setSourceCodeTemplate,
 	setTimeoutValue,

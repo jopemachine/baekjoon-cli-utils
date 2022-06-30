@@ -1,5 +1,6 @@
 import {execa} from 'execa';
 import {temporaryFile} from 'tempy';
+import {RunnerConfigFileNotValidError} from '../errors.js';
 import {TestRunner} from '../test-runner.js';
 
 interface RustTestRunnerSetting {
@@ -11,7 +12,7 @@ const isValidConfig = (runnerSetting: any): runnerSetting is RustTestRunnerSetti
 class RustTestRunner extends TestRunner {
 	constructor(runnerSettings: RustTestRunnerSetting) {
 		if (!isValidConfig(runnerSettings)) {
-			throw new Error('Runner Config file not valid!');
+			throw new RunnerConfigFileNotValidError();
 		}
 
 		super(runnerSettings);

@@ -1,19 +1,19 @@
 # baekjoon-cli-util
 
-Simple code runner and CLI tools for studying and managing [Baekjoon](https://www.acmicpc.net/) algorithm source codes efficiently.
+Simple code runner and CLI tool for studying, testing and managing [Baekjoon](https://www.acmicpc.net/) algorithm source codes efficiently.
 
-* Create the source code through code, comment template by programming language.
-* Just execute your single algorithm source code by entering the problem number regardless of your language details (compiler, cli command tools... etc).
-* Automatically download and use all tests, and add the test you need manually.
-* Unify commit convention through commit template.
+* Create the source code through code, and comment template by programming language.
+* Just run your single algorithm source code regardless of your language details (compiler, cli command tools... etc).
+* Download and run all tests at once, and add the test you need manually.
+* Use automatic commit convention through commit template.
 
 ![](./media/demo.png)
 
 Disclaimer:
 
-* This program doesn't handle [Special-judge problems](https://help.acmicpc.net/judge/info) correctly.
+* This program doesn't handle [Special-Judge problems](https://help.acmicpc.net/judge/info) properly.
 
-## How to install
+## Install
 
 1. Install the program through `npm`.
 
@@ -34,38 +34,41 @@ $ baekjoon-cli config comment-template
 ## Usage
 
 ```
+Commands
+  create		Create the problem source code on the subdirectory, and fetch tests.
+  test			Find, compile and run a problem source code.
+  add-test		Add additional test manually.
+  open			Open the problem's URL in your browser.
+  commit		Commit the problem source code to Git.
+  clear-test	Clear the specified problem's test.
+  clear-tests	Clear all the problem's tests.
+  view-tests	Check the problem's tests.
+  config		Check and update templates, configurations.
+
 Usage
-	$ baekjoon-cli create {problem identifier}
-	$ baekjoon-cli test {problem identifier}
-	$ baekjoon-cli add-test {problem identifier}
-	$ baekjoon-cli open {problem identifier}
-	$ baekjoon-cli commit {problem identifier}
-	$ baekjoon-cli clear-test {problem identifier} {test index}
-	$ baekjoon-cli clear-tests {problem identifier}
-	$ baekjoon-cli view-tests {problem identifier}
+  $ baekjoon-cli [create <problem identifier>]
+  $ baekjoon-cli [test <problem identifier>]
+  $ baekjoon-cli [add-test <problem identifier>]
+  $ baekjoon-cli [open <problem identifier>]
+  $ baekjoon-cli [commit <problem identifier>]
+  $ baekjoon-cli [clear-test <problem identifier> <test index>]
+  $ baekjoon-cli [clear-tests <problem identifier>]
+  $ baekjoon-cli [view-tests <problem identifier>]
 
-Usage (Update Configs)
-	$ baekjoon-cli config lang {language}
-	$ baekjoon-cli config timeout {ms}
-	$ baekjoon-cli config code-template
-	$ baekjoon-cli config comment-template
-	$ baekjoon-cli config commit-message
+Configs
+  lang				Default programming language.
+  timeout			A timeout value of test runner. Test runner exit the test if the running time is greater than this value.
+  code-template		Code template used by `create`.
+  comment-template	Comment template used by `create`.
+  commit-message	Commit message template used by `commit`.
 
-Supported Languages
-	$ cpp
-	$ c
-	$ java
-	$ javascript
-	$ python
-	$ ruby
-	$ swift
-	$ rust
-	$ go
-
-Examples
-	$ baekjoon-cli create 1000
-	$ baekjoon-cli config lang
-	$ baekjoon-cli config lang cpp
+Usage
+  $ baekjoon-cli [config]
+  $ baekjoon-cli [config lang <language>]
+  $ baekjoon-cli [config timeout <ms>]
+  $ baekjoon-cli [config code-template]
+  $ baekjoon-cli [config comment-template]
+  $ baekjoon-cli [config commit-message]
 ```
 
 ## Supported languages
@@ -84,23 +87,59 @@ Examples
 
 ## Runtime configuration
 
-By default, this program use below setting.
+By default, this program use below tools for running tests.
 
-So, the below tools should be available on your computer for running tests.
+So, make sure the corresponding tool should be setup on your computer.
 
-|  | compiler/interpreter |
+| programming language | compiler / interpreter |
 | -------------------- | --- |
 | c                    | gcc |
 | c++                  | g++ |
-| rust                 | rustc |
-| javascript           | node |
 | go                   | go |
 | java                 | javac |
+| javascript           | node |
+| python               | python3 |
 | ruby                 | ruby |
+| rust                 | rustc |
 | swift                | swiftc |
 
 You can change some test runner's configuration through creating `runner-settings.json` file to your working directory.
 
+See also [runner's default configuration](./runner-settings.json).
+
 ## Code editor setting
 
-Some command requires executing your source code editor. You can change the editor to use by setting `EDITOR` environment variable to what you want.
+Some command requires executing your source code editor. You can change the editor to use by setting the `EDITOR` environment variable to what you want.
+
+## Source code template
+
+You can create some code templates by your programming language.
+
+This template file is used when you use `baekjoon-cli create`.
+
+You can edit the template file through `baekjoon-cli config code-template`.
+
+## Comment template
+
+You can create some comment templates by your programming language.
+
+This template is prepended to the front of the code template used when you use `baekjoon-cli create`.
+
+You can edit the template file through `baekjoon-cli config comment-template`.
+
+You can use some variables to use the problem's information in the template.
+
+The `{variable}`s in the template are replaced with the according value.
+
+| variable | value |
+| -------------------- | --- |
+| id                   | Problem identifier |
+| title                | Problem title |
+| text                 | Problem texts |
+| input                 | Problem input test |
+| output                 | Problem output test |
+| url                 | Problem url |
+
+## Example
+
+- [algorithm-study](https://github.com/jopemachine/algorithm-study)

@@ -2,6 +2,7 @@ import logSymbols from 'log-symbols';
 import {supportedLanguages} from './lang.js';
 import {supportedAPIProviders} from './api-provider.js';
 import {makeList} from './utils.js';
+import {runnerSettingFileName} from './conf.js';
 
 class FileIndexNotMatchError extends Error {
 	constructor() {
@@ -15,7 +16,7 @@ class NotSupportedLanguageError extends Error {
 	constructor(lang: string) {
 		super();
 		super.name = 'NotSupportedLanguageError';
-		super.message = `${logSymbols.error} '${lang}' is not supported.\n${logSymbols.info} Currently supported languages are as follows:\n${makeList(Object.keys(supportedLanguages))}`;
+		super.message = `${logSymbols.error} '${lang}' is not supported.\n${logSymbols.info} Currently supported languages are as follows:\n${makeList(supportedLanguages)}`;
 	}
 }
 
@@ -47,7 +48,15 @@ class TestsNotFoundError extends Error {
 	constructor() {
 		super();
 		super.name = 'TestsNotFoundError';
-		super.message = `${logSymbols.warning} No Test Case Found.`;
+		super.message = `${logSymbols.error} No Test Case Found.`;
+	}
+}
+
+class RunnerConfigFileNotValidError extends Error {
+	constructor() {
+		super();
+		super.name = 'RunnerConfigFileNotValidError';
+		super.message = `${logSymbols.error} ${runnerSettingFileName} not valid!`;
 	}
 }
 
@@ -58,4 +67,5 @@ export {
 	NotSupportedLanguageError,
 	NotSupportedProviderError,
 	TestsNotFoundError,
+	RunnerConfigFileNotValidError,
 };

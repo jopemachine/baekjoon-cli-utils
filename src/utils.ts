@@ -12,6 +12,7 @@ import filenamify from 'filenamify';
 import {defaultEditor, getCommitMessageTemplateFilePath} from './conf.js';
 import {terminalWidth, useSpinner} from './spinner.js';
 import {InvalidCwdError} from './errors.js';
+import {Problem} from './problem.js';
 
 const fsp = fs.promises;
 
@@ -50,9 +51,9 @@ const Logger = {
 
 const getUnusedFilename = async (filePath: string) => unusedFilename(filePath, {incrementer: unusedFileNameIncrementer});
 
-const mkdir = fsp.mkdir;
+const {mkdir} = fsp;
 
-const mkdirSync = fs.mkdirSync;
+const {mkdirSync} = fs;
 
 const pathExists = _pathExists;
 
@@ -61,7 +62,7 @@ const pathExistsSync = _pathExistsSync;
 const findProblemPath = async (problemId: string): Promise<string> => {
 	let problemPath;
 
-	const paths = await globby(`**/${problemId}*.*`);
+	const paths = await globby([`**/${problemId}`, `**/${problemId}.*`, `**/${problemId}_*.*`]);
 	if (paths.length === 0) {
 		Logger.errorLog(`Failed to find '${problemId}' under the subdirectories!`);
 		process.exit(1);
@@ -73,7 +74,7 @@ const findProblemPath = async (problemId: string): Promise<string> => {
 				{
 					type: 'list',
 					name: 'file',
-					message: chalk.dim('Choose Problem File Path'),
+					message: chalk.dim('Choose A Problem Source File Path'),
 					choices: paths.map(path => ({name: path, value: path})),
 				},
 			])
@@ -95,15 +96,15 @@ const openEditor = async (targetPath: string) => execa(defaultEditor, [targetPat
 	stdio: 'inherit',
 });
 
-const getProblemFolderNames = (paths: string[], input: string) => paths.filter(path => !input || path.toLowerCase().includes(input.toLowerCase())).map(path => ({
-	name: path.split(`${process.cwd()}/`)[1],
-	value: path,
+const getProblemFolderNames = (paths: string[], input: string) => paths.filter(pth => !input || pth.toLowerCase().includes(input.toLowerCase())).map(pth => ({
+	name: pth.split(`${process.cwd()}${path.sep}`)[1],
+	value: pth,
 }));
 
 const getProblemPathId = ({sourceFilePath, isRelative}: {sourceFilePath: string; isRelative: boolean}) => {
 	const relativePath = isRelative ? sourceFilePath : sourceFilePath.split(process.cwd())[1];
 	const {name} = path.parse(sourceFilePath);
-	const temporaryArray = relativePath.split(path.sep);
+	const temporaryArray = relativePath.split('/');
 	temporaryArray.pop();
 
 	return filenamify(path.join(temporaryArray.join(path.sep), name.split('_')[0]));
@@ -121,17 +122,17 @@ const ensureCwdIsProjectRoot = async () => {
 	}
 };
 
-const commitProblem = async (problemProperties: Record<string, string>, problemPath: string) => {
+const commitProblem = async (problem: Problem, problemPath: string) => {
 	const {dir: relativeDirectoryPath} = path.parse(problemPath);
-	let commitMessageTemplate = await readFile(getCommitMessageTemplateFilePath());
-
 	const dict = {
-		...problemProperties,
+		id: problem.problemId,
+		...problem.problemInfo,
 		relativeDirectoryPath,
 	};
 
+	let commitMessageTemplate = await readFile(getCommitMessageTemplateFilePath());
 	for (const [propertyKey, propertyValue] of Object.entries(dict)) {
-		commitMessageTemplate = commitMessageTemplate.replace(propertyKey, propertyValue);
+		commitMessageTemplate = commitMessageTemplate.replace(`{${propertyKey}}`, propertyValue);
 	}
 
 	await useSpinner(async () => {
@@ -142,7 +143,10 @@ const commitProblem = async (problemProperties: Record<string, string>, problemP
 
 const makeList = (array: string[]) => array.map(string_ => `${chalk.cyan('*')} ${chalk.yellow(string_)}`).join('\n');
 
+const {chmod} = fsp;
+
 export {
+	chmod,
 	makeList,
 	commitProblem,
 	ensureCwdIsProjectRoot,
@@ -163,4 +167,3 @@ export {
 	getProblemFolderNames,
 	printDividerLine,
 };
-

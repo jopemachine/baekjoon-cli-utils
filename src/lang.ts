@@ -1,15 +1,32 @@
+import {outdent} from 'outdent';
+
 interface LanguageInfo {
 	isCompiledLanguage: boolean;
 	extensions: string[];
 	extension: string;
 }
 
-const supportedLanguages: Record<string, LanguageInfo> = {
+enum supportedLanguageEnum {
+	'c',
+	'cpp',
+	'javascript',
+	'python',
+	'go',
+	'java',
+	'swift',
+	'ruby',
+	'rust',
+	// 'kotlin',
+	// 'd'
+}
+
+const supportedLanguages = Object.values(supportedLanguageEnum).filter(value => typeof value === 'string') as string[];
+
+const supportedLanguageInfo: Record<keyof typeof supportedLanguageEnum, LanguageInfo> = {
 	cpp: {
 		isCompiledLanguage: true,
 		extensions: [
 			'cpp',
-			'hpp',
 		],
 		extension: 'cpp',
 	},
@@ -48,13 +65,6 @@ const supportedLanguages: Record<string, LanguageInfo> = {
 		],
 		extension: 'swift',
 	},
-	kotlin: {
-		isCompiledLanguage: true,
-		extensions: [
-			'kt',
-		],
-		extension: 'kt',
-	},
 	ruby: {
 		isCompiledLanguage: false,
 		extensions: [
@@ -62,18 +72,10 @@ const supportedLanguages: Record<string, LanguageInfo> = {
 		],
 		extension: 'rb',
 	},
-	d: {
-		isCompiledLanguage: true,
-		extensions: [
-			'd',
-		],
-		extension: 'd',
-	},
 	c: {
 		isCompiledLanguage: true,
 		extensions: [
 			'c',
-			'h',
 		],
 		extension: 'c',
 	},
@@ -84,14 +86,56 @@ const supportedLanguages: Record<string, LanguageInfo> = {
 		],
 		extension: 'rs',
 	},
+	// Kotlin: {
+	// 	isCompiledLanguage: true,
+	// 	extensions: [
+	// 		'kt',
+	// 	],
+	// 	extension: 'kt',
+	// },
+	// d: {
+	// 	isCompiledLanguage: true,
+	// 	extensions: [
+	// 		'd',
+	// 	],
+	// 	extension: 'd',
+	// },
+};
+
+const defaultCommentTemplate = outdent`
+  ==============================================================================================
+  @ Title: {title}
+  @ URL: {url}
+  @ Problem:
+  {text}
+  @ Input: {input}
+  @ Output: {output}
+  ==============================================================================================
+`;
+
+const commentStartEnd: Record<keyof typeof supportedLanguageEnum, [string, string]> = {
+	c: ['/*', '*/'],
+	cpp: ['/*', '*/'],
+	javascript: ['/*', '*/'],
+	java: ['/*', '*/'],
+	go: ['/*', '*/'],
+	rust: ['/*', '*/'],
+	swift: ['/*', '*/'],
+	python: ['\'\'\'', '\'\'\''],
+	ruby: ['=begin', '=end'],
+};
+
+const getDefaultCommentTemplate = (langCode: keyof typeof supportedLanguageEnum) => {
+	const [start, end] = commentStartEnd[langCode];
+	return outdent`${start}\n${defaultCommentTemplate}\n${end}`;
 };
 
 const isSupportedLanguage = (lang: string) =>
-	Object.keys(supportedLanguages).includes(lang);
+	supportedLanguages.includes(lang);
 
 const inferLanguageCode = (extension: string) => {
-	for (const langCode of Object.keys(supportedLanguages)) {
-		if (supportedLanguages[langCode].extensions.includes(extension)) {
+	for (const langCode of supportedLanguages) {
+		if ((supportedLanguageInfo as any)[langCode].extensions.includes(extension)) {
 			return langCode;
 		}
 	}
@@ -101,6 +145,8 @@ const inferLanguageCode = (extension: string) => {
 
 export {
 	supportedLanguages,
+	supportedLanguageInfo,
 	inferLanguageCode,
 	isSupportedLanguage,
+	getDefaultCommentTemplate,
 };

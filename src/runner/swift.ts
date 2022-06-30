@@ -1,5 +1,6 @@
 import {execa} from 'execa';
 import {temporaryFile} from 'tempy';
+import {RunnerConfigFileNotValidError} from '../errors.js';
 import {TestRunner} from '../test-runner.js';
 
 interface SwiftTestRunnerSetting {
@@ -10,7 +11,7 @@ const isValidConfig = (runnerSetting: any): runnerSetting is SwiftTestRunnerSett
 class SwiftTestRunner extends TestRunner {
 	constructor(runnerSettings: SwiftTestRunnerSetting) {
 		if (!isValidConfig(runnerSettings)) {
-			throw new Error('Runner Config file not valid!');
+			throw new RunnerConfigFileNotValidError();
 		}
 
 		super(runnerSettings);

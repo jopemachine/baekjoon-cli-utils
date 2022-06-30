@@ -1,4 +1,5 @@
 import {execa} from 'execa';
+import {RunnerConfigFileNotValidError} from '../errors.js';
 import {TestRunner} from '../test-runner.js';
 
 interface RubyTestRunnerSetting {
@@ -9,7 +10,7 @@ const isValidConfig = (runnerSetting: any): runnerSetting is RubyTestRunnerSetti
 class RubyTestRunner extends TestRunner {
 	constructor(runnerSettings: any) {
 		if (!isValidConfig(runnerSettings)) {
-			throw new Error('Runner Config file not valid!');
+			throw new RunnerConfigFileNotValidError();
 		}
 
 		super(runnerSettings);

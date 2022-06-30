@@ -8,12 +8,15 @@
 	"scripts": {
 		"test": "ava",
 		"build": "tsc",
-		"lint": "xo --fix ./src"
+		"lint": "xo --fix"
 	},
 	"files": [
 		"dist",
 		"runner-settings.json"
 	],
+	"engines": {
+		"node": ">=16.0.0"
+	},
 	"type": "module",
 	"dependencies": {
 		"boxen": "^7.0.0",
@@ -38,6 +41,7 @@
 		"nvexeca": "^8.1.0",
 		"open": "^8.4.0",
 		"ora": "^6.1.1",
+		"outdent": "^0.8.0",
 		"parse-json": "^6.0.2",
 		"path-exists": "^5.0.0",
 		"tempy": "^3.0.0",
@@ -62,5 +66,10 @@
 			"unicorn/no-process-exit": "off",
 			"unicorn/no-await-expression-member": "off"
 		}
+	},
+	"ava": {
+		"files": [
+			"test/**"
+		]
 	}
 }

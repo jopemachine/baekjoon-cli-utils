@@ -1,19 +1,19 @@
 import {NotSupportedLanguageError} from './errors.js';
 import {isSupportedLanguage} from './lang.js';
 import {TestRunner} from './test-runner.js';
+import {readRunnerSettings} from './conf.js';
 import {
 	CLangTestRunner,
 	CppTestRunner,
 	GoTestRunner,
 	JavascriptTestRunner,
+	JavaTestRunner,
 	KotlinTestRunner,
 	PythonTestRunner,
 	RubyTestRunner,
 	RustTestRunner,
 	SwiftTestRunner,
 } from './runner/index.js';
-import {readRunnerSettings} from './conf.js';
-import {JavaTestRunner} from './runner/java.js';
 
 const generateTestRunner = async (lang: string): Promise<TestRunner> => {
 	if (!isSupportedLanguage(lang)) {

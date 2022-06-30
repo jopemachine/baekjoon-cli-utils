@@ -64,10 +64,6 @@ class Test {
 	}
 
 	async write() {
-		if (!this.stdin || !this.expectedStdout) {
-			throw new Error('Stdin or expected Stdout are not specified on the test.');
-		}
-
 		const testFilePath = this.getTestFilePath();
 		const answerFilePath = this.getAnswerFilePath();
 

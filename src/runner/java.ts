@@ -3,6 +3,7 @@ import {execa} from 'execa';
 import {temporaryDirectory} from 'tempy';
 import {TestRunner} from '../test-runner.js';
 import {cpFile} from '../utils.js';
+import {RunnerConfigFileNotValidError} from '../errors.js';
 
 interface JavaTestRunnerSetting {
 	javaVersion: number | string;
@@ -13,7 +14,7 @@ const isValidConfig = (runnerSetting: any): runnerSetting is JavaTestRunnerSetti
 class JavaTestRunner extends TestRunner {
 	constructor(runnerSettings: JavaTestRunnerSetting) {
 		if (!isValidConfig(runnerSettings)) {
-			throw new Error('Runner Config file not valid!');
+			throw new RunnerConfigFileNotValidError();
 		}
 
 		super(runnerSettings);
