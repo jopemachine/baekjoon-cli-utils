@@ -40,10 +40,13 @@ Usage
 	$ baekjoon-cli add-test {problem identifier}
 	$ baekjoon-cli open {problem identifier}
 	$ baekjoon-cli commit {problem identifier}
+	$ baekjoon-cli clear-test {problem identifier} {test index}
+	$ baekjoon-cli clear-tests {problem identifier}
 	$ baekjoon-cli view-tests {problem identifier}
 
 Usage (Update Configs)
 	$ baekjoon-cli config lang {language}
+	$ baekjoon-cli config timeout {ms}
 	$ baekjoon-cli config code-template
 	$ baekjoon-cli config comment-template
 	$ baekjoon-cli config commit-message
@@ -79,10 +82,25 @@ Examples
 - [ ] Kotlin
 - [ ] D
 
-## Change runner configuration
+## Runtime configuration
 
-You can change your test runner's configuration through creating `runner-settings.json` file to your working directory.
+By default, this program use below setting.
 
-## Change code editor
+So, the below tools should be available on your computer for running tests.
+
+|  | compiler/interpreter |
+| -------------------- | --- |
+| c                    | gcc |
+| c++                  | g++ |
+| rust                 | rustc |
+| javascript           | node |
+| go                   | go |
+| java                 | javac |
+| ruby                 | ruby |
+| swift                | swiftc |
+
+You can change some test runner's configuration through creating `runner-settings.json` file to your working directory.
+
+## Code editor setting
 
 Some command requires executing your source code editor. You can change the editor to use by setting `EDITOR` environment variable to what you want.

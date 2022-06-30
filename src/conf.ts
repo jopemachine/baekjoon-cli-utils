@@ -187,10 +187,13 @@ Usage
   $ baekjoon-cli add-test {problem identifier}
   $ baekjoon-cli open {problem identifier}
   $ baekjoon-cli commit {problem identifier}
+  $ baekjoon-cli clear-test {problem identifier} {test index}
+  $ baekjoon-cli clear-tests {problem identifier}
   $ baekjoon-cli view-tests {problem identifier}
 
 Usage (Update Configs)
   $ baekjoon-cli config lang {language}
+  $ baekjoon-cli config timeout {ms}
   $ baekjoon-cli config code-template
   $ baekjoon-cli config comment-template
   $ baekjoon-cli config commit-message
