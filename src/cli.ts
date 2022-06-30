@@ -40,7 +40,7 @@ import {inferLanguageCode, supportedLanguages} from './lang.js';
 
 inquirer.registerPrompt('autocomplete', inquirerAutocompletePrompt);
 
-const command = process.argv[2];
+const command = process.argv[2] ?? 'help';
 const subCommand = command === 'config' && process.argv.length > 3 ? process.argv[3] : undefined;
 
 const checkArgumentLength = (command: string, subCommand?: string) => {
@@ -149,6 +149,7 @@ const handleAddTest = async (problemId: string) => {
 		problemPathId,
 	});
 
+	problem.generateTestFolder();
 	await problem.addManualTest();
 	Logger.successLog('Test Added Successfully.');
 };
@@ -167,11 +168,11 @@ const handleViewTests = async (problemId: string) => {
 
 	await problem.readAllTests();
 	for (const [testIdx, test] of problem.tests.entries()) {
+		test.print();
+
 		if (testIdx !== problem.tests.length - 1) {
 			printDividerLine();
 		}
-
-		test.print();
 	}
 };
 
@@ -267,7 +268,7 @@ const handleShowConfigs = () => {
 					await setCommentTemplate();
 					break;
 				default:
-					throw new Error(`Unknown Config Name '${target}'`);
+					throw new Error(`Unknown Config Name '${chalk.red(target)}'`);
 			}
 		} else {
 			await checkHealth();
@@ -307,7 +308,7 @@ const handleShowConfigs = () => {
 					Logger.log(helpMessage);
 					break;
 				default:
-					throw new Error('Unknown Command');
+					throw new Error(`Unknown Command '${chalk.red(command)}'`);
 			}
 
 			process.exit(0);

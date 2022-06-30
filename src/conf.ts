@@ -179,35 +179,38 @@ const clearAllTestData = async () => {
 };
 
 const helpMessage = `
-	Usage
-	  $ baekjoon-cli create {problem identifier}
-	  $ baekjoon-cli test {problem identifier}
-	  $ baekjoon-cli open {problem identifier}
-	  $ baekjoon-cli commit {problem identifier}
-	  $ baekjoon-cli view-tests {problem identifier}
+Simple code runner and CLI tools for studying and managing Baekjoon algorithm source codes efficiently
 
-	Usage (Update Configs)
-	  $ baekjoon-cli config lang {language}
-	  $ baekjoon-cli config code-template
-	  $ baekjoon-cli config comment-template
-	  $ baekjoon-cli config commit-message
+Usage
+  $ baekjoon-cli create {problem identifier}
+  $ baekjoon-cli test {problem identifier}
+  $ baekjoon-cli add-test {problem identifier}
+  $ baekjoon-cli open {problem identifier}
+  $ baekjoon-cli commit {problem identifier}
+  $ baekjoon-cli view-tests {problem identifier}
 
-	Supported Languages
-	  $ cpp
-	  $ c
-	  $ java
-	  $ javascript
-	  $ python
-	  $ ruby
-	  $ swift
-	  $ rust
-	  $ go
+Usage (Update Configs)
+  $ baekjoon-cli config lang {language}
+  $ baekjoon-cli config code-template
+  $ baekjoon-cli config comment-template
+  $ baekjoon-cli config commit-message
 
-	Examples
-	  $ baekjoon-cli create 1000
-	  $ baekjoon-cli config lang
-	  $ baekjoon-cli config lang cpp
-`;
+Supported Languages
+  $ cpp
+  $ c
+  $ java
+  $ javascript
+  $ python
+  $ ruby
+  $ swift
+  $ rust
+  $ go
+
+Examples
+  $ baekjoon-cli create 1000
+  $ baekjoon-cli config lang
+  $ baekjoon-cli config lang cpp
+`.trim();
 
 const runnerSettingFileName = 'runner-settings.json';
 

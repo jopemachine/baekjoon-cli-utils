@@ -21,6 +21,7 @@ class RustTestRunner extends TestRunner {
 	override async compile({sourceFilePath}: {sourceFilePath: string}) {
 		const temporaryFilePath = temporaryFile();
 		await execa('rustc', [`--edition=${String(this.runnerSettings.rustEdition)}`, '-o', temporaryFilePath, sourceFilePath]);
+		this.resources.push(temporaryFilePath);
 		return temporaryFilePath;
 	}
 

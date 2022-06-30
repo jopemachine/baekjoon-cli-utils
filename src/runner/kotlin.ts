@@ -24,6 +24,7 @@ class KotlinTestRunner extends TestRunner {
 		const temporaryFilePath = path.resolve(temporaryDirPath, 'Main.kt');
 		await cpFile(sourceFilePath, temporaryFilePath);
 		await execa('kotlinc-jvm', ['-include-runtime', '-d', 'Main.jar', 'Main.kt']);
+		this.resources.push(temporaryDirPath);
 		return path.resolve(temporaryDirPath, 'Main.jar');
 	}
 

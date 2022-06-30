@@ -20,6 +20,7 @@ class SwiftTestRunner extends TestRunner {
 	override async compile({sourceFilePath}: {sourceFilePath: string}) {
 		const temporaryFilePath = temporaryFile();
 		await execa('swiftc', [sourceFilePath, '-o', temporaryFilePath]);
+		this.resources.push(temporaryFilePath);
 		return temporaryFilePath;
 	}
 

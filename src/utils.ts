@@ -140,7 +140,10 @@ const commitProblem = async (problemProperties: Record<string, string>, problemP
 	}, 'Git Commit');
 };
 
+const makeList = (array: string[]) => array.map(string_ => `${chalk.cyan('*')} ${chalk.yellow(string_)}`).join('\n');
+
 export {
+	makeList,
 	commitProblem,
 	ensureCwdIsProjectRoot,
 	cpFile,

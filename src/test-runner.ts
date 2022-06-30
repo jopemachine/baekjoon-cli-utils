@@ -4,6 +4,7 @@ import boxen from 'boxen';
 import {ExecaChildProcess, ExecaError, ExecaReturnValue} from 'execa';
 import logSymbols from 'log-symbols';
 import {sentenceCase} from 'change-case';
+import del from 'del';
 import {Problem} from './problem.js';
 import {Logger, printDividerLine} from './utils.js';
 import {supportedLanguages} from './lang.js';
@@ -26,12 +27,14 @@ abstract class TestRunner {
 	languageId: string;
 	timeout: number;
 	runnerSettings: any;
+	resources: string[];
 
 	constructor(runnerSettings: any) {
 		const timeout = config.get('timeout');
 		this.languageId = '';
 		this.timeout = timeout === 0 ? undefined : timeout;
 		this.runnerSettings = runnerSettings;
+		this.resources = [];
 	}
 
 	printRuntimeInfo() {
@@ -105,9 +108,9 @@ abstract class TestRunner {
 				allTestPassed = false;
 
 				if ((error as ExecaError).timedOut) {
-					Logger.errorLog(chalk.whiteBright(`Test Case ${testIndex} - Timeout!`));
+					Logger.errorLog(chalk.whiteBright(`Test Case ${testIndex} - ${chalk.red('Timeout!')}`));
 				} else {
-					Logger.errorLog(chalk.whiteBright(`Test Case ${testIndex} - Runtime Error Occured!`));
+					Logger.errorLog(chalk.whiteBright(`Test Case ${testIndex} - ${chalk.red('Runtime Error Occurred!')}`));
 					Logger.log(chalk.gray(error));
 				}
 
@@ -124,10 +127,10 @@ abstract class TestRunner {
 			}
 
 			if (isSameStdout(stdout, test.expectedStdout)) {
-				Logger.successLog(chalk.whiteBright(`Test Case ${testIndex}`));
+				Logger.successLog(chalk.whiteBright(`Test Case ${testIndex} - ${chalk.green('Passed!')}`));
 			} else {
 				allTestPassed = false;
-				Logger.errorLog(chalk.whiteBright(`Test Case ${testIndex}`));
+				Logger.errorLog(chalk.whiteBright(`Test Case ${testIndex} - ${chalk.red('Failed!')}`));
 				Logger.infoLog(chalk.gray(`[stdout]\n${chalk.red(stdout)}`));
 			}
 
@@ -149,6 +152,9 @@ abstract class TestRunner {
 		} else {
 			Logger.log(chalk.redBright('Some Tests Failed!'));
 		}
+
+		printDividerLine();
+		await this.clear();
 	}
 
 	async compile({sourceFilePath: _}: {sourceFilePath: string}): Promise<string> {
@@ -156,6 +162,10 @@ abstract class TestRunner {
 	}
 
 	abstract execute({stdin, targetFilePath}: {stdin: string; targetFilePath: string}): ExecaChildProcess | Promise<ExecaReturnValue>;
+
+	private async clear() {
+		await Promise.all(this.resources.map(async resource => del(resource, {force: true})));
+	}
 }
 
 export {

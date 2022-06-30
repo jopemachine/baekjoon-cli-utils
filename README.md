@@ -15,8 +15,20 @@ Disclaimer:
 
 ## How to install
 
+1. Install the program through `npm`.
+
 ```
 $ npm i -g baekjoon-cli-util
+```
+
+2. Move into your project's root. (where the `.git` folder exists)
+
+3. Configure some template files and settings.
+
+```
+$ baekjoon-cli config lang
+$ baekjoon-cli config code-template
+$ baekjoon-cli config comment-template
 ```
 
 ## Usage
@@ -25,6 +37,7 @@ $ npm i -g baekjoon-cli-util
 Usage
 	$ baekjoon-cli create {problem identifier}
 	$ baekjoon-cli test {problem identifier}
+	$ baekjoon-cli add-test {problem identifier}
 	$ baekjoon-cli open {problem identifier}
 	$ baekjoon-cli commit {problem identifier}
 	$ baekjoon-cli view-tests {problem identifier}
@@ -52,7 +65,7 @@ Examples
 	$ baekjoon-cli config lang cpp
 ```
 
-## Supported Languages
+## Supported languages
 
 - [x] C++
 - [x] C
@@ -65,3 +78,11 @@ Examples
 - [x] Ruby
 - [ ] Kotlin
 - [ ] D
+
+## Change runner configuration
+
+You can change your test runner's configuration through creating `runner-settings.json` file to your working directory.
+
+## Change code editor
+
+Some command requires executing your source code editor. You can change the editor to use by setting `EDITOR` environment variable to what you want.

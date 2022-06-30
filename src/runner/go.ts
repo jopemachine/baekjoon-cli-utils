@@ -20,6 +20,7 @@ class GoTestRunner extends TestRunner {
 	override async compile({sourceFilePath}: {sourceFilePath: string}) {
 		const temporaryFilePath = temporaryFile();
 		await execa('go', ['build', '-o', temporaryFilePath, sourceFilePath]);
+		this.resources.push(temporaryFilePath);
 		return temporaryFilePath;
 	}
 

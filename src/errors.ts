@@ -1,9 +1,7 @@
-import chalk from 'chalk';
 import logSymbols from 'log-symbols';
 import {supportedLanguages} from './lang.js';
 import {supportedAPIProviders} from './api-provider.js';
-
-const makeList = (array: string[]) => array.map(string_ => chalk.white(`* ${string_}`)).join('\n');
+import {makeList} from './utils.js';
 
 class FileIndexNotMatchError extends Error {
 	constructor() {
@@ -17,7 +15,7 @@ class NotSupportedLanguageError extends Error {
 	constructor(lang: string) {
 		super();
 		super.name = 'NotSupportedLanguageError';
-		super.message = `${logSymbols.error} '${lang}' is not supported.\nCurrently supported languages are as follows:\n${makeList(Object.keys(supportedLanguages))}`;
+		super.message = `${logSymbols.error} '${lang}' is not supported.\n${logSymbols.info} Currently supported languages are as follows:\n${makeList(Object.keys(supportedLanguages))}`;
 	}
 }
 
@@ -25,7 +23,7 @@ class NotSupportedProviderError extends Error {
 	constructor(provider: string) {
 		super();
 		super.name = 'NotSupportedProviderError';
-		super.message = `${logSymbols.error} '${provider}' is not supported.\nCurrently supported languages are as follows:\n${makeList(supportedAPIProviders)}`;
+		super.message = `${logSymbols.error} '${provider}' is not supported.\n${logSymbols.info} Currently supported languages are as follows:\n${makeList(supportedAPIProviders)}`;
 	}
 }
 
@@ -33,7 +31,7 @@ class ArgumentLengthError extends Error {
 	constructor({actualLength, expectedLength}: {actualLength: number; expectedLength: number}) {
 		super();
 		super.name = 'ArgumentLengthError';
-		super.message = `${logSymbols.error} Expected argument length is ${expectedLength}. Actual value is ${actualLength}.\nYou can check help manual through 'baekjoon-cli help'`;
+		super.message = `${logSymbols.error} Expected argument length is ${expectedLength}. Actual value is ${actualLength}.\n${logSymbols.info} You can check help manual through 'baekjoon-cli help'`;
 	}
 }
 
@@ -41,7 +39,7 @@ class InvalidCwdError extends Error {
 	constructor() {
 		super();
 		super.name = 'InvalidCwdError';
-		super.message = 'You should run the program in the project root.';
+		super.message = `${logSymbols.warning} You should run the program in the project root.`;
 	}
 }
 
@@ -49,7 +47,7 @@ class TestsNotFoundError extends Error {
 	constructor() {
 		super();
 		super.name = 'TestsNotFoundError';
-		super.message = 'No Test Case Found.';
+		super.message = `${logSymbols.warning} No Test Case Found.`;
 	}
 }
 

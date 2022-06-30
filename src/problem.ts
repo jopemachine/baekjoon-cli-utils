@@ -1,6 +1,7 @@
 import path from 'node:path';
 import {globby} from 'globby';
 import del from 'del';
+import {pathExistsSync} from 'find-up';
 import {getAnswerFilesPath, getTestFilesPath} from './conf.js';
 import {answerFilePrefix, Test} from './test.js';
 import {FileIndexNotMatchError} from './errors.js';
@@ -25,8 +26,16 @@ class Problem {
 	}
 
 	generateTestFolder() {
-		mkdirSync(path.resolve(getTestFilesPath(), this.problemPathId));
-		mkdirSync(path.resolve(getAnswerFilesPath(), this.problemPathId));
+		const testFolderPath = path.resolve(getTestFilesPath(), this.problemPathId);
+		const answerFolderPath = path.resolve(getAnswerFilesPath(), this.problemPathId);
+
+		if (!pathExistsSync(testFolderPath)) {
+			mkdirSync(testFolderPath);
+		}
+
+		if (!pathExistsSync(answerFolderPath)) {
+			mkdirSync(answerFolderPath);
+		}
 	}
 
 	async clearTest(testIdx: number) {

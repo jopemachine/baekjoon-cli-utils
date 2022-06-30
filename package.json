@@ -1,6 +1,6 @@
 {
 	"version": "0.0.1",
-	"description": "Baekjoon CLI Utils for Algorithm Study",
+	"description": "Simple code runner and CLI tools for studying and managing Baekjoon algorithm source codes efficiently",
 	"main": "dist/index.js",
 	"bin": {
 		"baekjoon-cli": "dist/cli.js"
@@ -38,7 +38,6 @@
 		"nvexeca": "^8.1.0",
 		"open": "^8.4.0",
 		"ora": "^6.1.1",
-		"outdent": "^0.8.0",
 		"parse-json": "^6.0.2",
 		"path-exists": "^5.0.0",
 		"tempy": "^3.0.0",

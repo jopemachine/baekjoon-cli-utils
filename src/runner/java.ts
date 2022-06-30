@@ -25,6 +25,7 @@ class JavaTestRunner extends TestRunner {
 		const temporaryFilePath = path.resolve(temporaryDirPath, 'Main.java');
 		await cpFile(sourceFilePath, temporaryFilePath);
 		await execa('javac', ['--release', String(this.runnerSettings.javaVersion), '-encoding', 'UTF-8', '-d', temporaryDirPath, temporaryFilePath]);
+		this.resources.push(temporaryDirPath);
 		return path.resolve(temporaryDirPath, 'Main.class');
 	}
 

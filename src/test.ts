@@ -93,9 +93,9 @@ class Test {
 		}
 
 		Logger.infoLog(chalk.cyanBright(`Test ${this.testIdx}`));
-		Logger.log(chalk.gray('[stdin]'));
+		Logger.log(chalk.gray('[input]'));
 		Logger.log(this.stdin.trim());
-		Logger.log(chalk.gray('[stdout]'));
+		Logger.log(chalk.gray('[expected output]'));
 		Logger.log(this.expectedStdout.trim());
 	}
 

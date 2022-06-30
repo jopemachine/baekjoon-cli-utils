@@ -22,6 +22,7 @@ class CppTestRunner extends TestRunner {
 	override async compile({sourceFilePath}: {sourceFilePath: string}) {
 		const temporaryFilePath = temporaryFile();
 		await execa(this.runnerSettings.compiler, [`--std=${this.runnerSettings.std}`, `--output=${temporaryFilePath}`, sourceFilePath]);
+		this.resources.push(temporaryFilePath);
 		return temporaryFilePath;
 	}
 
