@@ -206,6 +206,7 @@ const handleClearTest = async (problemId: string, testIdx: number) => {
 		problemPathId,
 	});
 
+	await problem.readAllTests();
 	await problem.clearTest(testIdx);
 	Logger.successLog(`Test ${testIdx} is Removed.`);
 };
