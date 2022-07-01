@@ -1,9 +1,15 @@
 {
+	"name": "baekjoon-cli-utils",
 	"version": "0.0.1",
 	"description": "Simple code runner and CLI tool for studying, testing and managing Baekjoon algorithm source codes efficiently",
 	"main": "dist/index.js",
+	"author": "jopemachine",
+	"license": "MIT",
 	"bin": {
 		"baekjoon-cli": "dist/cli.js"
+	},
+	"repository": {
+		"url": "https://github.com/jopemachine/baekjoon-cli-util"
 	},
 	"scripts": {
 		"test": "ava",
