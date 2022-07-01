@@ -56,7 +56,7 @@ const checkArgumentLength = (command: string, subCommand?: string) => {
 		create: 2,
 		'add-test': 2,
 		'clear-data': 1,
-		'clear-test': 2,
+		'clear-test': 3,
 		'clear-tests': 2,
 		'view-tests': 2,
 		open: 2,
@@ -194,8 +194,7 @@ const handleClearTests = async (problemId: string) => {
 	Logger.successLog('Test Files are All Deleted.');
 };
 
-const handleClearTest = async (problemId: string) => {
-	const testIdx = Number(process.argv[4]);
+const handleClearTest = async (problemId: string, testIdx: number) => {
 	const sourceFilePath = await findProblemPath(problemId);
 	const problemPathId = getProblemPathId({
 		sourceFilePath,
@@ -301,7 +300,8 @@ const handleShowConfigs = () => {
 					await handleClearTests(problemId);
 					break;
 				case 'clear-test':
-					await handleClearTest(problemId);
+					const testIdx = Number(process.argv[4]);
+					await handleClearTest(problemId, testIdx);
 					break;
 				case 'open':
 					await provider.openProblem(problemId);
