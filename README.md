@@ -2,8 +2,8 @@
 
 Simple code runner and CLI tool for studying, testing and managing [Baekjoon](https://www.acmicpc.net/) algorithm source codes efficiently. Cross-platform.
 
-* Create the source code through code, and comment template by programming language.
 * Just run your single algorithm source code regardless of your language details (compiler, cli command tools... etc).
+* Create the source code through code template by programming language.
 * Download and run all tests at once, and add the test you need manually.
 * Use automatic commit convention through commit template.
 
