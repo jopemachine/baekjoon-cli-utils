@@ -1,5 +1,3 @@
-import {outdent} from 'outdent';
-
 interface LanguageInfo {
 	isCompiledLanguage: boolean;
 	extensions: string[];
@@ -102,34 +100,6 @@ const supportedLanguageInfo: Record<keyof typeof supportedLanguageEnum, Language
 	// },
 };
 
-const defaultCommentTemplate = outdent`
-  ==============================================================================================
-  @ Title: {title}
-  @ URL: {url}
-  @ Problem:
-  {text}
-  @ Input: {input}
-  @ Output: {output}
-  ==============================================================================================
-`;
-
-const commentStartEnd: Record<keyof typeof supportedLanguageEnum, [string, string]> = {
-	c: ['/*', '*/'],
-	cpp: ['/*', '*/'],
-	javascript: ['/*', '*/'],
-	java: ['/*', '*/'],
-	go: ['/*', '*/'],
-	rust: ['/*', '*/'],
-	swift: ['/*', '*/'],
-	python: ['\'\'\'', '\'\'\''],
-	ruby: ['=begin', '=end'],
-};
-
-const getDefaultCommentTemplate = (langCode: keyof typeof supportedLanguageEnum) => {
-	const [start, end] = commentStartEnd[langCode];
-	return outdent`${start}\n${defaultCommentTemplate}\n${end}`;
-};
-
 const isSupportedLanguage = (lang: string) =>
 	supportedLanguages.includes(lang);
 
@@ -144,9 +114,9 @@ const inferLanguageCode = (extension: string) => {
 };
 
 export {
+	supportedLanguageEnum,
 	supportedLanguages,
 	supportedLanguageInfo,
 	inferLanguageCode,
 	isSupportedLanguage,
-	getDefaultCommentTemplate,
 };

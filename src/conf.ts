@@ -9,9 +9,10 @@ import {findUp} from 'find-up';
 import del from 'del';
 import chalk from 'chalk';
 import {readFile, writeFile, pathExists, Logger, mkdir, openEditor, ensureCwdIsProjectRoot} from './utils.js';
-import {getDefaultCommentTemplate, supportedLanguages} from './lang.js';
+import {isSupportedLanguage, supportedLanguages} from './lang.js';
 import {NotSupportedLanguageError, NotSupportedProviderError} from './errors.js';
 import {supportedAPIProviders} from './api-provider.js';
+import {getDefaultCodeTemplate} from './template.js';
 
 const projectName = 'baekjoon-cli-util';
 const envPaths = _envPaths(projectName);
@@ -75,7 +76,7 @@ const checkHealth = async () => {
 
 	const lang = config.get('lang');
 	if (!await pathExists(getSourceCodeTemplateFilePath(lang))) {
-		throw new Error(`${logSymbols.error} Please set source code template to use.\nIf you do not need the source code template, just create empty file.`);
+		throw new Error(`${logSymbols.error} Please set source code template to use.`);
 	}
 
 	await ensureCwdIsProjectRoot();
@@ -109,7 +110,7 @@ const setProgrammingLanguage = async (lang?: string) => {
 		}])).language;
 	}
 
-	if (!supportedLangs.includes(lang!)) {
+	if (!isSupportedLanguage(lang!)) {
 		throw new NotSupportedLanguageError(lang!);
 	}
 
@@ -118,7 +119,7 @@ const setProgrammingLanguage = async (lang?: string) => {
 
 	const sourceCodeTemplateFilePath = getSourceCodeTemplateFilePath(config.get('lang'));
 	if (!await pathExists(sourceCodeTemplateFilePath)) {
-		await writeFile(sourceCodeTemplateFilePath, '');
+		await writeFile(sourceCodeTemplateFilePath, getDefaultCodeTemplate(config.get('lang')));
 	}
 };
 
@@ -134,10 +135,14 @@ const setGitCommitMessageTemplate = async () => {
 };
 
 const setSourceCodeTemplate = async (langCode: string) => {
+	if (!isSupportedLanguage(langCode)) {
+		throw new NotSupportedLanguageError(langCode);
+	}
+
 	const sourceCodeTemplateFilePath = getSourceCodeTemplateFilePath(langCode);
 
 	if (!await pathExists(sourceCodeTemplateFilePath)) {
-		await writeFile(sourceCodeTemplateFilePath, getDefaultCommentTemplate(langCode as any));
+		await writeFile(sourceCodeTemplateFilePath, getDefaultCodeTemplate(langCode as any));
 	}
 
 	await openEditor(sourceCodeTemplateFilePath);

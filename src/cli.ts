@@ -169,10 +169,11 @@ const handleEditTest = async (problemId: string, testIdx: number) => {
 	});
 
 	await problem.readAllTests();
-	const targetTest = problem.tests.filter((test) => test.testIdx === testIdx)[0];
+	const targetTest = problem.tests.find(test => test.testIdx === testIdx);
 	if (!targetTest) {
-		Logger.errorLog(`Test ${testIdx} not found.`);
+		throw new Error(`Test ${testIdx} not found.`);
 	}
+
 	await openEditor(targetTest.getTestFilePath());
 	await openEditor(targetTest.getAnswerFilePath());
 
@@ -254,7 +255,7 @@ const handleShowConfigs = () => {
 	Logger.infoLog(chalk.whiteBright(`Language: ${config.get('lang')}`));
 	Logger.infoLog(chalk.whiteBright(`Timeout value: ${config.get('timeout')}`));
 	Logger.infoLog(chalk.whiteBright(`Problem provider: ${config.get('provider')}`));
-	Logger.infoLog(chalk.whiteBright(`PageSize: ${config.get('pageSize')}`));
+	Logger.infoLog(chalk.whiteBright(`Page size: ${config.get('pageSize')}`));
 };
 
 (async function () {
