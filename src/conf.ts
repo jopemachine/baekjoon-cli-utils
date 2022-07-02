@@ -16,7 +16,7 @@ import {supportedAPIProviders} from './api-provider.js';
 const projectName = 'baekjoon-cli-util';
 const envPaths = _envPaths(projectName);
 
-const schema: any = {
+const configSchema: any = {
 	lang: {
 		type: 'string',
 	},
@@ -37,17 +37,13 @@ const schema: any = {
 const defaultEditor = process.env.EDITOR ?? 'vi';
 
 const config: any = new Conf({
-	schema,
+	schema: configSchema,
 	projectName,
 });
 
 const getSourceCodeTemplateDirPath = () => path.resolve(envPaths.data, 'templates');
 
 const getSourceCodeTemplateFilePath = (lang: string) => path.resolve(getSourceCodeTemplateDirPath(), lang);
-
-const getCommentTemplateDirPath = () => path.resolve(envPaths.data, 'comment-templates');
-
-const getCommentTemplateFilePath = (lang: string) => path.resolve(getCommentTemplateDirPath(), lang);
 
 const getGitConfigFilePath = () => path.resolve(envPaths.data, 'git-config');
 
@@ -64,7 +60,6 @@ const initConfigFilePaths = async () => {
 	await mkdir(getTestFilesPath(), {recursive: true});
 	await mkdir(getAnswerFilesPath(), {recursive: true});
 	await mkdir(getSourceCodeTemplateDirPath(), {recursive: true});
-	await mkdir(getCommentTemplateDirPath(), {recursive: true});
 
 	await writeFile(getCommitMessageTemplateFilePath(), defaultCommitMessageTemplate);
 };
@@ -81,10 +76,6 @@ const checkHealth = async () => {
 	const lang = config.get('lang');
 	if (!await pathExists(getSourceCodeTemplateFilePath(lang))) {
 		throw new Error(`${logSymbols.error} Please set source code template to use.\nIf you do not need the source code template, just create empty file.`);
-	}
-
-	if (!await pathExists(getCommentTemplateFilePath(lang))) {
-		throw new Error(`${logSymbols.error} Please set comment template to use.\nIf you do not need the comment template, just create empty file.`);
 	}
 
 	await ensureCwdIsProjectRoot();
@@ -129,11 +120,6 @@ const setProgrammingLanguage = async (lang?: string) => {
 	if (!await pathExists(sourceCodeTemplateFilePath)) {
 		await writeFile(sourceCodeTemplateFilePath, '');
 	}
-
-	const commentTemplateFilePath = getCommentTemplateFilePath(config.get('lang'));
-	if (!await pathExists(commentTemplateFilePath)) {
-		await writeFile(commentTemplateFilePath, getDefaultCommentTemplate(config.get('lang')));
-	}
 };
 
 const setGitCommitMessageTemplate = async () => {
@@ -151,22 +137,11 @@ const setSourceCodeTemplate = async (langCode: string) => {
 	const sourceCodeTemplateFilePath = getSourceCodeTemplateFilePath(langCode);
 
 	if (!await pathExists(sourceCodeTemplateFilePath)) {
-		await writeFile(sourceCodeTemplateFilePath, '');
+		await writeFile(sourceCodeTemplateFilePath, getDefaultCommentTemplate(langCode as any));
 	}
 
 	await openEditor(sourceCodeTemplateFilePath);
 	Logger.successLog('sourceCodeTemplate is Updated Successfully');
-};
-
-const setCommentTemplate = async (langCode: string) => {
-	const commentTemplateFilePath = getCommentTemplateFilePath(langCode);
-
-	if (!await pathExists(commentTemplateFilePath)) {
-		await writeFile(commentTemplateFilePath, getDefaultCommentTemplate(langCode as any));
-	}
-
-	await openEditor(commentTemplateFilePath);
-	Logger.successLog('commentTemplate is Updated Successfully');
 };
 
 const setPageSizeValue = (pageSize: number) => {
@@ -188,7 +163,8 @@ Simple code runner and CLI tools for studying and managing Baekjoon algorithm so
 ${chalk.bold('Commands')}
   create		Create the problem source code on the subdirectory, and fetch tests.
   test			Find, compile and run a problem source code.
-  add-test		Add additional test manually.
+  add-test		Add additional test manually by code editor.
+  edit-test		Edit test manually by code editor.
   open			Open the problem's URL in your browser.
   commit		Commit the problem source code to Git.
   clear-test		Clear the specified problem's test.
@@ -200,6 +176,7 @@ ${chalk.bold('Usage')}
   $ baekjoon-cli [create <problem identifier>]
   $ baekjoon-cli [test <problem identifier>]
   $ baekjoon-cli [add-test <problem identifier>]
+  $ baekjoon-cli [edit-test <problem identifier> <test index>]
   $ baekjoon-cli [open <problem identifier>]
   $ baekjoon-cli [commit <problem identifier>]
   $ baekjoon-cli [clear-test <problem identifier> <test index>]
@@ -210,7 +187,6 @@ ${chalk.bold('Configs')}
   lang			Default programming language to use.
   timeout		A timeout value of test runner. Test runner exit the test if the running time is greater than this value.
   code-template		Code template used by \`create\`.
-  comment-template	Comment template used by \`create\`.
   commit-message	Commit message template used by \`commit\`.
 
 ${chalk.bold('Usage')}
@@ -218,7 +194,6 @@ ${chalk.bold('Usage')}
   $ baekjoon-cli [config lang <language>]
   $ baekjoon-cli [config timeout <ms>]
   $ baekjoon-cli [config code-template]
-  $ baekjoon-cli [config comment-template]
   $ baekjoon-cli [config commit-message]
 `.trim();
 
@@ -245,7 +220,6 @@ export {
 	defaultEditor,
 	envPaths,
 	getAnswerFilesPath,
-	getCommentTemplateFilePath,
 	getCommitMessageTemplateFilePath,
 	getGitConfigFilePath,
 	getSourceCodeTemplateFilePath,
@@ -256,7 +230,6 @@ export {
 	readRunnerSettings,
 	runnerSettingFileName,
 	setAPIProvider,
-	setCommentTemplate,
 	setGitCommitMessageTemplate,
 	setPageSizeValue,
 	setProgrammingLanguage,

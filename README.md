@@ -28,7 +28,6 @@ $ npm i -g baekjoon-cli-util
 ```
 $ baekjoon-cli config lang
 $ baekjoon-cli config code-template
-$ baekjoon-cli config comment-template
 ```
 
 ## Usage
@@ -37,7 +36,8 @@ $ baekjoon-cli config comment-template
 Commands
   create		Create the problem source code on the subdirectory, and fetch tests.
   test			Find, compile and run a problem source code.
-  add-test		Add additional test manually.
+  add-test		Add additional test manually by code editor.
+  edit-test		Edit test manually by code editor.
   open			Open the problem's URL in your browser.
   commit		Commit the problem source code to Git.
   clear-test	Clear the specified problem's test.
@@ -59,7 +59,6 @@ Configs
   lang				Default programming language.
   timeout			A timeout value of test runner. Test runner exit the test if the running time is greater than this value.
   code-template		Code template used by `create`.
-  comment-template	Comment template used by `create`.
   commit-message	Commit message template used by `commit`.
 
 Usage
@@ -67,7 +66,6 @@ Usage
   $ baekjoon-cli [config lang <language>]
   $ baekjoon-cli [config timeout <ms>]
   $ baekjoon-cli [config code-template]
-  $ baekjoon-cli [config comment-template]
   $ baekjoon-cli [config commit-message]
 ```
 
@@ -118,16 +116,6 @@ You can create some code templates by your programming language.
 This template file is used when you use `baekjoon-cli create`.
 
 You can edit the template file through `baekjoon-cli config code-template`.
-
-## Comment template
-
-You can create some comment templates by your programming language.
-
-This template is prepended to the front of the code template used when you use `baekjoon-cli create`.
-
-You can edit the template file through `baekjoon-cli config comment-template`.
-
-You can use some variables to use the problem's information in the template.
 
 The `{variable}`s in the template are replaced with the according value.
 

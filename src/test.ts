@@ -95,11 +95,11 @@ class Test {
 		Logger.log(this.expectedStdout.trim());
 	}
 
-	private getTestFilePath() {
+	public getTestFilePath() {
 		return path.resolve(getTestFilesPath(), this.problemPathId, `${testFilePrefix}_${this.testIdx}`);
 	}
 
-	private getAnswerFilePath() {
+	public getAnswerFilePath() {
 		return path.resolve(getAnswerFilesPath(), this.problemPathId, `${answerFilePrefix}_${this.testIdx}`);
 	}
 }

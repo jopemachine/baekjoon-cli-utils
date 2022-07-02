@@ -1,7 +1,7 @@
 import {Problem} from './problem.js';
 import {readFile, writeFile} from './utils.js';
-import {getCommentTemplateFilePath, getSourceCodeTemplateFilePath} from './conf.js';
-import {processCommentTemplate} from './template.js';
+import {getSourceCodeTemplateFilePath} from './conf.js';
+import {processCodeSourceTemplate} from './template.js';
 import {useSpinner} from './spinner.js';
 
 interface EndPoint {
@@ -19,10 +19,9 @@ abstract class APIProvider {
 	async createProblem(problemPath: string, problem: Problem, langCode: string) {
 		await this.fetchProblemInfo(problem);
 
-		const sourceCodeTemplate = await readFile(getSourceCodeTemplateFilePath(langCode));
-		const commentTemplate = processCommentTemplate(await readFile(getCommentTemplateFilePath(langCode)), (problem.problemInfo! as Record<string, string>));
+		const sourceCodeTemplate = processCodeSourceTemplate(await readFile(getSourceCodeTemplateFilePath(langCode)), (problem.problemInfo! as Record<string, string>));
 
-		await useSpinner(writeFile(problemPath, `${commentTemplate}\n${sourceCodeTemplate}`), 'Source Code Generating');
+		await useSpinner(writeFile(problemPath, `${sourceCodeTemplate}`), 'Source Code Generating');
 		await useSpinner(this.writeTests(problem), 'Test Files Generating');
 	}
 

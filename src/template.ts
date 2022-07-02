@@ -1,4 +1,4 @@
-const processCommentTemplate = (template: string, problemInfoDict: Record<string, string>) => {
+const processCodeSourceTemplate = (template: string, problemInfoDict: Record<string, string>) => {
 	let result = template;
 
 	for (const problemInfoKey of Object.keys(problemInfoDict)) {
@@ -9,5 +9,5 @@ const processCommentTemplate = (template: string, problemInfoDict: Record<string
 };
 
 export {
-	processCommentTemplate,
+	processCodeSourceTemplate,
 };

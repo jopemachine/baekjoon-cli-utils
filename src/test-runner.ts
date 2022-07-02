@@ -10,17 +10,117 @@ import {Logger, printDividerLine} from './utils.js';
 import {supportedLanguageInfo} from './lang.js';
 import {config} from './conf.js';
 import {TestsNotFoundError} from './errors.js';
+import {terminalWidth} from './spinner.js';
 
-const isSameStdout = (stdout1: string, stdout2: string) => {
-	const lines1 = stdout1.trim().split('\n');
-	const lines2 = stdout2.trim().split('\n');
-	for (const [idx, element] of lines1.entries()) {
-		if (element.trim() !== lines2[idx].trim()) {
-			return false;
-		}
+interface StdoutAnalysisResult {
+	testPassed: boolean;
+	lineInfoList: LineInfo[];
+	maxLineLetterCnt: number;
+	shouldPrintVerbose: boolean;
+}
+
+interface LineInfo {
+	actualStdout?: string;
+	expectedStdout?: string;
+}
+
+const analysisStdout = (actualStdout: string, expectedStdout: string): StdoutAnalysisResult => {
+	const lineInfoList: LineInfo[] = [];
+	let maxLineLetterCnt = 0;
+	let shouldPrintVerbose = false;
+	let testPassed = true;
+
+	const actualStdoutLines: Array<string | undefined> = actualStdout.trim().split('\n').map(string_ => string_.trim());
+	const expectedStdoutLines = expectedStdout.trim().split('\n').map(string_ => string_.trim());
+
+	while (actualStdoutLines.length < expectedStdoutLines.length) {
+		actualStdoutLines.push(undefined);
 	}
 
-	return true;
+	for (const [idx, actualStdoutLine] of actualStdoutLines.entries()) {
+		if ((!actualStdoutLine || !expectedStdoutLines[idx]) || (actualStdoutLine !== expectedStdoutLines[idx])) {
+			testPassed = false;
+			lineInfoList.push({
+				actualStdout: actualStdoutLine,
+				expectedStdout: expectedStdoutLines[idx],
+			});
+		} else {
+			lineInfoList.push({
+				actualStdout: actualStdoutLine,
+				expectedStdout: expectedStdoutLines[idx],
+			});
+		}
+
+		maxLineLetterCnt = Math.max(
+			maxLineLetterCnt,
+			expectedStdoutLines[idx] ? expectedStdoutLines[idx].length : 0,
+			actualStdoutLine ? actualStdoutLine.length : 0,
+		);
+	}
+
+	maxLineLetterCnt = Math.max(maxLineLetterCnt, 24);
+
+	if ((maxLineLetterCnt * 2) - 4 > terminalWidth || terminalWidth < 80) {
+		shouldPrintVerbose = true;
+	}
+
+	return {
+		testPassed,
+		lineInfoList,
+		maxLineLetterCnt,
+		shouldPrintVerbose,
+	};
+};
+
+const verticalDividor = chalk.dim.gray('│');
+
+const styleStdoutLine = (analysisResult: StdoutAnalysisResult) => analysisResult.lineInfoList.map(info => {
+	let {actualStdout, expectedStdout} = info;
+	actualStdout ??= '';
+	expectedStdout ??= '';
+
+	const emptySpace = analysisResult.maxLineLetterCnt - actualStdout.length;
+	return `${chalk.red(actualStdout)}${' '.repeat(emptySpace)} ${verticalDividor} ${chalk.green(expectedStdout)}${' '.repeat(analysisResult.maxLineLetterCnt - expectedStdout.length)}`;
+}).join('\n');
+
+const printStdoutAnalysis = ({
+	actualStdout,
+	expectedStdout,
+	analysisResult,
+	testIndex}:
+{
+	actualStdout: string;
+	expectedStdout: string;
+	analysisResult: StdoutAnalysisResult;
+	testIndex: number;
+},
+) => {
+	if (analysisResult.testPassed) {
+		Logger.successLog(chalk.whiteBright(`Test Case ${testIndex} ${chalk.green('Passed!')}`));
+		return;
+	}
+
+	Logger.errorLog(chalk.whiteBright(`Test Case ${testIndex} ${chalk.yellow('Failed!')}`));
+
+	if (analysisResult.shouldPrintVerbose) {
+		Logger.infoLog(chalk.gray(`actual\n${chalk.red(actualStdout)}`));
+		Logger.infoLog(chalk.gray(`expected\n${chalk.green(expectedStdout)}`));
+	} else {
+		Logger.log(boxen(styleStdoutLine(analysisResult)
+			, {
+				borderColor: 'gray',
+				borderStyle: 'round',
+				dimBorder: true,
+				title: `${logSymbols.info} ${chalk.red('actual')} ${chalk.dim.gray('/')} ${chalk.green('expected')}`,
+				titleAlignment: 'left',
+				padding: {
+					left: 1,
+					bottom: 0,
+					top: 0,
+					right: 0,
+				},
+			}));
+	}
 };
 
 abstract class TestRunner {
@@ -51,13 +151,13 @@ abstract class TestRunner {
 			titleAlignment: 'left',
 			borderColor: 'gray',
 			dimBorder: true,
+			fullscreen: width => [width, height],
 			padding: {
 				left: 1,
 				bottom: 0,
 				top: 0,
 				right: 0,
 			},
-			fullscreen: width => [width, height],
 		}));
 	}
 
@@ -108,9 +208,9 @@ abstract class TestRunner {
 				allTestPassed = false;
 
 				if ((error as ExecaError).timedOut) {
-					Logger.errorLog(chalk.whiteBright(`Test Case ${testIndex} - ${chalk.red('Timeout!')}`));
+					Logger.errorLog(chalk.whiteBright(`Test Case ${testIndex} ${chalk.red('Timeout!')}`));
 				} else {
-					Logger.errorLog(chalk.whiteBright(`Test Case ${testIndex} - ${chalk.red('Runtime Error Occurred!')}`));
+					Logger.errorLog(chalk.whiteBright(`Test Case ${testIndex} ${chalk.red('Runtime Error Occurred!')}`));
 					Logger.log(chalk.gray(error));
 				}
 
@@ -122,14 +222,18 @@ abstract class TestRunner {
 				continue;
 			}
 
-			if (isSameStdout(stdout, test.expectedStdout)) {
-				Logger.successLog(chalk.whiteBright(`Test Case ${testIndex} - ${chalk.green('Passed!')}`));
-			} else {
+			const analysisResult = analysisStdout(stdout, test.expectedStdout);
+
+			if (!analysisResult.testPassed) {
 				allTestPassed = false;
-				Logger.errorLog(chalk.whiteBright(`Test Case ${testIndex} - ${chalk.red('Failed!')}`));
-				Logger.infoLog(chalk.gray(`[stdout]\n${chalk.red(stdout)}`));
-				Logger.infoLog(chalk.gray(`[expected stdout]\n${chalk.yellow(test.expectedStdout)}`));
 			}
+
+			printStdoutAnalysis({
+				testIndex,
+				analysisResult,
+				actualStdout: stdout,
+				expectedStdout: test.expectedStdout,
+			});
 
 			if (stderr) {
 				Logger.infoLog(chalk.gray(`[stderr]\n${stderr}`));

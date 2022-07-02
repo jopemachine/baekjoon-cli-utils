@@ -111,7 +111,7 @@ const getProblemPathId = ({sourceFilePath, isRelative}: {sourceFilePath: string;
 };
 
 const printDividerLine = () => {
-	Logger.log(chalk.dim.gray(`+${'-'.repeat(terminalWidth - 2)}+`));
+	Logger.log(chalk.bold.gray('─'.repeat(terminalWidth)));
 };
 
 const cpFile = fsp.copyFile;

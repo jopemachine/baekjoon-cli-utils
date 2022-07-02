@@ -14,7 +14,6 @@ import {
 	initConfigFilePaths,
 	projectName,
 	setAPIProvider,
-	setCommentTemplate,
 	setGitCommitMessageTemplate,
 	setPageSizeValue,
 	setProgrammingLanguage,
@@ -34,6 +33,7 @@ import {
 	getProblemPathId,
 	getUnusedFilename,
 	Logger,
+	openEditor,
 	printDividerLine,
 } from './utils.js';
 import {useSpinner} from './spinner.js';
@@ -156,6 +156,29 @@ const handleAddTest = async (problemId: string) => {
 	Logger.successLog('Test Added Successfully.');
 };
 
+const handleEditTest = async (problemId: string, testIdx: number) => {
+	const sourceFilePath = await findProblemPath(problemId);
+	const problemPathId = getProblemPathId({
+		sourceFilePath,
+		isRelative: true,
+	});
+
+	const problem = new Problem({
+		problemId,
+		problemPathId,
+	});
+
+	await problem.readAllTests();
+	const targetTest = problem.tests.filter((test) => test.testIdx === testIdx)[0];
+	if (!targetTest) {
+		Logger.errorLog(`Test ${testIdx} not found.`);
+	}
+	await openEditor(targetTest.getTestFilePath());
+	await openEditor(targetTest.getAnswerFilePath());
+
+	Logger.successLog(`Test ${testIdx} Updated.`);
+};
+
 const handleViewTests = async (problemId: string) => {
 	const sourceFilePath = await findProblemPath(problemId);
 	const problemPathId = getProblemPathId({
@@ -266,9 +289,6 @@ const handleShowConfigs = () => {
 				case 'code-template':
 					await setSourceCodeTemplate(config.get('lang'));
 					break;
-				case 'comment-template':
-					await setCommentTemplate(config.get('lang'));
-					break;
 				case 'commit-message':
 					await setGitCommitMessageTemplate();
 					break;
@@ -278,6 +298,7 @@ const handleShowConfigs = () => {
 		} else {
 			await checkHealth();
 
+			let testIdx;
 			const problemId = process.argv[3];
 			const provider: APIProvider = generateAPIProvider(config.get('provider'));
 
@@ -291,6 +312,10 @@ const handleShowConfigs = () => {
 				case 'view-tests':
 					await handleViewTests(problemId);
 					break;
+				case 'edit-test':
+					testIdx = Number(process.argv[4]);
+					await handleEditTest(problemId, testIdx);
+					break;
 				case 'add-test':
 					await handleAddTest(problemId);
 					break;
@@ -301,7 +326,7 @@ const handleShowConfigs = () => {
 					await handleClearTests(problemId);
 					break;
 				case 'clear-test':
-					const testIdx = Number(process.argv[4]);
+					testIdx = Number(process.argv[4]);
 					await handleClearTest(problemId, testIdx);
 					break;
 				case 'open':
