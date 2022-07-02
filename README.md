@@ -1,6 +1,6 @@
 # baekjoon-cli-util
 
-Simple code runner and CLI tool for studying, testing and managing [Baekjoon](https://www.acmicpc.net/) algorithm source codes efficiently.
+Simple code runner and CLI tool for studying, testing and managing [Baekjoon](https://www.acmicpc.net/) algorithm source codes efficiently. Cross-platform.
 
 * Create the source code through code, and comment template by programming language.
 * Just run your single algorithm source code regardless of your language details (compiler, cli command tools... etc).
@@ -23,7 +23,7 @@ $ npm i -g baekjoon-cli-util
 
 2. Move into your project's root. (where the `.git` folder exists)
 
-3. Configure some template files and settings.
+3. Configure a programming language and code template.
 
 ```
 $ baekjoon-cli config lang
@@ -38,11 +38,11 @@ Commands
   test			Find, compile and run a problem source code.
   add-test		Add additional test manually by code editor.
   edit-test		Edit test manually by code editor.
-  open			Open the problem's URL in your browser.
-  commit		Commit the problem source code to Git.
   clear-test	Clear the specified problem's test.
   clear-tests	Clear all the problem's tests.
   view-tests	Check the problem's tests.
+  open			Open the problem's URL in your browser.
+  commit		Commit the problem source code to Git.
   config		Check and update templates, configurations.
 
 Usage

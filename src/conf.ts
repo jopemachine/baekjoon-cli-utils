@@ -165,11 +165,11 @@ ${chalk.bold('Commands')}
   test			Find, compile and run a problem source code.
   add-test		Add additional test manually by code editor.
   edit-test		Edit test manually by code editor.
-  open			Open the problem's URL in your browser.
-  commit		Commit the problem source code to Git.
   clear-test		Clear the specified problem's test.
   clear-tests		Clear all the problem's tests.
   view-tests		Check the problem's tests.
+  open			Open the problem's URL in your browser.
+  commit		Commit the problem source code to Git.
   config		Check and update templates, configurations.
 
 ${chalk.bold('Usage')}
