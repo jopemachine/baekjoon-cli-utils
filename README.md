@@ -89,7 +89,7 @@ By default, this program use below tools for running tests.
 
 So, make sure the corresponding tool should be setup on your computer.
 
-| programming language | compiler / interpreter |
+| Programming language | Compiler / Interpreter |
 | -------------------- | --- |
 | c                    | gcc |
 | c++                  | g++ |
@@ -105,10 +105,6 @@ You can change some test runner's configuration through creating `runner-setting
 
 See also [runner's default configuration](./runner-settings.json).
 
-## Code editor setting
-
-Some command requires executing your source code editor. You can change the editor to use by setting the `EDITOR` environment variable to what you want.
-
 ## Source code template
 
 You can create some code templates by your programming language.
@@ -119,7 +115,7 @@ You can edit the template file through `baekjoon-cli config code-template`.
 
 The `{variable}`s in the template are replaced with the according value.
 
-| variable | value |
+| Variable | value |
 | -------------------- | --- |
 | id                   | Problem identifier |
 | title                | Problem title |
@@ -127,6 +123,11 @@ The `{variable}`s in the template are replaced with the according value.
 | input                 | Problem input test |
 | output                 | Problem output test |
 | url                 | Problem url |
+| date                 | File created date |
+
+## Code editor setting
+
+Some command requires executing your source code editor. You can change the editor to use by setting the `EDITOR` environment variable to what you want.
 
 ## Example
 

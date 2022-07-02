@@ -19,9 +19,12 @@ abstract class APIProvider {
 	async createProblem(problemPath: string, problem: Problem, langCode: string) {
 		await this.fetchProblemInfo(problem);
 
-		const sourceCodeTemplate = processCodeSourceTemplate(await readFile(getSourceCodeTemplateFilePath(langCode)), (problem.problemInfo! as Record<string, string>));
+		const sourceCodeTemplate = processCodeSourceTemplate(await readFile(getSourceCodeTemplateFilePath(langCode)), {
+			...problem.problemInfo! as Record<string, string>,
+			date: new Date().toLocaleString(),
+		});
 
-		await useSpinner(writeFile(problemPath, `${sourceCodeTemplate}`), 'Source Code Generating');
+		await useSpinner(writeFile(problemPath, sourceCodeTemplate), 'Source Code Generating');
 		await useSpinner(this.writeTests(problem), 'Test Files Generating');
 	}
 

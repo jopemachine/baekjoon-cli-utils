@@ -123,6 +123,14 @@ const printStdoutAnalysis = ({
 	}
 };
 
+const handleTestError = (error: any) => {
+	if (error.stderr) {
+		Logger.errorLog(error.stderr);
+	} else {
+		Logger.errorLog(error);
+	}
+};
+
 abstract class TestRunner {
 	languageId: string;
 	timeout: number;
@@ -176,7 +184,7 @@ abstract class TestRunner {
 				targetFilePath = await this.compile({sourceFilePath});
 			} catch (error: any) {
 				Logger.errorLog(chalk.red('Compile Failed!'));
-				Logger.log(error);
+				handleTestError(error);
 				process.exit(1);
 			}
 		}
@@ -211,7 +219,7 @@ abstract class TestRunner {
 					Logger.errorLog(chalk.whiteBright(`Test Case ${testIndex} ${chalk.red('Timeout!')}`));
 				} else {
 					Logger.errorLog(chalk.whiteBright(`Test Case ${testIndex} ${chalk.red('Runtime Error Occurred!')}`));
-					Logger.log(chalk.gray(error));
+					handleTestError(error);
 				}
 
 				if ((error as ExecaError).stdout) {
