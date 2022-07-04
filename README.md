@@ -3,6 +3,7 @@
 Simple code runner and CLI tool for studying, testing and managing [Baekjoon](https://www.acmicpc.net/) algorithm source codes efficiently. Cross-platform.
 
 * Just run your single algorithm source code regardless of your language details (compiler, cli command tools... etc).
+* Submit your source code on your cli directly.
 * Create the source code through code template by programming language.
 * Download and run all tests at once, and add the test you need manually.
 * Use automatic commit convention through commit template.
@@ -44,22 +45,26 @@ Commands
   open			Open the problem's URL in your browser.
   commit		Commit the problem source code to Git.
   config		Check and update templates, configurations.
+  submit		Submit problem on the provider server.
 
 Usage
-  $ baekjoon-cli [create <problem identifier>]
-  $ baekjoon-cli [test <problem identifier>]
-  $ baekjoon-cli [add-test <problem identifier>]
-  $ baekjoon-cli [open <problem identifier>]
-  $ baekjoon-cli [commit <problem identifier>]
-  $ baekjoon-cli [clear-test <problem identifier> <test index>]
-  $ baekjoon-cli [clear-tests <problem identifier>]
-  $ baekjoon-cli [view-tests <problem identifier>]
+  $ baekjoon-cli [create <problem_identifier>]
+  $ baekjoon-cli [test <problem_identifier>]
+  $ baekjoon-cli [add-test <problem_identifier>]
+  $ baekjoon-cli [edit-test <problem_identifier> <test_index>]
+  $ baekjoon-cli [open <problem_identifier>]
+  $ baekjoon-cli [commit <problem_identifier>]
+  $ baekjoon-cli [clear-test <problem_identifier> <test_index>]
+  $ baekjoon-cli [clear-tests <problem_identifier>]
+  $ baekjoon-cli [view-tests <problem_identifier>]
 
 Configs
   lang				Default programming language.
   timeout			A timeout value of test runner. Test runner exit the test if the running time is greater than this value.
   code-template		Code template used by `create`.
   commit-message	Commit message template used by `commit`.
+  user.id			User id used by \`submit\` for authenticating.
+  user.password		User password used by \`submit\` for authenticating.
 
 Usage
   $ baekjoon-cli [config]
@@ -67,6 +72,8 @@ Usage
   $ baekjoon-cli [config timeout <ms>]
   $ baekjoon-cli [config code-template]
   $ baekjoon-cli [config commit-message]
+  $ baekjoon-cli [config user.id <user_id>]
+  $ baekjoon-cli [config user.password <user_password>]
 ```
 
 ## Supported languages

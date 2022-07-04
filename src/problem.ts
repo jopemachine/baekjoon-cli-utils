@@ -86,9 +86,9 @@ class Problem {
 	}
 
 	async addManualTest() {
-		this.tests.push(
-			await Test.createManually(this.problemPathId),
-		);
+		const newTest = await Test.createManually(this.problemPathId);
+		this.tests.push(newTest);
+		return newTest;
 	}
 
 	private async getTestFilePaths() {

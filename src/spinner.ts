@@ -12,7 +12,7 @@ const useSpinner = async <T>(work: Promise<T> | (() => Promise<T>), message: str
 	spinner.start(`${message} Processing...`);
 	try {
 		const result = isPromise(work) ? await work : await work();
-		spinner.succeed(`${message} Done.`);
+		spinner.succeed(`${message}... Done.`);
 		return result;
 	} catch (error: any) {
 		spinner.fail(`${message} Failed!`);

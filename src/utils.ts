@@ -1,6 +1,7 @@
 import path from 'node:path';
 import process from 'node:process';
 import fs from 'node:fs';
+import parseJson from 'parse-json';
 import inquirer from 'inquirer';
 import logSymbols from 'log-symbols';
 import {pathExists as _pathExists, pathExistsSync as _pathExistsSync} from 'path-exists';
@@ -145,6 +146,10 @@ const makeList = (array: string[]) => array.map(string_ => `${chalk.cyan('*')} $
 
 const {chmod} = fsp;
 
+const writeJson = async (filePath: string, data: any) => writeFile(filePath, JSON.stringify(data, null, 2));
+
+const readJson = async (filePath: string) => parseJson(await readFile(filePath));
+
 export {
 	chmod,
 	makeList,
@@ -158,7 +163,9 @@ export {
 	getUnusedFilename,
 	unusedFileNameIncrementer,
 	readFile,
+	readJson,
 	writeFile,
+	writeJson,
 	pathExists,
 	pathExistsSync,
 	Logger,

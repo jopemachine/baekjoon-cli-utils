@@ -8,7 +8,8 @@ import inquirer from 'inquirer';
 import {findUp} from 'find-up';
 import del from 'del';
 import chalk from 'chalk';
-import {readFile, writeFile, pathExists, Logger, mkdir, openEditor, ensureCwdIsProjectRoot} from './utils.js';
+import {outdent} from 'outdent';
+import {readFile, writeFile, pathExists, Logger, mkdir, openEditor, ensureCwdIsProjectRoot, readJson, writeJson} from './utils.js';
 import {isSupportedLanguage, supportedLanguages} from './lang.js';
 import {NotSupportedLanguageError, NotSupportedProviderError} from './errors.js';
 import {supportedAPIProviders} from './api-provider.js';
@@ -48,6 +49,8 @@ const getSourceCodeTemplateFilePath = (lang: string) => path.resolve(getSourceCo
 
 const getGitConfigFilePath = () => path.resolve(envPaths.data, 'git-config');
 
+const getAuthenticationFilePath = () => path.resolve(envPaths.data, 'authentication.json');
+
 const getTestFilesPath = () => path.resolve(envPaths.cache, 'tests');
 
 const getAnswerFilesPath = () => path.resolve(envPaths.cache, 'answers');
@@ -84,7 +87,7 @@ const checkHealth = async () => {
 
 const setTimeoutValue = (timeoutValue: number) => {
 	config.set('timeout', timeoutValue);
-	Logger.successLog(`timeout is now '${timeoutValue}'`);
+	Logger.successLog(`timeout value is now '${timeoutValue}'.`);
 };
 
 // TODO: refactor below code using TUI selection control.
@@ -94,7 +97,7 @@ const setAPIProvider = (provider: string) => {
 	}
 
 	config.set('provider', provider);
-	Logger.successLog(`provider is now '${provider}'`);
+	Logger.successLog(`API provider is now '${provider}'.`);
 };
 
 const setProgrammingLanguage = async (lang?: string) => {
@@ -115,7 +118,7 @@ const setProgrammingLanguage = async (lang?: string) => {
 	}
 
 	config.set('lang', lang);
-	Logger.successLog(`lang is now '${lang}'`);
+	Logger.successLog(`programming language is now '${lang}'.`);
 
 	const sourceCodeTemplateFilePath = getSourceCodeTemplateFilePath(config.get('lang'));
 	if (!await pathExists(sourceCodeTemplateFilePath)) {
@@ -131,7 +134,7 @@ const setGitCommitMessageTemplate = async () => {
 	}
 
 	await openEditor(commitMessageTemplateFilePath);
-	Logger.successLog('commitMessageTemplateFile is Updated Successfully');
+	Logger.successLog('commit message template is updated.');
 };
 
 const setSourceCodeTemplate = async (langCode: string) => {
@@ -146,12 +149,12 @@ const setSourceCodeTemplate = async (langCode: string) => {
 	}
 
 	await openEditor(sourceCodeTemplateFilePath);
-	Logger.successLog('sourceCodeTemplate is Updated Successfully');
+	Logger.successLog('source code template is updated.');
 };
 
 const setPageSizeValue = (pageSize: number) => {
 	config.set('pageSize', pageSize);
-	Logger.successLog(`pageSize is now '${pageSize}'`);
+	Logger.successLog(`page size is now '${pageSize}'.`);
 };
 
 const clearAllTestData = async () => {
@@ -162,44 +165,84 @@ const clearAllTestData = async () => {
 	Logger.successLog('All test data removed.');
 };
 
-const helpMessage = `
-Simple code runner and CLI tools for studying and managing Baekjoon algorithm source codes efficiently.
+const setAuthenticationInfo = async (provider: string, key: string, value: string) => {
+	if (!supportedAPIProviders.includes(provider)) {
+		throw new NotSupportedProviderError(provider);
+	}
 
-${chalk.bold('Commands')}
-  create		Create the problem source code on the subdirectory, and fetch tests.
-  test			Find, compile and run a problem source code.
-  add-test		Add additional test manually by code editor.
-  edit-test		Edit test manually by code editor.
-  clear-test		Clear the specified problem's test.
-  clear-tests		Clear all the problem's tests.
-  view-tests		Check the problem's tests.
-  open			Open the problem's URL in your browser.
-  commit		Commit the problem source code to Git.
-  config		Check and update templates, configurations.
+	if (!key.includes('.')) {
+		throw new Error('authentication value format is wrong!');
+	}
 
-${chalk.bold('Usage')}
-  $ baekjoon-cli [create <problem identifier>]
-  $ baekjoon-cli [test <problem identifier>]
-  $ baekjoon-cli [add-test <problem identifier>]
-  $ baekjoon-cli [edit-test <problem identifier> <test index>]
-  $ baekjoon-cli [open <problem identifier>]
-  $ baekjoon-cli [commit <problem identifier>]
-  $ baekjoon-cli [clear-test <problem identifier> <test index>]
-  $ baekjoon-cli [clear-tests <problem identifier>]
-  $ baekjoon-cli [view-tests <problem identifier>]
+	const keyName = key.split('.')[1];
+	const authenticationSettingFilePath = getAuthenticationFilePath();
 
-${chalk.bold('Configs')}
-  lang			Default programming language to use.
-  timeout		A timeout value of test runner. Test runner exit the test if the running time is greater than this value.
-  code-template		Code template used by \`create\`.
-  commit-message	Commit message template used by \`commit\`.
+	let authenticationInfo: Record<string, Record<string, string>> = {};
+	if (await pathExists(authenticationSettingFilePath)) {
+		authenticationInfo = parseJson(await readFile(authenticationSettingFilePath));
+	}
 
-${chalk.bold('Usage')}
-  $ baekjoon-cli [config]
-  $ baekjoon-cli [config lang <language>]
-  $ baekjoon-cli [config timeout <ms>]
-  $ baekjoon-cli [config code-template]
-  $ baekjoon-cli [config commit-message]
+	authenticationInfo[provider] ??= {};
+	authenticationInfo[provider][keyName] = value;
+	await writeJson(authenticationSettingFilePath, authenticationInfo);
+	Logger.successLog('authentication info updated.');
+};
+
+const getAuthenticationInfo = async (provider: string) => {
+	if (!supportedAPIProviders.includes(provider)) {
+		throw new NotSupportedProviderError(provider);
+	}
+
+	try {
+		return (await readJson(getAuthenticationFilePath()))[provider];
+	} catch (error: any) {
+		if (error.code === 'ENOENT') {
+			throw new Error(`${logSymbols.error} configure your authentication setting first.`);
+		}
+	}
+};
+
+const helpMessage = outdent`
+  ${chalk.bold('Commands')}
+    create		Create the problem source code on the subdirectory, and fetch tests.
+    test		Find, compile and run a problem source code.
+    add-test		Add additional test manually by code editor.
+    edit-test		Edit test manually by code editor.
+    clear-test		Clear the specified problem's test.
+    clear-tests		Clear all the problem's tests.
+    view-tests		Check the problem's tests.
+    open		Open the problem's URL in your browser.
+    commit		Commit the problem source code to Git.
+    config		Check and update templates, configurations.
+    submit		Submit problem on the provider server.
+
+  ${chalk.bold('Usage')}
+    $ baekjoon-cli [create <problem_identifier>]
+    $ baekjoon-cli [test <problem_identifier>]
+    $ baekjoon-cli [add-test <problem_identifier>]
+    $ baekjoon-cli [edit-test <problem_identifier> <test_index>]
+    $ baekjoon-cli [open <problem_identifier>]
+    $ baekjoon-cli [commit <problem_identifier>]
+    $ baekjoon-cli [clear-test <problem_identifier> <test_index>]
+    $ baekjoon-cli [clear-tests <problem_identifier>]
+    $ baekjoon-cli [view-tests <problem_identifier>]
+
+  ${chalk.bold('Configs')}
+    lang		Default programming language to use.
+    timeout		A timeout value of test runner. Test runner exit the test if the running time is greater than this value.
+    code-template	Code template used by \`create\`.
+    commit-message	Commit message template used by \`commit\`.
+    user.id		User id used by \`submit\` for authenticating.
+    user.password	User password used by \`submit\` for authenticating.
+
+  ${chalk.bold('Usage')}
+    $ baekjoon-cli [config]
+    $ baekjoon-cli [config lang <language>]
+    $ baekjoon-cli [config timeout <ms>]
+    $ baekjoon-cli [config code-template]
+    $ baekjoon-cli [config commit-message]
+    $ baekjoon-cli [config user.id <user_id>]
+    $ baekjoon-cli [config user.password <user_password>]
 `.trim();
 
 const runnerSettingFileName = 'runner-settings.json';
@@ -225,6 +268,7 @@ export {
 	defaultEditor,
 	envPaths,
 	getAnswerFilesPath,
+	getAuthenticationInfo,
 	getCommitMessageTemplateFilePath,
 	getGitConfigFilePath,
 	getSourceCodeTemplateFilePath,
@@ -235,6 +279,7 @@ export {
 	readRunnerSettings,
 	runnerSettingFileName,
 	setAPIProvider,
+	setAuthenticationInfo,
 	setGitCommitMessageTemplate,
 	setPageSizeValue,
 	setProgrammingLanguage,

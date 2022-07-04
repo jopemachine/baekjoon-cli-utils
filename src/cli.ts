@@ -6,14 +6,18 @@ import inquirerAutocompletePrompt from 'inquirer-autocomplete-prompt';
 import isFirstRun from 'first-run';
 import {globby} from 'globby';
 import chalk from 'chalk';
+import meow from 'meow';
+import updateNotifier from 'update-notifier';
 import {
 	checkHealth,
 	clearAllTestData,
 	config,
+	getAuthenticationInfo,
 	helpMessage,
 	initConfigFilePaths,
 	projectName,
 	setAPIProvider,
+	setAuthenticationInfo,
 	setGitCommitMessageTemplate,
 	setPageSizeValue,
 	setProgrammingLanguage,
@@ -35,14 +39,28 @@ import {
 	Logger,
 	openEditor,
 	printDividerLine,
+	readFile,
 } from './utils.js';
 import {useSpinner} from './spinner.js';
 import {inferLanguageCode, supportedLanguageInfo} from './lang.js';
 
 inquirer.registerPrompt('autocomplete', inquirerAutocompletePrompt);
 
-const command = process.argv[2] ?? 'help';
-const subCommand = command === 'config' && process.argv.length > 3 ? process.argv[3] : undefined;
+const cli = meow(helpMessage, {
+	importMeta: import.meta,
+	flags: {
+		// TODO: Implement below option in test runner
+		verbose: {
+			type: 'boolean',
+			alias: 'v',
+		},
+	},
+});
+
+updateNotifier({pkg: cli.pkg}).notify();
+
+const command = cli.input[0] ?? 'help';
+const subCommand = command === 'config' && cli.input.length > 1 ? cli.input[1] : undefined;
 
 const checkArgumentLength = (command: string, subCommand?: string) => {
 	const expectedLengthDict = {
@@ -52,6 +70,8 @@ const checkArgumentLength = (command: string, subCommand?: string) => {
 		'config code-template': 2,
 		'config commit-message': 2,
 		'config page-size': 3,
+		'config user.id': 3,
+		'config user.password': 3,
 		create: 2,
 		'add-test': 2,
 		'edit-test': 3,
@@ -65,11 +85,10 @@ const checkArgumentLength = (command: string, subCommand?: string) => {
 
 	const id = subCommand ? `${command} ${subCommand}` : command;
 
-	// Argv0, Argv1 are excluded from counting.
-	if ((expectedLengthDict as any)[id] && process.argv.length - 2 !== (expectedLengthDict as any)[id]) {
+	if ((expectedLengthDict as any)[id] && cli.input.length !== (expectedLengthDict as any)[id]) {
 		throw new ArgumentLengthError({
 			expectedLength: (expectedLengthDict as any)[id],
-			actualLength: process.argv.length - 2,
+			actualLength: cli.input.length,
 		});
 	}
 };
@@ -122,7 +141,7 @@ const handleTest = async (problemId: string, provider: APIProvider) => {
 		problemPathId,
 	});
 
-	const testIdx = process.argv.length > 4 ? Number(process.argv[4]) : undefined;
+	const testIdx = cli.input.length > 2 ? Number(cli.input[2]) : undefined;
 
 	const testRunner: TestRunner = await generateTestRunner(inferLanguageCode(sourceFilePath.split('.').pop()!));
 
@@ -152,8 +171,8 @@ const handleAddTest = async (problemId: string) => {
 	});
 
 	problem.generateTestFolder();
-	await problem.addManualTest();
-	Logger.successLog('Test Added Successfully.');
+	const test = await problem.addManualTest();
+	Logger.successLog(`Test ${test.testIdx} Added.`);
 };
 
 const handleEditTest = async (problemId: string, testIdx: number) => {
@@ -250,12 +269,24 @@ const handleCommitProblem = async (problemId: string) => {
 	await commitProblem(problem, sourceFilePath);
 };
 
-const handleShowConfigs = () => {
+const handleSubmit = async (problemId: string, provider: APIProvider) => {
+	const sourceFilePath = await findProblemPath(problemId);
+	await provider.submitProblem(problemId, await readFile(sourceFilePath));
+};
+
+// TODO: Refactor below function with using `boxen`
+// https://github.com/sindresorhus/boxen
+const handleShowConfigs = async () => {
 	Logger.log(chalk.cyanBright('Current Configs'));
 	Logger.infoLog(chalk.whiteBright(`Language: ${config.get('lang')}`));
 	Logger.infoLog(chalk.whiteBright(`Timeout value: ${config.get('timeout')}`));
 	Logger.infoLog(chalk.whiteBright(`Problem provider: ${config.get('provider')}`));
 	Logger.infoLog(chalk.whiteBright(`Page size: ${config.get('pageSize')}`));
+
+	printDividerLine();
+	Logger.infoLog(chalk.whiteBright(`API Provider: ${config.get('provider')}`));
+	const {id} = await getAuthenticationInfo(config.get('provider'));
+	Logger.infoLog(chalk.whiteBright(`Logged in User Id: ${id}`));
 };
 
 (async function () {
@@ -268,30 +299,34 @@ const handleShowConfigs = () => {
 
 		if (command === 'config') {
 			if (!subCommand) {
-				handleShowConfigs();
+				await handleShowConfigs();
 				return;
 			}
 
-			const target = process.argv[3];
+			const target = cli.input[1];
 
 			switch (target) {
 				case 'lang':
-					await setProgrammingLanguage(process.argv[4]);
+					await setProgrammingLanguage(cli.input[2]);
 					break;
 				case 'page-size':
-					setPageSizeValue(Number(process.argv[4]));
+					setPageSizeValue(Number(cli.input[2]));
 					break;
 				case 'provider':
-					setAPIProvider(process.argv[4]);
+					setAPIProvider(cli.input[2]);
 					break;
 				case 'timeout':
-					setTimeoutValue(Number(process.argv[4]));
+					setTimeoutValue(Number(cli.input[2]));
 					break;
 				case 'code-template':
 					await setSourceCodeTemplate(config.get('lang'));
 					break;
 				case 'commit-message':
 					await setGitCommitMessageTemplate();
+					break;
+				case 'user.id':
+				case 'user.password':
+					await setAuthenticationInfo(config.get('provider'), cli.input[1], cli.input[2]);
 					break;
 				default:
 					throw new Error(`Unknown Config Name '${chalk.red(target)}'`);
@@ -300,7 +335,7 @@ const handleShowConfigs = () => {
 			await checkHealth();
 
 			let testIdx;
-			const problemId = process.argv[3];
+			const problemId = cli.input[1];
 			const provider: APIProvider = generateAPIProvider(config.get('provider'));
 
 			switch (command) {
@@ -314,7 +349,7 @@ const handleShowConfigs = () => {
 					await handleViewTests(problemId);
 					break;
 				case 'edit-test':
-					testIdx = Number(process.argv[4]);
+					testIdx = Number(cli.input[2]);
 					await handleEditTest(problemId, testIdx);
 					break;
 				case 'add-test':
@@ -327,7 +362,7 @@ const handleShowConfigs = () => {
 					await handleClearTests(problemId);
 					break;
 				case 'clear-test':
-					testIdx = Number(process.argv[4]);
+					testIdx = Number(cli.input[2]);
 					await handleClearTest(problemId, testIdx);
 					break;
 				case 'open':
@@ -336,8 +371,11 @@ const handleShowConfigs = () => {
 				case 'commit':
 					await handleCommitProblem(problemId);
 					break;
+				case 'submit':
+					await handleSubmit(problemId, provider);
+					break;
 				case 'help':
-					Logger.log(helpMessage);
+					Logger.log(cli.help);
 					break;
 				default:
 					throw new Error(`Unknown Command '${chalk.red(command)}'`);

@@ -5,7 +5,10 @@ import {processCodeSourceTemplate} from './template.js';
 import {useSpinner} from './spinner.js';
 
 interface EndPoint {
+	origin?: string;
+	login?: string;
 	getProblem?: string;
+	submitProblem?: string;
 	cssSelectors?: Record<string, string>;
 }
 
@@ -30,6 +33,7 @@ abstract class APIProvider {
 
 	abstract fetchProblemInfo(problem: Problem): Promise<void>;
 	abstract openProblem(problemId: string): Promise<void>;
+	abstract submitProblem(problemId: string, sourceCode: string): Promise<void>;
 
 	private async writeTests(problem: Problem) {
 		return Promise.all(problem.tests.map(async test => test.write()));
