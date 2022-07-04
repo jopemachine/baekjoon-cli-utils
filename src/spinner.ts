@@ -8,7 +8,7 @@ const terminalWidth = process.stdout.columns;
 
 const spinner = ora({hideCursor: false});
 
-const useSpinner = async <T>(work: Promise<T> | (() => Promise<T>), message: string): Promise<T | undefined> => {
+const useSpinner = async <ValueType>(work: Promise<ValueType> | (() => Promise<ValueType>), message: string): Promise<ValueType | undefined> => {
 	spinner.start(`${message} Processing...`);
 	try {
 		const result = isPromise(work) ? await work : await work();

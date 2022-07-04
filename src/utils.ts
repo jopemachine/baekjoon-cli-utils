@@ -1,3 +1,4 @@
+import timer from 'node:timers/promises';
 import path from 'node:path';
 import process from 'node:process';
 import fs from 'node:fs';
@@ -150,8 +151,11 @@ const writeJson = async (filePath: string, data: any) => writeFile(filePath, JSO
 
 const readJson = async (filePath: string) => parseJson(await readFile(filePath));
 
+const delay = timer.setTimeout;
+
 export {
 	chmod,
+	delay,
 	makeList,
 	commitProblem,
 	ensureCwdIsProjectRoot,

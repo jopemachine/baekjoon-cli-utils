@@ -3,7 +3,7 @@
 Simple code runner and CLI tool for studying, testing and managing [Baekjoon](https://www.acmicpc.net/) algorithm source codes efficiently. Cross-platform.
 
 * Just run your single algorithm source code regardless of your language details (compiler, cli command tools... etc).
-* Submit your source code on your cli directly.
+* (Experimental) Submit your source code on your cli directly.
 * Create the source code through code template by programming language.
 * Download and run all tests at once, and add the test you need manually.
 * Use automatic commit convention through commit template.
@@ -37,15 +37,15 @@ $ baekjoon-cli config code-template
 Commands
   create		Create the problem source code on the subdirectory, and fetch tests.
   test			Find, compile and run a problem source code.
+  submit		(Experimental) Submit problem on the provider server.
   add-test		Add additional test manually by code editor.
   edit-test		Edit test manually by code editor.
   clear-test	Clear the specified problem's test.
   clear-tests	Clear all the problem's tests.
-  view-tests	Check the problem's tests.
+  view-tests	Print the problem's tests.
   open			Open the problem's URL in your browser.
   commit		Commit the problem source code to Git.
-  config		Check and update templates, configurations.
-  submit		Submit problem on the provider server.
+  config		Check and update miscellaneous configurations.
 
 Usage
   $ baekjoon-cli [create <problem_identifier>]

@@ -87,7 +87,7 @@ const checkHealth = async () => {
 
 const setTimeoutValue = (timeoutValue: number) => {
 	config.set('timeout', timeoutValue);
-	Logger.successLog(`timeout value is now '${timeoutValue}'.`);
+	Logger.successLog(`Test runner's timeout value is now '${timeoutValue}'.`);
 };
 
 // TODO: refactor below code using TUI selection control.
@@ -118,7 +118,7 @@ const setProgrammingLanguage = async (lang?: string) => {
 	}
 
 	config.set('lang', lang);
-	Logger.successLog(`programming language is now '${lang}'.`);
+	Logger.successLog(`Programming language is now '${lang}'.`);
 
 	const sourceCodeTemplateFilePath = getSourceCodeTemplateFilePath(config.get('lang'));
 	if (!await pathExists(sourceCodeTemplateFilePath)) {
@@ -134,7 +134,7 @@ const setGitCommitMessageTemplate = async () => {
 	}
 
 	await openEditor(commitMessageTemplateFilePath);
-	Logger.successLog('commit message template is updated.');
+	Logger.successLog('Git commit message template is updated.');
 };
 
 const setSourceCodeTemplate = async (langCode: string) => {
@@ -149,12 +149,12 @@ const setSourceCodeTemplate = async (langCode: string) => {
 	}
 
 	await openEditor(sourceCodeTemplateFilePath);
-	Logger.successLog('source code template is updated.');
+	Logger.successLog('Source code template is updated.');
 };
 
 const setPageSizeValue = (pageSize: number) => {
 	config.set('pageSize', pageSize);
-	Logger.successLog(`page size is now '${pageSize}'.`);
+	Logger.successLog(`Page size is now '${pageSize}'.`);
 };
 
 const clearAllTestData = async () => {
@@ -171,7 +171,7 @@ const setAuthenticationInfo = async (provider: string, key: string, value: strin
 	}
 
 	if (!key.includes('.')) {
-		throw new Error('authentication value format is wrong!');
+		throw new Error('Authentication value format is wrong!');
 	}
 
 	const keyName = key.split('.')[1];
@@ -185,7 +185,7 @@ const setAuthenticationInfo = async (provider: string, key: string, value: strin
 	authenticationInfo[provider] ??= {};
 	authenticationInfo[provider][keyName] = value;
 	await writeJson(authenticationSettingFilePath, authenticationInfo);
-	Logger.successLog('authentication info updated.');
+	Logger.successLog('Authentication info updated.');
 };
 
 const getAuthenticationInfo = async (provider: string) => {
@@ -206,15 +206,15 @@ const helpMessage = outdent`
   ${chalk.bold('Commands')}
     create		Create the problem source code on the subdirectory, and fetch tests.
     test		Find, compile and run a problem source code.
+    submit		(Experimental) Submit problem on the provider server.
     add-test		Add additional test manually by code editor.
     edit-test		Edit test manually by code editor.
     clear-test		Clear the specified problem's test.
     clear-tests		Clear all the problem's tests.
-    view-tests		Check the problem's tests.
+    view-tests		Print the problem's tests.
     open		Open the problem's URL in your browser.
     commit		Commit the problem source code to Git.
     config		Check and update templates, configurations.
-    submit		Submit problem on the provider server.
 
   ${chalk.bold('Usage')}
     $ baekjoon-cli [create <problem_identifier>]

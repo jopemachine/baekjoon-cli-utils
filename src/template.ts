@@ -76,11 +76,11 @@ const defaultCommentTemplate = outdent`
   ==============================================================================================
   @ Title: {title}
   @ URL: {url}
-  @ Date: {date}
+  @ Created Date: {date}
   @ Problem:
   {text}
-  @ Input: {input}
-  @ Output: {output}
+  @ Input Example: {input}
+  @ Output Example: {output}
   ==============================================================================================
 `;
 

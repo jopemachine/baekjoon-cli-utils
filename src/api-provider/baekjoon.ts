@@ -4,11 +4,11 @@ import got, {Response} from 'got';
 import {load} from 'cheerio';
 import htmlToText from 'html-to-text';
 import {launch} from 'puppeteer';
-import delay from 'delay';
+import pRace from 'p-race';
 import {APIProvider} from '../api-provider.js';
 import {Problem} from '../problem.js';
 import {Test} from '../test.js';
-import {Logger} from '../utils.js';
+import {delay, Logger} from '../utils.js';
 import {useSpinner} from '../spinner.js';
 import {config, getAuthenticationInfo} from '../conf.js';
 
@@ -18,9 +18,9 @@ class BaekjoonProvider extends APIProvider {
 		this.endPoints.origin = 'https://www.acmicpc.net';
 
 		this.endPoints = {
-			login: `${this.endPoints.origin!}/login`,
-			getProblem: `${this.endPoints.origin!}/problem`,
-			submitProblem: `${this.endPoints.origin!}/submit`,
+			login: `${this.endPoints.origin}/login`,
+			getProblem: `${this.endPoints.origin}/problem`,
+			submitProblem: `${this.endPoints.origin}/submit`,
 			cssSelectors: {
 				title: '#problem_title',
 				input: '#problem_input',
@@ -42,7 +42,8 @@ class BaekjoonProvider extends APIProvider {
 				Logger.errorLog('Problem not found in the provider server.\nPlease check if your problem identifier is valid.');
 				process.exit(1);
 			}
-			throw error;
+
+			throw error as Error;
 		}
 
 		const problemInfo = load(response!.body);
@@ -89,7 +90,9 @@ class BaekjoonProvider extends APIProvider {
 
 	override async submitProblem(problemId: string, sourceCode: string) {
 		const {id, password} = await getAuthenticationInfo(config.get('provider'));
-		if (!id || !password) throw new Error('User id or password not set');
+		if (!id || !password) {
+			throw new Error('User id or password not set');
+		}
 
 		const browser = await launch({args: ['--no-sandbox']});
 		const loginPage = await browser.newPage();
@@ -102,7 +105,7 @@ class BaekjoonProvider extends APIProvider {
 			await context.overridePermissions(this.endPoints.origin!, ['clipboard-read', 'clipboard-write']);
 			await loginPage.setViewport({width: 1366, height: 768});
 			await loginPage.setUserAgent('Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.108 Safari/537.36');
-		}, 'Browser Configuration');
+		}, 'Puppeteer Configuration');
 
 		await useSpinner(async () => {
 			await loginPage.goto(this.endPoints.login!);
@@ -113,7 +116,11 @@ class BaekjoonProvider extends APIProvider {
 			await loginPage.type('input[name="login_user_id"]', id);
 			await loginPage.type('input[name="login_password"]', password);
 			await loginPage.click('#submit_button');
-			await delay(4000);
+			await pRace<any>([
+				// WaitForNavigation not return after navigation successfully occasionally.
+				loginPage.waitForNavigation(),
+				delay(4000),
+			]);
 		}, 'Authenticating Account');
 
 		const cookies = await loginPage.cookies();
@@ -148,7 +155,7 @@ class BaekjoonProvider extends APIProvider {
 			await loginPage.close();
 			await submitPage.close();
 			await browser.close();
-		}, 'Quitting Browser');
+		}, 'Exiting Puppeteer');
 	}
 }
 
