@@ -60,7 +60,8 @@
 		"puppeteer": "^15.3.0",
 		"tempy": "^3.0.0",
 		"unused-filename": "^4.0.0",
-		"update-notifier": "^6.0.2"
+		"update-notifier": "^6.0.2",
+		"username": "^6.0.0"
 	},
 	"devDependencies": {
 		"ava": "^4.3.0",

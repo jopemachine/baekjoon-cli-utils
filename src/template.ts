@@ -1,4 +1,5 @@
 import {outdent} from 'outdent';
+import {username} from 'username';
 import {supportedLanguageEnum} from './lang.js';
 
 const processCodeSourceTemplate = (template: string, problemInfoDict: Record<string, string>) => {
@@ -76,11 +77,12 @@ const defaultCommentTemplate = outdent`
   ==============================================================================================
   @ Title: {title}
   @ URL: {url}
+  @ Author: ${await username()}
   @ Created Date: {date}
   @ Problem:
   {text}
-  @ Input Example: {input}
-  @ Output Example: {output}
+  @ Input: {input}
+  @ Output: {output}
   ==============================================================================================
 `;
 

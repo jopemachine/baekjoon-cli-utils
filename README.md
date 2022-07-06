@@ -43,17 +43,17 @@ $ baekjoon-cli config code-template
 $ baekjoon-cli --help
 
   Commands
-    create         Create the problem source code on the subdirectory, and fetch tests.
-    test           Find, compile and run a problem source code, and print test results in pretty format.
-    submit         (Experimental) Submit problem on the provider server.
-    add-test       Add additional test manually by code editor.
-    edit-test      Edit test manually by code editor.
-    clear-test     Clear the specified problem's test.
-    clear-tests    Clear all the problem's tests.
-    view-tests     Print the problem's tests.
-    open           Open the problem's URL in your browser.
-    commit         Commit the problem source code to Git.
-    config         Check and update templates, configurations.
+    create          Create the problem source code on the subdirectory, and fetch tests.
+    test            Find, compile and run a problem source code, and print test results in pretty format.
+    submit          (Experimental) Submit problem on the provider server.
+    add-test        Add additional test manually by code editor.
+    edit-test       Edit test manually by code editor.
+    clear-test      Clear the specified problem's test.
+    clear-tests     Clear all the problem's tests.
+    view-tests      Print the problem's tests.
+    open            Open the problem's URL in your browser.
+    commit          Commit the problem source code to Git.
+    config          Check and update templates, configurations.
 
   Usage
     $ baekjoon-cli [create <problem_identifier>]
@@ -68,6 +68,7 @@ $ baekjoon-cli --help
     $ baekjoon-cli [view-tests <problem_identifier>]
 
   Configs
+    show            Show current configurations.
     lang            Default programming language to use.
     timeout         A timeout value of test runner. Test runner exit the test if the running time is greater than this value.
     code-template   Code template used by \`create\`.
@@ -76,7 +77,7 @@ $ baekjoon-cli --help
     user.password   User password used by \`submit\` for authenticating.
 
   Usage
-    $ baekjoon-cli [config]
+    $ baekjoon-cli [config show]
     $ baekjoon-cli [config lang <language>]
     $ baekjoon-cli [config timeout <ms>]
     $ baekjoon-cli [config code-template]
@@ -85,8 +86,8 @@ $ baekjoon-cli --help
     $ baekjoon-cli [config user.password <user_password>]
 
   Options
-    --raw    Print stdout in raw format in test runner.
-             It could be useful when you debug the source code with an infinity loop since test runner will not wait for the child process to exit.
+    --raw           Print stdout in raw format in test runner.
+                    It could be useful when you debug the source code with an infinity loop since test runner will not wait for the child process to exit.
 
   Flag Examples
     $ baekjoon-cli test --raw 1000
@@ -112,17 +113,17 @@ By default, this program use below tools for running tests.
 
 So, make sure the corresponding tool should be setup on your computer.
 
-| Programming language | Compiler / Interpreter |
-| -------------------- | --- |
-| c                    | gcc |
-| c++                  | g++ |
-| go                   | go |
-| java                 | javac |
-| javascript           | node |
-| python               | python3 |
-| ruby                 | ruby |
-| rust                 | rustc |
-| swift                | swiftc |
+| Programming language | Compiler / Interpreter   |
+| -------------------- | ------------------------ |
+| c                    | `gcc`                    |
+| c++                  | `g++`                    |
+| go                   | `go`                     |
+| java                 | `javac`                  |
+| javascript           | `node`                   |
+| python               | `python3`                |
+| ruby                 | `ruby`                   |
+| rust                 | `rustc`                  |
+| swift                | `swiftc`                 |
 
 You can change some test runner's configuration through creating `runner-settings.json` file to your working directory.
 
@@ -139,14 +140,14 @@ You can edit the template file through `baekjoon-cli config code-template`.
 The `{variable}`s in the template are replaced with the according value.
 
 | Variable | value |
-| -------------------- | --- |
-| id                   | Problem identifier |
-| title                | Problem title |
-| text                 | Problem texts |
-| input                | Problem input test |
-| output               | Problem output test |
-| url                  | Problem url |
-| date                 | File created date |
+| -------------------- | ---------------------- |
+| id                   | Problem identifier     |
+| title                | Problem title          |
+| text                 | Problem texts          |
+| input                | Problem input test     |
+| output               | Problem output test    |
+| url                  | Problem url            |
+| date                 | File created date      |
 
 ## Code editor setting
 

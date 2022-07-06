@@ -77,11 +77,11 @@ validateOptions(cli.input, cli.flags);
 updateNotifier({pkg: cli.pkg}).notify();
 
 const command = cli.input[0] ?? 'help';
-const subCommand = command === 'config' && cli.input.length > 1 ? cli.input[1] : undefined;
+const subCommand = cli.input[1];
 
 const checkArgumentLength = (command: string, subCommand?: string) => {
 	const expectedLengthDict = {
-		config: 1,
+		'config show': 2,
 		'config timeout': 3,
 		'config provider': 3,
 		'config code-template': 2,
@@ -309,102 +309,107 @@ const handleShowConfigs = async () => {
 	Logger.infoLog(chalk.whiteBright(`Logged in User Id: ${id}`));
 };
 
-(async function () {
-	try {
-		if (isFirstRun({name: projectName})) {
-			await initConfigFilePaths();
-		}
+const handleProblemOpen = async (problemId: string, provider: APIProvider) => {
+	await provider.openProblem(problemId);
+};
 
-		checkArgumentLength(command, subCommand);
+const handlePrintHelp = () => {
+	Logger.log(helpMessage);
+	process.exit(0);
+};
 
-		if (command === 'config') {
-			if (!subCommand) {
-				await handleShowConfigs();
-				return;
-			}
+if (isFirstRun({name: projectName})) {
+	await initConfigFilePaths();
+}
 
-			const target = cli.input[1];
+checkArgumentLength(command, subCommand);
 
-			switch (target) {
-				case 'lang':
-					await setProgrammingLanguage(cli.input[2]);
-					break;
-				case 'page-size':
-					setPageSizeValue(Number(cli.input[2]));
-					break;
-				case 'provider':
-					setAPIProvider(cli.input[2]);
-					break;
-				case 'timeout':
-					setTimeoutValue(Number(cli.input[2]));
-					break;
-				case 'code-template':
-					await setSourceCodeTemplate(config.get('lang'));
-					break;
-				case 'commit-message':
-					await setGitCommitMessageTemplate();
-					break;
-				case 'user.id':
-				case 'user.password':
-					await setAuthenticationInfo(config.get('provider'), cli.input[1], cli.input[2]);
-					break;
-				default:
-					throw new Error(`Unknown Config Name '${chalk.red(target)}'`);
-			}
-		} else {
-			await checkHealth();
-
-			let testIdx;
-			const problemId = cli.input[1];
-			const provider: APIProvider = generateAPIProvider(config.get('provider'));
-
-			switch (command) {
-				case 'create':
-					await handleCreate(problemId);
-					break;
-				case 'test':
-					await handleTest(problemId, provider);
-					break;
-				case 'view-tests':
-					await handleViewTests(problemId);
-					break;
-				case 'edit-test':
-					testIdx = Number(cli.input[2]);
-					await handleEditTest(problemId, testIdx);
-					break;
-				case 'add-test':
-					await handleAddTest(problemId);
-					break;
-				case 'clear-data':
-					await clearAllTestData();
-					break;
-				case 'clear-tests':
-					await handleClearTests(problemId);
-					break;
-				case 'clear-test':
-					testIdx = Number(cli.input[2]);
-					await handleClearTest(problemId, testIdx);
-					break;
-				case 'open':
-					await provider.openProblem(problemId);
-					break;
-				case 'commit':
-					await handleCommitProblem(problemId);
-					break;
-				case 'submit':
-					await handleSubmit(problemId, provider);
-					break;
-				case 'help':
-					Logger.log(cli.help);
-					break;
-				default:
-					throw new Error(`Unknown Command '${chalk.red(command)}'`);
-			}
-
-			process.exit(0);
-		}
-	} catch (error: any) {
-		console.error(error);
-		process.exit(1);
+if (command === 'config') {
+	if (!subCommand) {
+		handlePrintHelp();
 	}
-})();
+
+	const target = cli.input[1];
+
+	switch (target) {
+		case 'show':
+			await handleShowConfigs();
+			break;
+		case 'lang':
+			await setProgrammingLanguage(cli.input[2]);
+			break;
+		case 'page-size':
+			setPageSizeValue(Number(cli.input[2]));
+			break;
+		case 'provider':
+			setAPIProvider(cli.input[2]);
+			break;
+		case 'timeout':
+			setTimeoutValue(Number(cli.input[2]));
+			break;
+		case 'code-template':
+			await setSourceCodeTemplate(config.get('lang'));
+			break;
+		case 'commit-message':
+			await setGitCommitMessageTemplate();
+			break;
+		case 'user.id':
+		case 'user.password':
+			await setAuthenticationInfo(config.get('provider'), cli.input[1], cli.input[2]);
+			break;
+		default:
+			throw new Error(`Unknown Config Name '${chalk.red(target)}'`);
+	}
+} else {
+	await checkHealth();
+
+	let testIdx;
+	const problemId = cli.input[1];
+	const provider: APIProvider = generateAPIProvider(config.get('provider'));
+
+	switch (command) {
+		case 'create':
+			await handleCreate(problemId);
+			break;
+		case 'test':
+			await handleTest(problemId, provider);
+			break;
+		case 'view-tests':
+			await handleViewTests(problemId);
+			break;
+		case 'edit-test':
+			testIdx = Number(cli.input[2]);
+			await handleEditTest(problemId, testIdx);
+			break;
+		case 'add-test':
+			await handleAddTest(problemId);
+			break;
+		case 'clear-data':
+			await clearAllTestData();
+			break;
+		case 'clear-tests':
+			await handleClearTests(problemId);
+			break;
+		case 'clear-test':
+			testIdx = Number(cli.input[2]);
+			await handleClearTest(problemId, testIdx);
+			break;
+		case 'open':
+			await handleProblemOpen(problemId, provider);
+			break;
+		case 'commit':
+			await handleCommitProblem(problemId);
+			break;
+		case 'submit':
+			await handleSubmit(problemId, provider);
+			break;
+		case 'help':
+			handlePrintHelp();
+			break;
+		default:
+			throw new Error(`Unknown Command '${chalk.red(command)}'`);
+	}
+
+	process.exit(0);
+}
+

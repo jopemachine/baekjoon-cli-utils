@@ -9,11 +9,21 @@ import {findUp} from 'find-up';
 import del from 'del';
 import chalk from 'chalk';
 import {outdent} from 'outdent';
-import {readFile, writeFile, pathExists, Logger, mkdir, openEditor, ensureCwdIsProjectRoot, readJson, writeJson} from './utils.js';
 import {isSupportedLanguage, supportedLanguages} from './lang.js';
 import {NotSupportedLanguageError, NotSupportedProviderError} from './errors.js';
 import {supportedAPIProviders} from './api-provider.js';
 import {getDefaultCodeTemplate} from './template.js';
+import {
+	ensureCwdIsProjectRoot,
+	Logger,
+	mkdir,
+	openEditor,
+	pathExists,
+	readFile,
+	readJson,
+	writeFile,
+	writeJson,
+} from './utils.js';
 
 const projectName = 'baekjoon-cli-util';
 const envPaths = _envPaths(projectName);
@@ -229,6 +239,7 @@ const helpMessage = outdent`
     $ baekjoon-cli [view-tests <problem_identifier>]
 
   ${chalk.bold('Configs')}
+    show            Show current configurations.
     lang            Default programming language to use.
     timeout         A timeout value of test runner. Test runner exit the test if the running time is greater than this value.
     code-template   Code template used by \`create\`.
@@ -237,7 +248,7 @@ const helpMessage = outdent`
     user.password   User password used by \`submit\` for authenticating.
 
   ${chalk.bold('Usage')}
-    $ baekjoon-cli [config]
+    $ baekjoon-cli [config show]
     $ baekjoon-cli [config lang <language>]
     $ baekjoon-cli [config timeout <ms>]
     $ baekjoon-cli [config code-template]
@@ -246,8 +257,8 @@ const helpMessage = outdent`
     $ baekjoon-cli [config user.password <user_password>]
 
   ${chalk.bold('Options')}
-    --raw    Print stdout in raw format in test runner.
-             It could be useful when you debug the source code with an infinity loop since test runner will not wait for the child process to exit.
+    --raw           Print stdout in raw format in test runner.
+                    It could be useful when you debug the source code with an infinity loop since test runner will not wait for the child process to exit.
 
   ${chalk.bold('Flag Examples')}
     $ baekjoon-cli test --raw 1000

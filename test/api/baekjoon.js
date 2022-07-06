@@ -4,7 +4,7 @@ import del from 'del';
 import {generateAPIProvider} from '../../dist/api-provider-factory.js';
 import {Problem} from '../../dist/problem.js';
 
-test.before('', t => {
+test.before('Generate api provider', t => {
 	t.context.provider = generateAPIProvider('baekjoon');
 	t.context.resources = [];
 });

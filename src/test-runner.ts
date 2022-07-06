@@ -203,7 +203,7 @@ abstract class TestRunner {
 			Logger.infoLog(chalk.whiteBright(`Test ${testIdx}`));
 
 			await this.execute({
-				stdin: test.stdin,
+				stdin: test!.stdin,
 				targetFilePath,
 			});
 
