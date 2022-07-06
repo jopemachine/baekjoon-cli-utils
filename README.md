@@ -4,7 +4,7 @@
 [![NPM version](https://badge.fury.io/js/baekjoon-cli-utils.svg)](http://badge.fury.io/js/baekjoon-cli-utils)
 [![MIT license](https://img.shields.io/badge/License-MIT-blue.svg)](https://lbesson.mit-license.org/)
 
-> Simple code runner and CLI tool for studying, testing and managing [Baekjoon](https://www.acmicpc.net/) algorithm source codes efficiently. Cross-platform.
+> Simple code runner and CLI tool for studying, testing and managing [Baekjoon Online Judge](https://www.acmicpc.net/) algorithm source codes efficiently. Cross-platform.
 
 ## Features
 
