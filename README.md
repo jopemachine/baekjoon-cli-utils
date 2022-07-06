@@ -154,7 +154,7 @@ The `{variable}`s in the template are replaced with the according value.
 | url                  | Problem url            |
 | date                 | File created date      |
 
-## Git commit template
+## Git commit message template
 
 Used when you use `baekjoon-cli commit`.
 

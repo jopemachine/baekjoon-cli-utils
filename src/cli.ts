@@ -92,7 +92,7 @@ const checkArgumentLength = (command: string, subCommand?: string) => {
 		create: 2,
 		'add-test': 2,
 		'edit-test': 3,
-		'clear-data': 1,
+		'clear-cache': 1,
 		'clear-test': 3,
 		'clear-tests': 2,
 		'view-tests': 2,
@@ -385,7 +385,7 @@ if (command === 'config') {
 		case 'add-test':
 			await handleAddTest(problemId);
 			break;
-		case 'clear-data':
+		case 'clear-cache':
 			await clearAllTestData();
 			break;
 		case 'clear-tests':
