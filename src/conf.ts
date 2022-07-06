@@ -212,11 +212,26 @@ const getAuthenticationInfo = async (provider: string) => {
 	}
 };
 
+const runnerSettingFileName = 'runner-settings.json';
+
+const readRunnerSettings = async () => {
+	const currentDirSettingFilePath = path.resolve(process.cwd(), runnerSettingFileName);
+	if (await pathExists(currentDirSettingFilePath)) {
+		return parseJson(await readFile(currentDirSettingFilePath));
+	}
+
+	const settingFilePath = await findUp(runnerSettingFileName);
+	if (!settingFilePath) {
+		throw new Error(`'${runnerSettingFileName}' not found!`);
+	}
+
+	return parseJson(await readFile(settingFilePath));
+};
+
 const helpMessage = outdent`
   ${chalk.bold('Commands')}
     create         Create the problem source code on the subdirectory, and fetch tests.
     test           Find, compile and run a problem source code, and print test results in pretty format.
-    submit         (Experimental) Submit problem on the provider server.
     add-test       Add additional test manually by code editor.
     edit-test      Edit test manually by code editor.
     clear-test     Clear the specified problem's test.
@@ -244,8 +259,6 @@ const helpMessage = outdent`
     timeout         A timeout value of test runner. Test runner exit the test if the running time is greater than this value.
     code-template   Code template used by \`create\`.
     commit-message  Commit message template used by \`commit\`.
-    user.id         User id used by \`submit\` for authenticating.
-    user.password   User password used by \`submit\` for authenticating.
 
   ${chalk.bold('Usage')}
     $ baekjoon-cli [config show]
@@ -263,22 +276,6 @@ const helpMessage = outdent`
   ${chalk.bold('Flag Examples')}
     $ baekjoon-cli test --raw 1000
 `.trim();
-
-const runnerSettingFileName = 'runner-settings.json';
-
-const readRunnerSettings = async () => {
-	const currentDirSettingFilePath = path.resolve(process.cwd(), runnerSettingFileName);
-	if (await pathExists(currentDirSettingFilePath)) {
-		return parseJson(await readFile(currentDirSettingFilePath));
-	}
-
-	const settingFilePath = await findUp(runnerSettingFileName);
-	if (!settingFilePath) {
-		throw new Error(`'${runnerSettingFileName}' not found!`);
-	}
-
-	return parseJson(await readFile(settingFilePath));
-};
 
 export {
 	checkHealth,

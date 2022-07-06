@@ -51,7 +51,6 @@ $ baekjoon-cli --help
   Commands
     create          Create the problem source code on the subdirectory, and fetch tests.
     test            Find, compile and run a problem source code, and print test results in pretty format.
-    submit          (Experimental) Submit problem on the provider server.
     add-test        Add additional test manually by code editor.
     edit-test       Edit test manually by code editor.
     clear-test      Clear the specified problem's test.
@@ -79,8 +78,6 @@ $ baekjoon-cli --help
     timeout         A timeout value of test runner. Test runner exit the test if the running time is greater than this value.
     code-template   Code template used by \`create\`.
     commit-message  Commit message template used by \`commit\`.
-    user.id         User id used by \`submit\` for authenticating.
-    user.password   User password used by \`submit\` for authenticating.
 
   Usage
     $ baekjoon-cli [config show]
@@ -145,7 +142,7 @@ You can edit the template file through `baekjoon-cli config code-template`.
 
 The `{variable}`s in the template are replaced with the according value.
 
-| Variable | value |
+| Variable             | value                  |
 | -------------------- | ---------------------- |
 | id                   | Problem identifier     |
 | title                | Problem title          |

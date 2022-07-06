@@ -113,7 +113,7 @@ const checkArgumentLength = (command: string, subCommand?: string) => {
 const handleCreate = async (problemId: string, langCode?: string) => {
 	const provider: APIProvider = generateAPIProvider(config.get('provider'));
 
-	let paths = await useSpinner(globby('**/*', {onlyDirectories: true, caseSensitiveMatch: true}), 'Fetching Subdirectories');
+	let paths = await useSpinner(globby(['**/*'], {onlyDirectories: true, caseSensitiveMatch: true}), 'Fetching Subdirectories');
 
 	paths = [(await inquirer.prompt([{
 		name: 'folder',

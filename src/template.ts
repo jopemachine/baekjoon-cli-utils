@@ -79,7 +79,7 @@ const defaultCommentTemplate = outdent`
   @ URL: {url}
   @ Author: ${await username()}
   @ Created Date: {date}
-  @ Problem:
+  @ Description:
   {text}
   @ Input: {input}
   @ Output: {output}

@@ -133,7 +133,7 @@ class BaekjoonProvider extends APIProvider {
 		await submitPage.setCookie(...cookies);
 
 		await useSpinner(async () => {
-			await submitPage.goto(`${this.endPoints.submitProblem!}/${problemId}`)
+			await submitPage.goto(`${this.endPoints.submitProblem!}/${problemId}`);
 			await delay(1000);
 
 			try {

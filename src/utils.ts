@@ -104,10 +104,14 @@ const openEditor = async (targetPath: string) => execa(defaultEditor, [targetPat
 	stdio: 'inherit',
 });
 
-const getProblemFolderNames = (paths: string[], input: string) => paths.filter(pth => !input || pth.toLowerCase().includes(input.toLowerCase())).map(pth => ({
-	name: pth.split(`${process.cwd()}${path.sep}`)[1],
-	value: pth,
-}));
+const getProblemFolderNames = (paths: string[], input: string) => {
+	const subdirectories = paths.filter(pth => !input || pth.toLowerCase().includes(input.toLowerCase())).map(pth => ({
+		name: pth.split(`${process.cwd()}${path.sep}`)[1],
+		value: pth,
+	}));
+
+	return [{name: './', value: './'}, ...subdirectories];
+};
 
 const getProblemPathId = ({sourceFilePath, isRelative}: {sourceFilePath: string; isRelative: boolean}) => {
 	const relativePath = isRelative ? sourceFilePath : sourceFilePath.split(process.cwd())[1];
