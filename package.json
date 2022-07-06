@@ -1,6 +1,6 @@
 {
 	"name": "baekjoon-cli-utils",
-	"version": "0.2.1",
+	"version": "0.2.2",
 	"description": "Simple code runner and CLI tool for studying, testing and managing Baekjoon algorithm source codes efficiently",
 	"main": "dist/index.js",
 	"author": "jopemachine",
