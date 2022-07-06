@@ -1,5 +1,9 @@
 # baekjoon-cli-utils
 
+[![NPM download total](https://img.shields.io/npm/dt/baekjoon-cli-utils)](http://badge.fury.io/js/baekjoon-cli-utils)
+[![NPM version](https://badge.fury.io/js/baekjoon-cli-utils.svg)](http://badge.fury.io/js/baekjoon-cli-utils)
+[![MIT license](https://img.shields.io/badge/License-MIT-blue.svg)](https://lbesson.mit-license.org/)
+
 > Simple code runner and CLI tool for studying, testing and managing [Baekjoon](https://www.acmicpc.net/) algorithm source codes efficiently. Cross-platform.
 
 ## Features
@@ -85,8 +89,6 @@ $ baekjoon-cli --help
     $ baekjoon-cli [config timeout <ms>]
     $ baekjoon-cli [config code-template]
     $ baekjoon-cli [config commit-message]
-    $ baekjoon-cli [config user.id <user_id>]
-    $ baekjoon-cli [config user.password <user_password>]
 
   Options
     --raw           Print stdout in raw format in test runner.

@@ -266,8 +266,6 @@ const helpMessage = outdent`
     $ baekjoon-cli [config timeout <ms>]
     $ baekjoon-cli [config code-template]
     $ baekjoon-cli [config commit-message]
-    $ baekjoon-cli [config user.id <user_id>]
-    $ baekjoon-cli [config user.password <user_password>]
 
   ${chalk.bold('Options')}
     --raw           Print stdout in raw format in test runner.
