@@ -1,4 +1,4 @@
-# baekjoon-cli-util
+# baekjoon-cli-utils
 
 Simple code runner and CLI tool for studying, testing and managing [Baekjoon](https://www.acmicpc.net/) algorithm source codes efficiently. Cross-platform.
 
@@ -25,7 +25,7 @@ Disclaimer:
 1. Install the program through `npm`.
 
 ```
-$ npm i -g baekjoon-cli-util
+$ npm i -g baekjoon-cli-utils
 ```
 
 2. Move into your project's root. (where the `.git` folder exists)
