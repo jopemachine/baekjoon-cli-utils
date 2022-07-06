@@ -152,6 +152,20 @@ The `{variable}`s in the template are replaced with the according value.
 | url                  | Problem url            |
 | date                 | File created date      |
 
+## Git commit template
+
+Used when you use `baekjoon-cli commit`.
+
+The `{variable}`s in the template are replaced with the according value.
+
+| Variable              | value                  |
+| --------------------- | ---------------------- |
+| id                    | Problem identifier     |
+| title                 | Problem title          |
+| url                   | Problem url            |
+| date                  | File created date      |
+| relativeDirectoryPath | Problem relative path  |
+
 ## Code editor setting
 
 Some command requires executing your source code editor. You can change the editor to use by setting the `EDITOR` environment variable to what you want.

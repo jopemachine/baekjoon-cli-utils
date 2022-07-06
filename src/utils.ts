@@ -15,6 +15,8 @@ import {defaultEditor, getCommitMessageTemplateFilePath} from './conf.js';
 import {terminalWidth, useSpinner} from './spinner.js';
 import {InvalidCwdError} from './errors.js';
 import {Problem} from './problem.js';
+import {APIProvider} from './api-provider.js';
+import {processTemplate} from './template.js';
 
 const fsp = fs.promises;
 
@@ -134,22 +136,22 @@ const ensureCwdIsProjectRoot = async () => {
 	}
 };
 
-const commitProblem = async (problem: Problem, problemPath: string) => {
+const commitProblem = async (problem: Problem, problemPath: string, provider: APIProvider) => {
 	const {dir: relativeDirectoryPath} = path.parse(problemPath);
-	const dict = {
+	await useSpinner(provider.fetchProblemInfo(problem), 'Fetching problem info');
+
+	const problemInfoDict = {
 		id: problem.problemId,
-		...problem.problemInfo,
+		date: new Date().toLocaleString(),
 		relativeDirectoryPath,
+		...problem.problemInfo,
 	};
 
-	let commitMessageTemplate = await readFile(getCommitMessageTemplateFilePath());
-	for (const [propertyKey, propertyValue] of Object.entries(dict)) {
-		commitMessageTemplate = commitMessageTemplate.replace(`{${propertyKey}}`, propertyValue);
-	}
+	const commitMessage = processTemplate(await readFile(getCommitMessageTemplateFilePath()), problemInfoDict);
 
 	await useSpinner(async () => {
 		await execa('git', ['add', problemPath]);
-		await execa('git', ['commit', '-m', commitMessageTemplate]);
+		await execa('git', ['commit', '-m', commitMessage]);
 	}, 'Git Commit');
 };
 

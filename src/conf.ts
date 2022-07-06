@@ -67,7 +67,7 @@ const getAnswerFilesPath = () => path.resolve(envPaths.cache, 'answers');
 
 const getCommitMessageTemplateFilePath = () => path.resolve(getGitConfigFilePath(), 'commit-message');
 
-const defaultCommitMessageTemplate = '[{relativeDirectoryPath}] Solve {id}';
+const defaultCommitMessageTemplate = '[{relativeDirectoryPath}] Solve {id}, {title} {url}';
 
 const initConfigFilePaths = async () => {
 	await mkdir(getGitConfigFilePath(), {recursive: true});
@@ -222,7 +222,7 @@ const readRunnerSettings = async () => {
 
 	const settingFilePath = await findUp(runnerSettingFileName);
 	if (!settingFilePath) {
-		throw new Error(`'${runnerSettingFileName}' not found!`);
+		throw new Error(`'${runnerSettingFileName}' config file not found!`);
 	}
 
 	return parseJson(await readFile(settingFilePath));

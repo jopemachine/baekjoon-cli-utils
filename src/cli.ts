@@ -274,7 +274,7 @@ const handleClearTest = async (problemId: string, testIdx: number) => {
 	Logger.successLog(`Test ${testIdx} is Removed.`);
 };
 
-const handleCommitProblem = async (problemId: string) => {
+const handleCommitProblem = async (problemId: string, provider: APIProvider) => {
 	const sourceFilePath = await findProblemPath(problemId);
 	const problemPathId = getProblemPathId({
 		sourceFilePath,
@@ -286,7 +286,7 @@ const handleCommitProblem = async (problemId: string) => {
 		problemPathId,
 	});
 
-	await commitProblem(problem, sourceFilePath);
+	await commitProblem(problem, sourceFilePath, provider);
 };
 
 const handleSubmit = async (problemId: string, provider: APIProvider) => {
@@ -314,6 +314,7 @@ const handleProblemOpen = async (problemId: string, provider: APIProvider) => {
 };
 
 const handlePrintHelp = () => {
+	Logger.log(`${cli.pkg.description}\n`);
 	Logger.log(helpMessage);
 	process.exit(0);
 };
@@ -398,7 +399,7 @@ if (command === 'config') {
 			await handleProblemOpen(problemId, provider);
 			break;
 		case 'commit':
-			await handleCommitProblem(problemId);
+			await handleCommitProblem(problemId, provider);
 			break;
 		case 'submit':
 			await handleSubmit(problemId, provider);

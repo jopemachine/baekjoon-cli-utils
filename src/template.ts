@@ -2,7 +2,7 @@ import {outdent} from 'outdent';
 import {username} from 'username';
 import {supportedLanguageEnum} from './lang.js';
 
-const processCodeSourceTemplate = (template: string, problemInfoDict: Record<string, string>) => {
+const processTemplate = (template: string, problemInfoDict: Record<string, string>) => {
 	let result = template;
 
 	for (const problemInfoKey of Object.keys(problemInfoDict)) {
@@ -107,6 +107,6 @@ const getDefaultCodeTemplate = (langCode: keyof typeof supportedLanguageEnum) =>
 
 export {
 	getDefaultCodeTemplate,
-	processCodeSourceTemplate,
+	processTemplate,
 	getDefaultCode,
 };

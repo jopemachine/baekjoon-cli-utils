@@ -1,7 +1,7 @@
 import {Problem} from './problem.js';
 import {readFile, writeFile} from './utils.js';
 import {getSourceCodeTemplateFilePath} from './conf.js';
-import {processCodeSourceTemplate} from './template.js';
+import {processTemplate} from './template.js';
 import {useSpinner} from './spinner.js';
 
 interface EndPoint {
@@ -22,7 +22,7 @@ abstract class APIProvider {
 	async createProblem(problemPath: string, problem: Problem, langCode: string) {
 		await this.fetchProblemInfo(problem);
 
-		const sourceCodeTemplate = processCodeSourceTemplate(await readFile(getSourceCodeTemplateFilePath(langCode)), {
+		const sourceCodeTemplate = processTemplate(await readFile(getSourceCodeTemplateFilePath(langCode)), {
 			...problem.problemInfo! as Record<string, string>,
 			date: new Date().toLocaleString(),
 		});
