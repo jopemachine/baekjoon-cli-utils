@@ -14,7 +14,8 @@
 	"scripts": {
 		"test": "ava",
 		"build": "tsc",
-		"lint": "xo --fix"
+		"lint": "xo --fix",
+		"prepublishOnly": "npm run build"
 	},
 	"files": [
 		"dist",

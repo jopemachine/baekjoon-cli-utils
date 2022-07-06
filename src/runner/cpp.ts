@@ -1,3 +1,4 @@
+import process from 'node:process';
 import {execa} from 'execa';
 import {temporaryFile} from 'tempy';
 import {RunnerConfigFileNotValidError} from '../errors.js';
@@ -27,8 +28,12 @@ class CppTestRunner extends TestRunner {
 		return temporaryFilePath;
 	}
 
-	override execute({stdin, targetFilePath}: {stdin: string; targetFilePath: string}) {
+	override async execute({stdin, targetFilePath}: {stdin: string; targetFilePath: string}) {
 		const childProc = execa(targetFilePath, {input: stdin, timeout: this.timeout});
+		if (this.rawMode) {
+			childProc.stdout!.pipe(process.stdout);
+		}
+
 		return childProc;
 	}
 }

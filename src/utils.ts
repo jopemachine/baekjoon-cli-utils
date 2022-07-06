@@ -33,7 +33,13 @@ const parsePath = (targetPath: string) => {
 
 const readFile = async (filepath: string) => fsp.readFile(filepath, {encoding: 'utf-8'});
 
+const readFileSync = (filepath: string) => fs.readFileSync(filepath, {encoding: 'utf-8'});
+
 const writeFile = async (filepath: string, data: any) => fsp.writeFile(filepath, data, {encoding: 'utf-8'});
+
+const writeFileSync = (filepath: string, data: any) => {
+	fs.writeFileSync(filepath, data, {encoding: 'utf-8'});
+};
 
 const Logger = {
 	log: console.log,
@@ -155,26 +161,28 @@ const delay = timer.setTimeout;
 
 export {
 	chmod,
-	delay,
-	makeList,
 	commitProblem,
-	ensureCwdIsProjectRoot,
 	cpFile,
-	mkdir,
-	mkdirSync,
-	parsePath,
-	getProblemPathId,
-	getUnusedFilename,
-	unusedFileNameIncrementer,
-	readFile,
-	readJson,
-	writeFile,
-	writeJson,
-	pathExists,
-	pathExistsSync,
-	Logger,
-	openEditor,
+	delay,
+	ensureCwdIsProjectRoot,
 	findProblemPath,
 	getProblemFolderNames,
+	getProblemPathId,
+	getUnusedFilename,
+	Logger,
+	makeList,
+	mkdir,
+	mkdirSync,
+	openEditor,
+	parsePath,
+	pathExists,
+	pathExistsSync,
 	printDividerLine,
+	readFile,
+	readFileSync,
+	readJson,
+	unusedFileNameIncrementer,
+	writeFile,
+	writeFileSync,
+	writeJson,
 };

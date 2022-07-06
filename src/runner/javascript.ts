@@ -23,6 +23,7 @@ class JavascriptTestRunner extends TestRunner {
 
 	override async execute({stdin, targetFilePath}: {stdin: string; targetFilePath: string}) {
 		// `fs.readFileSync("/dev/stdin")` should be replaced with stdin directly in Windows because the path not exist.
+		// TODO: Handle special character including backtick correctly.
 		if (process.platform === 'win32') {
 			stdin = stdin.replaceAll('`', '\\`');
 			const replaced = (await readFile(targetFilePath)).replaceAll('fs.readFileSync("/dev/stdin")', `\`${stdin}\`.trim()`);
@@ -33,6 +34,10 @@ class JavascriptTestRunner extends TestRunner {
 		}
 
 		const {childProcess} = await nvexeca(String(this.runnerSettings.nodeVersion), 'node', [targetFilePath], {input: stdin, timeout: this.timeout});
+		if (this.rawMode) {
+			childProcess!.stdout!.pipe(process.stdout);
+		}
+
 		return childProcess!;
 	}
 }

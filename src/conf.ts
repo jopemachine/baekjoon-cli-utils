@@ -204,21 +204,22 @@ const getAuthenticationInfo = async (provider: string) => {
 
 const helpMessage = outdent`
   ${chalk.bold('Commands')}
-    create		Create the problem source code on the subdirectory, and fetch tests.
-    test		Find, compile and run a problem source code.
-    submit		(Experimental) Submit problem on the provider server.
-    add-test		Add additional test manually by code editor.
-    edit-test		Edit test manually by code editor.
-    clear-test		Clear the specified problem's test.
-    clear-tests		Clear all the problem's tests.
-    view-tests		Print the problem's tests.
-    open		Open the problem's URL in your browser.
-    commit		Commit the problem source code to Git.
-    config		Check and update templates, configurations.
+    create         Create the problem source code on the subdirectory, and fetch tests.
+    test           Find, compile and run a problem source code, and print test results in pretty format.
+    submit         (Experimental) Submit problem on the provider server.
+    add-test       Add additional test manually by code editor.
+    edit-test      Edit test manually by code editor.
+    clear-test     Clear the specified problem's test.
+    clear-tests    Clear all the problem's tests.
+    view-tests     Print the problem's tests.
+    open           Open the problem's URL in your browser.
+    commit         Commit the problem source code to Git.
+    config         Check and update templates, configurations.
 
   ${chalk.bold('Usage')}
     $ baekjoon-cli [create <problem_identifier>]
     $ baekjoon-cli [test <problem_identifier>]
+    $ baekjoon-cli [debug <problem_identifier> <test_index>]
     $ baekjoon-cli [add-test <problem_identifier>]
     $ baekjoon-cli [edit-test <problem_identifier> <test_index>]
     $ baekjoon-cli [open <problem_identifier>]
@@ -228,12 +229,12 @@ const helpMessage = outdent`
     $ baekjoon-cli [view-tests <problem_identifier>]
 
   ${chalk.bold('Configs')}
-    lang		Default programming language to use.
-    timeout		A timeout value of test runner. Test runner exit the test if the running time is greater than this value.
-    code-template	Code template used by \`create\`.
-    commit-message	Commit message template used by \`commit\`.
-    user.id		User id used by \`submit\` for authenticating.
-    user.password	User password used by \`submit\` for authenticating.
+    lang            Default programming language to use.
+    timeout         A timeout value of test runner. Test runner exit the test if the running time is greater than this value.
+    code-template   Code template used by \`create\`.
+    commit-message  Commit message template used by \`commit\`.
+    user.id         User id used by \`submit\` for authenticating.
+    user.password   User password used by \`submit\` for authenticating.
 
   ${chalk.bold('Usage')}
     $ baekjoon-cli [config]
@@ -243,6 +244,13 @@ const helpMessage = outdent`
     $ baekjoon-cli [config commit-message]
     $ baekjoon-cli [config user.id <user_id>]
     $ baekjoon-cli [config user.password <user_password>]
+
+  ${chalk.bold('Options')}
+    --raw    Print stdout in raw format in test runner.
+             It could be useful when you debug the source code with an infinity loop since test runner will not wait for the child process to exit.
+
+  ${chalk.bold('Flag Examples')}
+    $ baekjoon-cli test --raw 1000
 `.trim();
 
 const runnerSettingFileName = 'runner-settings.json';

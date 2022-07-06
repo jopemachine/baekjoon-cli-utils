@@ -14,6 +14,12 @@ $ npm run build
 $ npx ava
 ```
 
+## How to format source codes
+
+```
+$ npm run lint
+```
+
 ## How to implement new language test runner
 
 - Implement`{new_lang}.ts` to `runner` folder inheriting `TestRunner` (copy and paste recommended).

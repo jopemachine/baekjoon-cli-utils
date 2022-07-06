@@ -1,7 +1,7 @@
 import process from 'node:process';
 import chalk from 'chalk';
 import boxen from 'boxen';
-import {ExecaChildProcess, ExecaError, ExecaReturnValue} from 'execa';
+import {ExecaError, ExecaReturnValue} from 'execa';
 import logSymbols from 'log-symbols';
 import {sentenceCase} from 'change-case';
 import del from 'del';
@@ -136,6 +136,7 @@ abstract class TestRunner {
 	timeout: number;
 	runnerSettings: any;
 	resources: string[];
+	rawMode: boolean;
 
 	constructor(runnerSettings: any) {
 		const timeout = config.get('timeout');
@@ -143,6 +144,7 @@ abstract class TestRunner {
 		this.timeout = timeout === 0 ? undefined : timeout;
 		this.runnerSettings = runnerSettings;
 		this.resources = [];
+		this.rawMode = false;
 	}
 
 	printRuntimeInfo() {
@@ -169,6 +171,10 @@ abstract class TestRunner {
 		}));
 	}
 
+	setRawMode(mode: boolean) {
+		this.rawMode = mode;
+	}
+
 	async run({sourceFilePath, problem, testIdx}: {sourceFilePath: string; problem: Problem; testIdx?: number}) {
 		await problem.readAllTests();
 
@@ -192,6 +198,19 @@ abstract class TestRunner {
 		let allTestPassed = true;
 		let testIndex = 1;
 
+		if (this.rawMode) {
+			const test = problem.tests.find(test => test.testIdx === testIndex);
+			Logger.infoLog(chalk.whiteBright(`Test ${testIdx}`));
+
+			await this.execute({
+				stdin: test.stdin,
+				targetFilePath,
+			});
+
+			await this.clear();
+			return;
+		}
+
 		for await (const test of problem.tests) {
 			if (testIdx && testIdx !== testIndex) {
 				++testIndex;
@@ -204,11 +223,10 @@ abstract class TestRunner {
 			let stderr;
 
 			try {
-				const childProc = this.execute({
+				const executionResult = await this.execute({
 					stdin: test.stdin,
 					targetFilePath,
 				});
-				const executionResult = await childProc;
 
 				stdout = executionResult.stdout ?? '';
 				stderr = executionResult.stderr ?? '';
@@ -266,7 +284,7 @@ abstract class TestRunner {
 		throw new Error(`'compile' is not implemented in the ${this.languageId} runner`);
 	}
 
-	abstract execute({stdin, targetFilePath}: {stdin: string; targetFilePath: string}): ExecaChildProcess | Promise<ExecaReturnValue>;
+	abstract execute({stdin, targetFilePath}: {stdin: string; targetFilePath: string}): Promise<ExecaReturnValue>;
 
 	private async clear() {
 		await Promise.all(this.resources.map(async resource => del(resource, {force: true})));

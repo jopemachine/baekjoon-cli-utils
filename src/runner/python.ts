@@ -1,3 +1,4 @@
+import process from 'node:process';
 import {execa} from 'execa';
 import {RunnerConfigFileNotValidError} from '../errors.js';
 import {TestRunner} from '../test-runner.js';
@@ -16,8 +17,12 @@ class PythonTestRunner extends TestRunner {
 		this.languageId = 'python';
 	}
 
-	override execute({stdin, targetFilePath}: {stdin: string; targetFilePath: string}) {
+	override async execute({stdin, targetFilePath}: {stdin: string; targetFilePath: string}) {
 		const childProc = execa('python3', [targetFilePath], {input: stdin, timeout: this.timeout});
+		if (this.rawMode) {
+			childProc.stdout!.pipe(process.stdout);
+		}
+
 		return childProc;
 	}
 }

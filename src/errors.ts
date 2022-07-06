@@ -60,7 +60,16 @@ class RunnerConfigFileNotValidError extends Error {
 	}
 }
 
+class NotValidFlagError extends Error {
+	constructor(commandName: string, flagName: string) {
+		super();
+		super.name = 'NotValidFlagError';
+		super.message = `${logSymbols.error} You cannot use '${flagName}' with '${commandName}'`;
+	}
+}
+
 export {
+	NotValidFlagError,
 	ArgumentLengthError,
 	FileIndexNotMatchError,
 	InvalidCwdError,

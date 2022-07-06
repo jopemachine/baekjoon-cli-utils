@@ -29,7 +29,7 @@ import {generateAPIProvider} from './api-provider-factory.js';
 import {generateTestRunner} from './test-runner-factory.js';
 import {TestRunner} from './test-runner.js';
 import {Problem} from './problem.js';
-import {ArgumentLengthError} from './errors.js';
+import {ArgumentLengthError, NotValidFlagError} from './errors.js';
 import {
 	commitProblem,
 	findProblemPath,
@@ -54,9 +54,26 @@ const cli = meow(helpMessage, {
 			type: 'boolean',
 			alias: 'v',
 		},
+		raw: {
+			type: 'boolean',
+			default: false,
+		},
 	},
 });
 
+const validateOptions = (inputs: string[], flags: typeof cli.flags) => {
+	if (flags.raw) {
+		if (inputs[0] !== 'test') {
+			throw new NotValidFlagError(inputs[0], '--raw');
+		}
+
+		if (inputs.length < 3) {
+			throw new ArgumentLengthError({actualLength: inputs.length, expectedLength: 3});
+		}
+	}
+};
+
+validateOptions(cli.input, cli.flags);
 updateNotifier({pkg: cli.pkg}).notify();
 
 const command = cli.input[0] ?? 'help';
@@ -144,6 +161,9 @@ const handleTest = async (problemId: string, provider: APIProvider) => {
 	const testIdx = cli.input.length > 2 ? Number(cli.input[2]) : undefined;
 
 	const testRunner: TestRunner = await generateTestRunner(inferLanguageCode(sourceFilePath.split('.').pop()!));
+	if (cli.flags.raw) {
+		testRunner.setRawMode(true);
+	}
 
 	try {
 		await testRunner.run({sourceFilePath, problem, testIdx});

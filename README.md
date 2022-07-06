@@ -3,9 +3,15 @@
 Simple code runner and CLI tool for studying, testing and managing [Baekjoon](https://www.acmicpc.net/) algorithm source codes efficiently. Cross-platform.
 
 * Just run your single algorithm source code regardless of your language details (compiler, cli command tools... etc).
+
+* Pretty print stdout, stderr formats separately.
+
 * (Experimental) Submit your source code on your cli directly.
+
 * Create the source code through code template by programming language.
+
 * Download and run all tests at once, and add the test you need manually.
+
 * Use automatic commit convention through commit template.
 
 ![](./media/demo.png)
@@ -34,46 +40,56 @@ $ baekjoon-cli config code-template
 ## Usage
 
 ```
-Commands
-  create		Create the problem source code on the subdirectory, and fetch tests.
-  test			Find, compile and run a problem source code.
-  submit		(Experimental) Submit problem on the provider server.
-  add-test		Add additional test manually by code editor.
-  edit-test		Edit test manually by code editor.
-  clear-test	Clear the specified problem's test.
-  clear-tests	Clear all the problem's tests.
-  view-tests	Print the problem's tests.
-  open			Open the problem's URL in your browser.
-  commit		Commit the problem source code to Git.
-  config		Check and update miscellaneous configurations.
+$ baekjoon-cli --help
 
-Usage
-  $ baekjoon-cli [create <problem_identifier>]
-  $ baekjoon-cli [test <problem_identifier>]
-  $ baekjoon-cli [add-test <problem_identifier>]
-  $ baekjoon-cli [edit-test <problem_identifier> <test_index>]
-  $ baekjoon-cli [open <problem_identifier>]
-  $ baekjoon-cli [commit <problem_identifier>]
-  $ baekjoon-cli [clear-test <problem_identifier> <test_index>]
-  $ baekjoon-cli [clear-tests <problem_identifier>]
-  $ baekjoon-cli [view-tests <problem_identifier>]
+  Commands
+    create         Create the problem source code on the subdirectory, and fetch tests.
+    test           Find, compile and run a problem source code, and print test results in pretty format.
+    submit         (Experimental) Submit problem on the provider server.
+    add-test       Add additional test manually by code editor.
+    edit-test      Edit test manually by code editor.
+    clear-test     Clear the specified problem's test.
+    clear-tests    Clear all the problem's tests.
+    view-tests     Print the problem's tests.
+    open           Open the problem's URL in your browser.
+    commit         Commit the problem source code to Git.
+    config         Check and update templates, configurations.
 
-Configs
-  lang				Default programming language.
-  timeout			A timeout value of test runner. Test runner exit the test if the running time is greater than this value.
-  code-template		Code template used by `create`.
-  commit-message	Commit message template used by `commit`.
-  user.id			User id used by \`submit\` for authenticating.
-  user.password		User password used by \`submit\` for authenticating.
+  Usage
+    $ baekjoon-cli [create <problem_identifier>]
+    $ baekjoon-cli [test <problem_identifier>]
+    $ baekjoon-cli [debug <problem_identifier> <test_index>]
+    $ baekjoon-cli [add-test <problem_identifier>]
+    $ baekjoon-cli [edit-test <problem_identifier> <test_index>]
+    $ baekjoon-cli [open <problem_identifier>]
+    $ baekjoon-cli [commit <problem_identifier>]
+    $ baekjoon-cli [clear-test <problem_identifier> <test_index>]
+    $ baekjoon-cli [clear-tests <problem_identifier>]
+    $ baekjoon-cli [view-tests <problem_identifier>]
 
-Usage
-  $ baekjoon-cli [config]
-  $ baekjoon-cli [config lang <language>]
-  $ baekjoon-cli [config timeout <ms>]
-  $ baekjoon-cli [config code-template]
-  $ baekjoon-cli [config commit-message]
-  $ baekjoon-cli [config user.id <user_id>]
-  $ baekjoon-cli [config user.password <user_password>]
+  Configs
+    lang            Default programming language to use.
+    timeout         A timeout value of test runner. Test runner exit the test if the running time is greater than this value.
+    code-template   Code template used by \`create\`.
+    commit-message  Commit message template used by \`commit\`.
+    user.id         User id used by \`submit\` for authenticating.
+    user.password   User password used by \`submit\` for authenticating.
+
+  Usage
+    $ baekjoon-cli [config]
+    $ baekjoon-cli [config lang <language>]
+    $ baekjoon-cli [config timeout <ms>]
+    $ baekjoon-cli [config code-template]
+    $ baekjoon-cli [config commit-message]
+    $ baekjoon-cli [config user.id <user_id>]
+    $ baekjoon-cli [config user.password <user_password>]
+
+  Options
+    --raw    Print stdout in raw format in test runner.
+             It could be useful when you debug the source code with an infinity loop since test runner will not wait for the child process to exit.
+
+  Flag Examples
+    $ baekjoon-cli test --raw 1000
 ```
 
 ## Supported languages
@@ -127,9 +143,9 @@ The `{variable}`s in the template are replaced with the according value.
 | id                   | Problem identifier |
 | title                | Problem title |
 | text                 | Problem texts |
-| input                 | Problem input test |
-| output                 | Problem output test |
-| url                 | Problem url |
+| input                | Problem input test |
+| output               | Problem output test |
+| url                  | Problem url |
 | date                 | File created date |
 
 ## Code editor setting

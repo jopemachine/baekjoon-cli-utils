@@ -1,4 +1,5 @@
 import path from 'node:path';
+import process from 'node:process';
 import {execa} from 'execa';
 import {temporaryDirectory} from 'tempy';
 import {TestRunner} from '../test-runner.js';
@@ -30,8 +31,12 @@ class JavaTestRunner extends TestRunner {
 		return path.resolve(temporaryDirPath, 'Main.class');
 	}
 
-	override execute({stdin, targetFilePath}: {stdin: string; targetFilePath: string}) {
+	override async execute({stdin, targetFilePath}: {stdin: string; targetFilePath: string}) {
 		const childProc = execa('java', ['-Dfile.encoding=UTF-8', '-XX:+UseSerialGC', '-classpath', path.parse(targetFilePath).dir, 'Main'], {input: stdin});
+		if (this.rawMode) {
+			childProc.stdout!.pipe(process.stdout);
+		}
+
 		return childProc;
 	}
 }
