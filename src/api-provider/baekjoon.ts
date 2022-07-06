@@ -103,21 +103,26 @@ class BaekjoonProvider extends APIProvider {
 
 		await useSpinner(async () => {
 			await context.overridePermissions(this.endPoints.origin!, ['clipboard-read', 'clipboard-write']);
-			await loginPage.setViewport({width: 1366, height: 768});
+			await loginPage.setViewport({width: 1781, height: 1340});
 			await loginPage.setUserAgent('Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.108 Safari/537.36');
+			await delay(1000);
 		}, 'Puppeteer Configuration');
 
 		await useSpinner(async () => {
 			await loginPage.goto(this.endPoints.login!);
-			await delay(1000);
+			await pRace<any>([
+				loginPage.waitForNavigation(),
+				delay(4000),
+			]);
 		}, 'Connecting Provider Login Page');
 
 		await useSpinner(async () => {
 			await loginPage.type('input[name="login_user_id"]', id);
 			await loginPage.type('input[name="login_password"]', password);
+			await delay(500);
 			await loginPage.click('#submit_button');
+
 			await pRace<any>([
-				// WaitForNavigation not return after navigation successfully occasionally.
 				loginPage.waitForNavigation(),
 				delay(4000),
 			]);
@@ -127,13 +132,16 @@ class BaekjoonProvider extends APIProvider {
 		const submitPage = await browser.newPage();
 		await submitPage.setCookie(...cookies);
 
-		await useSpinner(submitPage.goto(`${this.endPoints.submitProblem!}/${problemId}`), 'Connecting Problem Submit Page');
+		await useSpinner(async () => {
+			await submitPage.goto(`${this.endPoints.submitProblem!}/${problemId}`)
+			await delay(1000);
 
-		try {
-			await submitPage.focus('.CodeMirror-lines');
-		} catch {
-			Logger.errorLog('Login failed!');
-		}
+			try {
+				await submitPage.focus('.CodeMirror-lines');
+			} catch {
+				throw new Error('Login failed!');
+			}
+		}, 'Connecting Problem Submit Page');
 
 		const escapedChars = new Set(['(', '[', '{']);
 
@@ -149,7 +157,7 @@ class BaekjoonProvider extends APIProvider {
 		await useSpinner(async () => {
 			await delay(1000);
 			await submitPage.click('#submit_button');
-		}, 'Submitting');
+		}, 'Submitting Problem');
 
 		await useSpinner(async () => {
 			await loginPage.close();

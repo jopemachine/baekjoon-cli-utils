@@ -1,20 +1,26 @@
 # baekjoon-cli-utils
 
-Simple code runner and CLI tool for studying, testing and managing [Baekjoon](https://www.acmicpc.net/) algorithm source codes efficiently. Cross-platform.
+> Simple code runner and CLI tool for studying, testing and managing [Baekjoon](https://www.acmicpc.net/) algorithm source codes efficiently. Cross-platform.
 
-* Just run your single algorithm source code regardless of your language details (compiler, cli command tools... etc).
-
-* Pretty print stdout, stderr formats separately.
-
-* (Experimental) Submit your source code on your cli directly.
+## Features
 
 * Create the source code through code template by programming language.
 
+![](./media/demo-create.gif)
+
+* Just run your single algorithm source code regardless of your language details (compiler, cli command tools... etc).
+
+![](./media/demo-test.png)
+
+* Pretty print stdout, stderr formats separately.
+
+![](./media/demo-stderr.png)
+
 * Download and run all tests at once, and add the test you need manually.
 
-* Use automatic commit convention through commit template.
+![](./media/demo-auto-test.png)
 
-![](./media/demo.png)
+* Use automatic commit convention through commit template.
 
 Disclaimer:
 
