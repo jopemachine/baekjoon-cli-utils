@@ -112,7 +112,11 @@ const getProblemFolderNames = (paths: string[], input: string) => {
 		value: pth,
 	}));
 
-	return [{name: './', value: './'}, ...subdirectories];
+	if (!input) {
+		subdirectories.splice(0, 0, {name: './', value: './'});
+	}
+
+	return subdirectories;
 };
 
 const getProblemPathId = ({sourceFilePath, isRelative}: {sourceFilePath: string; isRelative: boolean}) => {
