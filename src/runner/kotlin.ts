@@ -3,8 +3,8 @@ import process from 'node:process';
 import {execa} from 'execa';
 import {temporaryDirectory} from 'tempy';
 import {TestRunner} from '../test-runner.js';
-import {cpFile} from '../utils.js';
-import {RunnerConfigFileNotValidError} from '../errors.js';
+import {cpFile, isCommandAvailable} from '../utils.js';
+import {CommandNotAvailableError, RunnerConfigFileNotValidError} from '../errors.js';
 
 interface KotlinTestRunnerSetting {
 }
@@ -22,6 +22,10 @@ class KotlinTestRunner extends TestRunner {
 	}
 
 	override async compile({sourceFilePath}: {sourceFilePath: string}) {
+		if (!await isCommandAvailable('kotlinc-jvm')) {
+			throw new CommandNotAvailableError('kotlinc-jvm');
+		}
+
 		const temporaryDirPath = temporaryDirectory();
 		const temporaryFilePath = path.resolve(temporaryDirPath, 'Main.kt');
 		await cpFile(sourceFilePath, temporaryFilePath);

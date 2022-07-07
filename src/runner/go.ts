@@ -1,8 +1,9 @@
 import process from 'node:process';
 import {execa} from 'execa';
 import {temporaryFile} from 'tempy';
-import {RunnerConfigFileNotValidError} from '../errors.js';
+import {CommandNotAvailableError, RunnerConfigFileNotValidError} from '../errors.js';
 import {TestRunner} from '../test-runner.js';
+import {isCommandAvailable} from '../utils.js';
 
 interface GoLangTestRunnerSetting {
 }
@@ -20,6 +21,10 @@ class GoTestRunner extends TestRunner {
 	}
 
 	override async compile({sourceFilePath}: {sourceFilePath: string}) {
+		if (!await isCommandAvailable('go')) {
+			throw new CommandNotAvailableError('go');
+		}
+
 		const temporaryFilePath = temporaryFile();
 		await execa('go', ['build', '-o', temporaryFilePath, sourceFilePath]);
 		this.resources.push(temporaryFilePath);

@@ -1,7 +1,8 @@
 import process from 'node:process';
 import {execa} from 'execa';
-import {RunnerConfigFileNotValidError} from '../errors.js';
+import {CommandNotAvailableError, RunnerConfigFileNotValidError} from '../errors.js';
 import {TestRunner} from '../test-runner.js';
+import {isCommandAvailable} from '../utils.js';
 
 interface PythonTestRunnerSetting {}
 
@@ -18,6 +19,10 @@ class PythonTestRunner extends TestRunner {
 	}
 
 	override async execute({stdin, targetFilePath}: {stdin: string; targetFilePath: string}) {
+		if (!await isCommandAvailable('python3')) {
+			throw new CommandNotAvailableError('python3');
+		}
+
 		const childProc = execa('python3', [targetFilePath], {input: stdin, timeout: this.timeout});
 		if (this.rawMode) {
 			childProc.stdout!.pipe(process.stdout);

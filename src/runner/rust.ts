@@ -1,8 +1,9 @@
 import process from 'node:process';
 import {execa} from 'execa';
 import {temporaryFile} from 'tempy';
-import {RunnerConfigFileNotValidError} from '../errors.js';
+import {CommandNotAvailableError, RunnerConfigFileNotValidError} from '../errors.js';
 import {TestRunner} from '../test-runner.js';
+import {isCommandAvailable} from '../utils.js';
 
 interface RustTestRunnerSetting {
 	rustEdition: number;
@@ -21,6 +22,10 @@ class RustTestRunner extends TestRunner {
 	}
 
 	override async compile({sourceFilePath}: {sourceFilePath: string}) {
+		if (!await isCommandAvailable('rustc')) {
+			throw new CommandNotAvailableError('rustc');
+		}
+
 		const temporaryFilePath = temporaryFile();
 		await execa('rustc', [`--edition=${String(this.runnerSettings.rustEdition)}`, '-o', temporaryFilePath, sourceFilePath]);
 		this.resources.push(temporaryFilePath);

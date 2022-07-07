@@ -10,6 +10,7 @@ import {unusedFilename} from 'unused-filename';
 import {execa} from 'execa';
 import {globby} from 'globby';
 import chalk from 'chalk';
+import commandExists from 'command-exists';
 import filenamify from 'filenamify';
 import {defaultEditor, getCommitMessageTemplateFilePath} from './conf.js';
 import {terminalWidth, useSpinner} from './spinner.js';
@@ -169,7 +170,10 @@ const readJson = async (filePath: string) => parseJson(await readFile(filePath))
 
 const delay = timer.setTimeout;
 
+const isCommandAvailable = async (commandName: string) => commandExists(commandName);
+
 export {
+	isCommandAvailable,
 	chmod,
 	commitProblem,
 	cpFile,

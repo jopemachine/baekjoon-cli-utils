@@ -1,8 +1,9 @@
 import process from 'node:process';
 import {execa} from 'execa';
 import {temporaryFile} from 'tempy';
-import {RunnerConfigFileNotValidError} from '../errors.js';
+import {CommandNotAvailableError, RunnerConfigFileNotValidError} from '../errors.js';
 import {TestRunner} from '../test-runner.js';
+import {isCommandAvailable} from '../utils.js';
 
 interface SwiftTestRunnerSetting {
 }
@@ -20,6 +21,10 @@ class SwiftTestRunner extends TestRunner {
 	}
 
 	override async compile({sourceFilePath}: {sourceFilePath: string}) {
+		if (!await isCommandAvailable('swiftc')) {
+			throw new CommandNotAvailableError('swiftc');
+		}
+
 		const temporaryFilePath = temporaryFile();
 		await execa('swiftc', [sourceFilePath, '-o', temporaryFilePath]);
 		this.resources.push(temporaryFilePath);

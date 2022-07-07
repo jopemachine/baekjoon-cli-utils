@@ -3,8 +3,8 @@ import process from 'node:process';
 import {execa} from 'execa';
 import {temporaryDirectory} from 'tempy';
 import {TestRunner} from '../test-runner.js';
-import {cpFile} from '../utils.js';
-import {RunnerConfigFileNotValidError} from '../errors.js';
+import {cpFile, isCommandAvailable} from '../utils.js';
+import {CommandNotAvailableError, RunnerConfigFileNotValidError} from '../errors.js';
 
 interface JavaTestRunnerSetting {
 	javaVersion: number | string;
@@ -23,6 +23,10 @@ class JavaTestRunner extends TestRunner {
 	}
 
 	override async compile({sourceFilePath}: {sourceFilePath: string}) {
+		if (!await isCommandAvailable('java')) {
+			throw new CommandNotAvailableError('java');
+		}
+
 		const temporaryDirPath = temporaryDirectory();
 		const temporaryFilePath = path.resolve(temporaryDirPath, 'Main.java');
 		await cpFile(sourceFilePath, temporaryFilePath);

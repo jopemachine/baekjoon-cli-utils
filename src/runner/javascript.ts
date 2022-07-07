@@ -2,8 +2,8 @@ import process from 'node:process';
 import {temporaryFile} from 'tempy';
 import nvexeca from 'nvexeca';
 import {TestRunner} from '../test-runner.js';
-import {readFile, writeFile} from '../utils.js';
-import {RunnerConfigFileNotValidError} from '../errors.js';
+import {isCommandAvailable, readFile, writeFile} from '../utils.js';
+import {CommandNotAvailableError, RunnerConfigFileNotValidError} from '../errors.js';
 
 interface JavascriptTestRunnerSetting {
 	nodeVersion: number | string;
@@ -22,6 +22,10 @@ class JavascriptTestRunner extends TestRunner {
 	}
 
 	override async execute({stdin, targetFilePath}: {stdin: string; targetFilePath: string}) {
+		if (!await isCommandAvailable('node')) {
+			throw new CommandNotAvailableError('node');
+		}
+
 		// `fs.readFileSync("/dev/stdin")` should be replaced with stdin directly in Windows because the path not exist.
 		// TODO: Handle special character including backtick correctly.
 		if (process.platform === 'win32') {

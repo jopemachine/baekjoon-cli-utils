@@ -1,8 +1,9 @@
 import process from 'node:process';
 import {execa} from 'execa';
 import {temporaryFile} from 'tempy';
-import {RunnerConfigFileNotValidError} from '../errors.js';
+import {CommandNotAvailableError, RunnerConfigFileNotValidError} from '../errors.js';
 import {TestRunner} from '../test-runner.js';
+import {isCommandAvailable} from '../utils.js';
 
 interface CLangTestRunnerSetting {
 	compiler: string;
@@ -22,6 +23,10 @@ class CLangTestRunner extends TestRunner {
 	}
 
 	override async compile({sourceFilePath}: {sourceFilePath: string}) {
+		if (!await isCommandAvailable(this.runnerSettings.compiler)) {
+			throw new CommandNotAvailableError(this.runnerSettings.compiler);
+		}
+
 		const temporaryFilePath = temporaryFile();
 		await execa(this.runnerSettings.compiler, [`--std=${this.runnerSettings.std}`, `--output=${temporaryFilePath}`, sourceFilePath]);
 		this.resources.push(temporaryFilePath);

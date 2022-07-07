@@ -1,5 +1,6 @@
-import path from 'node:path';
+import path, {dirname} from 'node:path';
 import process from 'node:process';
+import {fileURLToPath} from 'node:url';
 import Conf from 'conf';
 import _envPaths from 'env-paths';
 import logSymbols from 'log-symbols';
@@ -24,6 +25,9 @@ import {
 	writeFile,
 	writeJson,
 } from './utils.js';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 const projectName = 'baekjoon-cli-util';
 const envPaths = _envPaths(projectName);
@@ -220,7 +224,7 @@ const readRunnerSettings = async () => {
 		return parseJson(await readFile(currentDirSettingFilePath));
 	}
 
-	const settingFilePath = await findUp(runnerSettingFileName);
+	const settingFilePath = await findUp(runnerSettingFileName, {cwd: __dirname});
 	if (!settingFilePath) {
 		throw new Error(`'${runnerSettingFileName}' config file not found!`);
 	}

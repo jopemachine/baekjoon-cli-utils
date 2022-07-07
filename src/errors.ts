@@ -68,7 +68,16 @@ class NotValidFlagError extends Error {
 	}
 }
 
+class CommandNotAvailableError extends Error {
+	constructor(commandName: string) {
+		super();
+		super.name = 'CommandNotAvailableError';
+		super.message = `${logSymbols.error} '${commandName}' not available`;
+	}
+}
+
 export {
+	CommandNotAvailableError,
 	NotValidFlagError,
 	ArgumentLengthError,
 	FileIndexNotMatchError,
