@@ -71,7 +71,7 @@ const getAnswerFilesPath = () => path.resolve(envPaths.cache, 'answers');
 
 const getCommitMessageTemplateFilePath = () => path.resolve(getGitConfigFilePath(), 'commit-message');
 
-const defaultCommitMessageTemplate = '[{relativeDirectoryPath}] Solve {id}, {title} {url}';
+const defaultCommitMessageTemplate = '[{level}] Solve {id}, {title} {url}';
 
 const initConfigFilePaths = async () => {
 	await mkdir(getGitConfigFilePath(), {recursive: true});
@@ -120,7 +120,7 @@ const setProgrammingLanguage = async (lang?: string) => {
 	if (!lang) {
 		lang = (await inquirer.prompt([{
 			name: 'language',
-			message: 'Select Programming Language',
+			message: 'Select a Programming Language',
 			type: 'autocomplete',
 			pageSize: Number(config.get('pageSize')),
 			source: (_answers: any[], input: string) => supportedLangs.filter(langCode => !input || langCode.includes(input)).map(langCode => ({name: langCode, value: langCode})),
@@ -235,26 +235,26 @@ const readRunnerSettings = async () => {
 const helpMessage = outdent`
   ${chalk.bold('Commands')}
     create         Create the problem source code on the subdirectory, and fetch tests.
-    test           Find, compile and run a problem source code, and print test results in pretty format.
-    add-test       Add additional test manually by code editor.
-    edit-test      Edit test manually by code editor.
-    clear-test     Clear the specified problem's test.
-    clear-tests    Clear all the problem's tests.
+    run / test     Find and run the problem source code, and print the test results in pretty format.
+    add-test       Add a additional test manually by your code editor.
+    edit-test      Edit test manually by your code editor.
+    rm-test        Clear the specified problem's test.
+    rm-tests       Clear all the problem's tests.
     view-tests     Print the problem's tests.
     open           Open the problem's URL in your browser.
     commit         Commit the problem source code to Git.
+    push           Push the committed source code to Git.
     config         Check and update templates, configurations.
 
   ${chalk.bold('Usage')}
     $ baekjoon-cli [create <problem_identifier>]
-    $ baekjoon-cli [test <problem_identifier>]
-    $ baekjoon-cli [debug <problem_identifier> <test_index>]
+    $ baekjoon-cli [run <problem_identifier>]
     $ baekjoon-cli [add-test <problem_identifier>]
     $ baekjoon-cli [edit-test <problem_identifier> <test_index>]
     $ baekjoon-cli [open <problem_identifier>]
     $ baekjoon-cli [commit <problem_identifier>]
-    $ baekjoon-cli [clear-test <problem_identifier> <test_index>]
-    $ baekjoon-cli [clear-tests <problem_identifier>]
+    $ baekjoon-cli [rm-test <problem_identifier> <test_index>]
+    $ baekjoon-cli [rm-tests <problem_identifier>]
     $ baekjoon-cli [view-tests <problem_identifier>]
 
   ${chalk.bold('Configs')}

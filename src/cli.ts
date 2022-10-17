@@ -31,7 +31,7 @@ import {TestRunner} from './test-runner.js';
 import {Problem} from './problem.js';
 import {ArgumentLengthError, NotValidFlagError} from './errors.js';
 import {
-	commitProblem,
+	commitProblemToGit,
 	findProblemPath,
 	getProblemFolderNames,
 	getProblemPathId,
@@ -39,7 +39,7 @@ import {
 	Logger,
 	openEditor,
 	printDividerLine,
-	readFile,
+	pushProblemToGit,
 } from './utils.js';
 import {useSpinner} from './spinner.js';
 import {inferLanguageCode, supportedLanguageInfo} from './lang.js';
@@ -93,11 +93,14 @@ const checkArgumentLength = (command: string, subCommand?: string) => {
 		'add-test': 2,
 		'edit-test': 3,
 		'clear-cache': 1,
+		'rm-test': 3,
 		'clear-test': 3,
+		'rm-tests': 2,
 		'clear-tests': 2,
 		'view-tests': 2,
 		open: 2,
 		commit: 2,
+		push: 1,
 	};
 
 	const id = subCommand ? `${command} ${subCommand}` : command;
@@ -274,7 +277,7 @@ const handleClearTest = async (problemId: string, testIdx: number) => {
 	Logger.successLog(`Test ${testIdx} is Removed.`);
 };
 
-const handleCommitProblem = async (problemId: string, provider: APIProvider) => {
+const handlecommitProblemToGit = async (problemId: string, provider: APIProvider) => {
 	const sourceFilePath = await findProblemPath(problemId);
 	const problemPathId = getProblemPathId({
 		sourceFilePath,
@@ -286,13 +289,14 @@ const handleCommitProblem = async (problemId: string, provider: APIProvider) => 
 		problemPathId,
 	});
 
-	await commitProblem(problem, sourceFilePath, provider);
+	await commitProblemToGit(problem, sourceFilePath, provider);
 };
 
-const handleSubmit = async (problemId: string, provider: APIProvider) => {
-	const sourceFilePath = await findProblemPath(problemId);
-	await provider.submitProblem(problemId, await readFile(sourceFilePath));
-};
+// eslint-disable-next-line capitalized-comments
+// const handleSubmit = async (problemId: string, provider: APIProvider) => {
+// 	const sourceFilePath = await findProblemPath(problemId);
+// 	await provider.submitProblem(problemId, await readFile(sourceFilePath));
+// };
 
 // TODO: Refactor below function with using `boxen`
 // https://github.com/sindresorhus/boxen
@@ -372,6 +376,7 @@ if (command === 'config') {
 		case 'create':
 			await handleCreate(problemId);
 			break;
+		case 'run':
 		case 'test':
 			await handleTest(problemId, provider);
 			break;
@@ -388,9 +393,11 @@ if (command === 'config') {
 		case 'clear-cache':
 			await clearAllTestData();
 			break;
+		case 'rm-tests':
 		case 'clear-tests':
 			await handleClearTests(problemId);
 			break;
+		case 'rm-test':
 		case 'clear-test':
 			testIdx = Number(cli.input[2]);
 			await handleClearTest(problemId, testIdx);
@@ -399,11 +406,15 @@ if (command === 'config') {
 			await handleProblemOpen(problemId, provider);
 			break;
 		case 'commit':
-			await handleCommitProblem(problemId, provider);
+			await handlecommitProblemToGit(problemId, provider);
 			break;
-		case 'submit':
-			await handleSubmit(problemId, provider);
+		case 'push':
+			await pushProblemToGit();
 			break;
+		// eslint-disable-next-line capitalized-comments
+		// case 'submit':
+		// 	await handleSubmit(problemId, provider);
+		// 	break;
 		case 'help':
 			handlePrintHelp();
 			break;

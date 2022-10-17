@@ -15,6 +15,7 @@ interface ProblemProperties {
 	input?: string;
 	output?: string;
 	tags?: string;
+	level?: string;
 }
 
 class Problem {

@@ -79,6 +79,8 @@ const defaultCommentTemplate = outdent`
   @ URL: {url}
   @ Author: ${await username()}
   @ Created Date: {date}
+  @ Level: {level}
+  @ Tags: {tags}
   @ Description:
   {text}
   @ Input: {input}

@@ -12,6 +12,35 @@ import {delay, Logger} from '../utils.js';
 import {useSpinner} from '../spinner.js';
 import {config, getAuthenticationInfo} from '../conf.js';
 
+const levels = [
+	'Unrated',
+	'Bronze 5',
+	'Bronze 4',
+	'Bronze 3',
+	'Bronze 2',
+	'Bronze 1',
+	'Silver 5',
+	'Silver 4',
+	'Silver 3',
+	'Silver 2',
+	'Silver 1',
+	'Gold 5',
+	'Gold 4',
+	'Gold 3',
+	'Gold 2',
+	'Gold 1',
+	'Platinum 5',
+	'Platinum 4',
+	'Platinum 3',
+	'Platinum 2',
+	'Platinum 1',
+	'Ruby 5',
+	'Ruby 4',
+	'Ruby 3',
+	'Ruby 2',
+	'Ruby 1',
+];
+
 class BaekjoonProvider extends APIProvider {
 	constructor() {
 		super();
@@ -21,6 +50,8 @@ class BaekjoonProvider extends APIProvider {
 			login: `${this.endPoints.origin}/login`,
 			getProblem: `${this.endPoints.origin}/problem`,
 			submitProblem: `${this.endPoints.origin}/submit`,
+			getProblemTags: 'https://solved.ac/api/v3/problem/show',
+			getProblemLevel: 'https://solved.ac/api/v3/problem/show',
 			cssSelectors: {
 				title: '#problem_title',
 				input: '#problem_input',
@@ -46,7 +77,7 @@ class BaekjoonProvider extends APIProvider {
 			throw error as Error;
 		}
 
-		const problemInfo = load(response!.body);
+		const problemInfo = load(response.body);
 
 		for (let testIdx = 1; ; ++testIdx) {
 			const sampleInput = problemInfo(`${this.endPoints.cssSelectors!.testInput}-${testIdx}`);
@@ -68,6 +99,16 @@ class BaekjoonProvider extends APIProvider {
 			);
 		}
 
+		let tags;
+		let level;
+		try {
+			const solveDacResponse: any = await got.get(`${this.endPoints.getProblemTags}?problemId=${problem.problemId}`).json();
+			tags = solveDacResponse.tags.map((tag: any) => tag.key).join(' ');
+			level = levels[solveDacResponse.level];
+		} catch {
+			Logger.errorLog('Solvedac sever connection error occurred');
+		}
+
 		problem.problemInfo = {
 			id: problem.problemId,
 			title: problemInfo(this.endPoints.cssSelectors!.title).text(),
@@ -81,6 +122,8 @@ class BaekjoonProvider extends APIProvider {
 				wordwrap: 75,
 			}),
 			url: [this.endPoints.getProblem!, problem.problemId].join('/'),
+			tags,
+			level,
 		};
 	}
 

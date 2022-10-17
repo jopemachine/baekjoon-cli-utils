@@ -141,13 +141,13 @@ const ensureCwdIsProjectRoot = async () => {
 	}
 };
 
-const commitProblem = async (problem: Problem, problemPath: string, provider: APIProvider) => {
+const commitProblemToGit = async (problem: Problem, problemPath: string, provider: APIProvider) => {
 	const {dir: relativeDirectoryPath} = path.parse(problemPath);
 	await useSpinner(provider.fetchProblemInfo(problem), 'Fetching problem info');
 
 	const problemInfoDict = {
 		id: problem.problemId,
-		date: new Date().toLocaleString(),
+		date: new Date().toLocaleString('ko-KR'),
 		relativeDirectoryPath,
 		...problem.problemInfo,
 	};
@@ -158,6 +158,12 @@ const commitProblem = async (problem: Problem, problemPath: string, provider: AP
 		await execa('git', ['add', problemPath]);
 		await execa('git', ['commit', '-m', commitMessage]);
 	}, 'Git Commit');
+};
+
+const pushProblemToGit = async () => {
+	await useSpinner(async () => {
+		await execa('git', ['push']);
+	}, 'Git Push');
 };
 
 const makeList = (array: string[]) => array.map(string_ => `${chalk.cyan('*')} ${chalk.yellow(string_)}`).join('\n');
@@ -173,9 +179,8 @@ const delay = timer.setTimeout;
 const isCommandAvailable = async (commandName: string) => commandExists(commandName);
 
 export {
-	isCommandAvailable,
 	chmod,
-	commitProblem,
+	commitProblemToGit,
 	cpFile,
 	delay,
 	ensureCwdIsProjectRoot,
@@ -183,6 +188,7 @@ export {
 	getProblemFolderNames,
 	getProblemPathId,
 	getUnusedFilename,
+	isCommandAvailable,
 	Logger,
 	makeList,
 	mkdir,
@@ -192,6 +198,7 @@ export {
 	pathExists,
 	pathExistsSync,
 	printDividerLine,
+	pushProblemToGit,
 	readFile,
 	readFileSync,
 	readJson,

@@ -8,6 +8,8 @@ interface EndPoint {
 	origin?: string;
 	login?: string;
 	getProblem?: string;
+	getProblemTags?: string;
+	getProblemLevel?: string;
 	submitProblem?: string;
 	cssSelectors?: Record<string, string>;
 }
