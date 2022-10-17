@@ -44,7 +44,7 @@
 		"find-up": "^6.3.0",
 		"first-run": "^3.0.0",
 		"globby": "^13.1.1",
-		"got": "^12.0.1",
+		"got": "^12.5.2",
 		"html-to-text": "^8.2.0",
 		"inquirer": "^8.2.0",
 		"inquirer-autocomplete-prompt": "^2.0.0",
