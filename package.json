@@ -6,6 +6,7 @@
 	"author": "jopemachine",
 	"license": "MIT",
 	"bin": {
+		"bk": "dist/cli.js",
 		"baekjoon-cli": "dist/cli.js"
 	},
 	"repository": {
