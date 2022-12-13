@@ -103,7 +103,7 @@ class BaekjoonProvider extends APIProvider {
 		let level;
 		try {
 			const solveDacResponse: any = await got.get(`${this.endPoints.getProblemTags}?problemId=${problem.problemId}`).json();
-			tags = solveDacResponse.tags.map((tag: any) => tag.key).join(' ');
+			tags = solveDacResponse.tags.map((tag: any) => `${tag.key.charAt(0).toUpperCase()}${tag.key.slice(1)}`).join(' ');
 			level = levels[solveDacResponse.level];
 		} catch {
 			Logger.errorLog('Solvedac sever connection error occurred');
