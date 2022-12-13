@@ -240,7 +240,7 @@ const helpMessage = outdent`
     edit-test      Edit test manually by your code editor.
     rm-test        Clear the specified problem's test.
     rm-tests       Clear all the problem's tests.
-    view-tests     Print the problem's tests.
+    ls-tests     Print the problem's tests.
     open           Open the problem's URL in your browser.
     commit         Commit the problem source code to Git.
     push           Push the committed source code to Git.
@@ -255,7 +255,7 @@ const helpMessage = outdent`
     $ baekjoon-cli commit <problem_identifier>
     $ baekjoon-cli rm-test <problem_identifier> <test_index>
     $ baekjoon-cli rm-tests <problem_identifier>
-    $ baekjoon-cli view-tests <problem_identifier>
+    $ baekjoon-cli ls-tests <problem_identifier>
 
   ${chalk.bold('Configs')}
     show            Show current configurations.

@@ -89,6 +89,7 @@ const checkArgumentLength = (command: string, subCommand?: string) => {
 		'config page-size': 3,
 		'config user.id': 3,
 		'config user.password': 3,
+		start: 2,
 		create: 2,
 		'add-test': 2,
 		'edit-test': 3,
@@ -374,6 +375,7 @@ if (command === 'config') {
 	const provider: APIProvider = generateAPIProvider(config.get('provider'));
 
 	switch (command) {
+		case 'start':
 		case 'create':
 			await handleCreate(problemId);
 			break;

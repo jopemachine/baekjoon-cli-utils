@@ -53,28 +53,28 @@ $ baekjoon-cli config code-template
 $ baekjoon-cli --help
 
   Commands
-    create          Create the problem source code on the subdirectory, and fetch tests.
+    create / start  Create the problem source code on the subdirectory, and fetch tests.
     run / test      Find, compile and run a problem source code, and print test results in pretty format.
     add-test        Add additional test manually by code editor.
     edit-test       Edit test manually by code editor.
     rm-test         Clear the specified problem's test.
     rm-tests        Clear all the problem's tests.
-    view-tests      Print the problem's tests.
+    ls-tests      Print the problem's tests.
     open            Open the problem's URL in your browser.
     commit          Commit the problem source code to Git.
     push            Push the committed source code to Git.
     config          Check and update templates, configurations.
 
   Usage
-    $ baekjoon-cli [create <problem_identifier>]
-    $ baekjoon-cli [run <problem_identifier>]
-    $ baekjoon-cli [add-test <problem_identifier>]
-    $ baekjoon-cli [edit-test <problem_identifier> <test_index>]
-    $ baekjoon-cli [open <problem_identifier>]
-    $ baekjoon-cli [commit <problem_identifier>]
-    $ baekjoon-cli [rm-test <problem_identifier> <test_index>]
-    $ baekjoon-cli [rm-tests <problem_identifier>]
-    $ baekjoon-cli [view-tests <problem_identifier>]
+    $ baekjoon-cli create <problem_identifier>
+    $ baekjoon-cli run <problem_identifier>
+    $ baekjoon-cli add-test <problem_identifier>
+    $ baekjoon-cli edit-test <problem_identifier> <test_index>
+    $ baekjoon-cli open <problem_identifier>
+    $ baekjoon-cli commit <problem_identifier>
+    $ baekjoon-cli rm-test <problem_identifier> <test_index>
+    $ baekjoon-cli rm-tests <problem_identifier>
+    $ baekjoon-cli ls-tests <problem_identifier>
 
   Configs
     show            Show current configurations.
@@ -84,11 +84,11 @@ $ baekjoon-cli --help
     commit-message  Commit message template used by \`commit\`.
 
   Usage
-    $ baekjoon-cli [config show]
-    $ baekjoon-cli [config lang <language>]
-    $ baekjoon-cli [config timeout <ms>]
-    $ baekjoon-cli [config code-template]
-    $ baekjoon-cli [config commit-message]
+    $ baekjoon-cli config show
+    $ baekjoon-cli config lang <language>
+    $ baekjoon-cli config timeout <ms>
+    $ baekjoon-cli config code-template
+    $ baekjoon-cli config commit-message
 
   Options
     --raw           Print stdout in raw format in test runner.
