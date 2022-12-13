@@ -98,6 +98,7 @@ const checkArgumentLength = (command: string, subCommand?: string) => {
 		'rm-tests': 2,
 		'clear-tests': 2,
 		'view-tests': 2,
+		'ls-tests': 2,
 		open: 2,
 		commit: 2,
 		push: 1,
@@ -380,6 +381,7 @@ if (command === 'config') {
 		case 'test':
 			await handleTest(problemId, provider);
 			break;
+		case 'ls-tests':
 		case 'view-tests':
 			await handleViewTests(problemId);
 			break;
