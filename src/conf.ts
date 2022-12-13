@@ -247,15 +247,15 @@ const helpMessage = outdent`
     config         Check and update templates, configurations.
 
   ${chalk.bold('Usage')}
-    $ baekjoon-cli [create <problem_identifier>]
-    $ baekjoon-cli [run <problem_identifier>]
-    $ baekjoon-cli [add-test <problem_identifier>]
-    $ baekjoon-cli [edit-test <problem_identifier> <test_index>]
-    $ baekjoon-cli [open <problem_identifier>]
-    $ baekjoon-cli [commit <problem_identifier>]
-    $ baekjoon-cli [rm-test <problem_identifier> <test_index>]
-    $ baekjoon-cli [rm-tests <problem_identifier>]
-    $ baekjoon-cli [view-tests <problem_identifier>]
+    $ baekjoon-cli create <problem_identifier>
+    $ baekjoon-cli run <problem_identifier>
+    $ baekjoon-cli add-test <problem_identifier>
+    $ baekjoon-cli edit-test <problem_identifier> <test_index>
+    $ baekjoon-cli open <problem_identifier>
+    $ baekjoon-cli commit <problem_identifier>
+    $ baekjoon-cli rm-test <problem_identifier> <test_index>
+    $ baekjoon-cli rm-tests <problem_identifier>
+    $ baekjoon-cli view-tests <problem_identifier>
 
   ${chalk.bold('Configs')}
     show            Show current configurations.
@@ -265,11 +265,11 @@ const helpMessage = outdent`
     commit-message  Commit message template used by \`commit\`.
 
   ${chalk.bold('Usage')}
-    $ baekjoon-cli [config show]
-    $ baekjoon-cli [config lang <language>]
-    $ baekjoon-cli [config timeout <ms>]
-    $ baekjoon-cli [config code-template]
-    $ baekjoon-cli [config commit-message]
+    $ baekjoon-cli config show
+    $ baekjoon-cli config lang <language>
+    $ baekjoon-cli config timeout <ms>
+    $ baekjoon-cli config code-template
+    $ baekjoon-cli config commit-message
 
   ${chalk.bold('Options')}
     --raw           Print stdout in raw format in test runner.
